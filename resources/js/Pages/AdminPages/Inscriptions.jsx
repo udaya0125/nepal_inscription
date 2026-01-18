@@ -1,0 +1,1827 @@
+// import AddInscriptionForm from "@/AddFormComponents/AddInscriptionForm";
+// import AdminWrapper from "@/AdminWrapper/AdminWrapper";
+// import axios from "axios";
+// import React, { useEffect, useState, useMemo, useCallback } from "react";
+// import {
+//     Edit,
+//     Trash2,
+//     Eye,
+//     ChevronUp,
+//     ChevronDown,
+//     ChevronLeft,
+//     ChevronRight,
+//     FileText,
+//     Video,
+//     BookOpen,
+//     FileVideo,
+//     Book,
+//     Globe,
+//     X,
+// } from "lucide-react";
+// import { useTable, useSortBy, usePagination } from "react-table";
+// import parse from "html-react-parser";
+
+// const Inscriptions = () => {
+//     const [showForm, setShowForm] = useState(false);
+//     const [allInscriptions, setAllInscriptions] = useState([]);
+//     const [reloadTrigger, setReloadTrigger] = useState(false);
+//     const [editingInscription, setEditingInscription] = useState(null);
+//     const [selectedInscription, setSelectedInscription] = useState(null);
+//     const [showDetailsModal, setShowDetailsModal] = useState(false);
+//     const [loading, setLoading] = useState(false);
+//     const [activeTab, setActiveTab] = useState("overview");
+//     const [pagination, setPagination] = useState({
+//         total: 0,
+//         per_page: 10,
+//         current_page: 1,
+//         last_page: 1,
+//     });
+
+//     // For the Fetching of all inscriptions with pagination
+//     const fetchInscriptions = useCallback(async (page = 1, pageSize = 10) => {
+//         try {
+//             setLoading(true);
+//             const response = await axios.get(route("ourinscription.index"), {
+//                 params: {
+//                     page: page,
+//                     per_page: pageSize,
+//                 },
+//             });
+
+//             const responseData = response.data;
+
+//             // Check different possible response structures
+//             if (responseData.data) {
+//                 if (Array.isArray(responseData.data.data)) {
+//                     // Laravel paginated response structure
+//                     setAllInscriptions(responseData.data.data || []);
+//                     setPagination({
+//                         total: responseData.data.total || 0,
+//                         per_page: responseData.data.per_page || pageSize,
+//                         current_page: responseData.data.current_page || page,
+//                         last_page: responseData.data.last_page || 1,
+//                     });
+//                 } else if (Array.isArray(responseData.data)) {
+//                     // Direct array response
+//                     setAllInscriptions(responseData.data || []);
+//                     setPagination({
+//                         total: responseData.data.length || 0,
+//                         per_page: pageSize,
+//                         current_page: page,
+//                         last_page:
+//                             Math.ceil(responseData.data.length / pageSize) || 1,
+//                     });
+//                 }
+//             } else if (Array.isArray(responseData)) {
+//                 // Direct array response (no wrapper)
+//                 setAllInscriptions(responseData || []);
+//                 setPagination({
+//                     total: responseData.length || 0,
+//                     per_page: pageSize,
+//                     current_page: page,
+//                     last_page: Math.ceil(responseData.length / pageSize) || 1,
+//                 });
+//             } else {
+//                 // Fallback to empty array
+//                 setAllInscriptions([]);
+//             }
+//         } catch (error) {
+//             console.error("Error fetching inscriptions:", error);
+//             setAllInscriptions([]);
+//         } finally {
+//             setLoading(false);
+//         }
+//     }, []);
+
+//     useEffect(() => {
+//         fetchInscriptions(pagination.current_page, pagination.per_page);
+//     }, [
+//         reloadTrigger,
+//         fetchInscriptions,
+//         pagination.current_page,
+//         pagination.per_page,
+//     ]);
+
+//     // For Delete the Inscription
+//     const handleDelete = useCallback(async (id) => {
+//         if (
+//             !window.confirm("Are you sure you want to delete this inscription?")
+//         ) {
+//             return;
+//         }
+
+//         try {
+//             await axios.delete(route("ourinscription.destroy", { id: id }));
+//             setReloadTrigger((prev) => !prev);
+//         } catch (error) {
+//             console.error("Error deleting inscription:", error);
+//             alert("Failed to delete inscription");
+//         }
+//     }, []);
+
+//     // For the Edit the Inscription
+//     const handleEdit = useCallback((inscription) => {
+//         setEditingInscription(inscription);
+//         setShowForm(true);
+//     }, []);
+
+//     // For View Details
+//     const handleViewDetails = useCallback((inscription) => {
+//         setSelectedInscription(inscription);
+//         setActiveTab("overview");
+//         setShowDetailsModal(true);
+//     }, []);
+
+//     // Close form handler
+//     const handleCloseForm = useCallback(() => {
+//         setShowForm(false);
+//         setEditingInscription(null);
+//     }, []);
+
+//     // Close details modal
+//     const handleCloseDetails = useCallback(() => {
+//         setShowDetailsModal(false);
+//         setSelectedInscription(null);
+//     }, []);
+
+//     // Handle page change
+//     const handlePageChange = useCallback(
+//         (newPage) => {
+//             if (newPage >= 1 && newPage <= pagination.last_page) {
+//                 fetchInscriptions(newPage, pagination.per_page);
+//             }
+//         },
+//         [pagination.last_page, pagination.per_page, fetchInscriptions],
+//     );
+
+//     // Handle page size change
+//     const handlePageSizeChange = useCallback(
+//         (newSize) => {
+//             fetchInscriptions(1, newSize);
+//         },
+//         [fetchInscriptions],
+//     );
+
+//     // Helper function to strip HTML tags for table display
+//     const stripHtml = (html) => {
+//         if (!html) return "";
+//         return html.replace(/<[^>]*>/g, "");
+//     };
+
+//     // React Table columns
+//     const columns = useMemo(
+//         () => [
+//             {
+//                 Header: "ID",
+//                 accessor: (row, i) =>
+//                     (pagination.current_page - 1) * pagination.per_page + i + 1,
+//                 id: "rowIndex",
+//                 width: 80,
+//             },
+//             {
+//                 Header: "Title",
+//                 accessor: "title",
+//                 Cell: ({ row }) => (
+//                     <div className="flex items-center">
+//                         <div>
+//                             <div className="text-sm font-medium text-gray-900">
+//                                 {row.original.title}
+//                             </div>
+//                         </div>
+//                     </div>
+//                 ),
+//             },
+//             {
+//                 Header: "Description",
+//                 accessor: "description",
+//                 Cell: ({ value }) => (
+//                     <div className="text-sm text-gray-900 max-w-xs">
+//                         {value
+//                             ? stripHtml(value).length > 10
+//                                 ? `${stripHtml(value).substring(0, 10)}...`
+//                                 : stripHtml(value)
+//                             : "No description"}
+//                     </div>
+//                 ),
+//             },
+
+//             {
+//                 Header: "Text",
+//                 accessor: "text",
+//                 Cell: ({ value }) => (
+//                     <div className="text-sm text-gray-900 max-w-xs">
+//                         {value
+//                             ? stripHtml(value).length > 10
+//                                 ? `${stripHtml(value).substring(0, 10)}...`
+//                                 : stripHtml(value)
+//                             : "No text"}
+//                     </div>
+//                 ),
+//             },
+
+//             {
+//                 Header: "Translation",
+//                 accessor: "translation",
+//                 Cell: ({ value }) => (
+//                     <div className="text-sm text-gray-900 max-w-xs">
+//                         {value
+//                             ? stripHtml(value).length > 10
+//                                 ? `${stripHtml(value).substring(0, 10)}...`
+//                                 : stripHtml(value)
+//                             : "No translation"}
+//                     </div>
+//                 ),
+//             },
+
+//             {
+//                 Header: "Actions",
+//                 accessor: "actions",
+//                 Cell: ({ row }) => (
+//                     <div className="flex space-x-2">
+//                         <button
+//                             onClick={() => handleViewDetails(row.original)}
+//                             className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-white/20"
+//                             title="View Details"
+//                         >
+//                             <Eye size={18} />
+//                         </button>
+//                         <button
+//                             onClick={() => handleEdit(row.original)}
+//                             className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-white/20"
+//                             title="Edit"
+//                         >
+//                             <Edit size={18} />
+//                         </button>
+//                         <button
+//                             onClick={() => handleDelete(row.original.id)}
+//                             className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-white/20"
+//                             title="Delete"
+//                         >
+//                             <Trash2 size={18} />
+//                         </button>
+//                     </div>
+//                 ),
+//                 width: 120,
+//             },
+//         ],
+//         [pagination, handleViewDetails, handleEdit, handleDelete],
+//     );
+
+//     // React Table instance
+//     const tableInstance = useTable(
+//         {
+//             columns,
+//             data: allInscriptions,
+//             manualPagination: true,
+//             pageCount: Math.ceil(pagination.total / pagination.per_page),
+//             initialState: {
+//                 pageIndex: pagination.current_page - 1,
+//             },
+//         },
+//         useSortBy,
+//         usePagination,
+//     );
+
+//     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+//         tableInstance;
+
+//     // Details modal tabs
+//     const tabs = useMemo(
+//         () => [
+//             { id: "overview", label: "Overview", icon: <Eye size={16} /> },
+//             {
+//                 id: "text",
+//                 label: "Text & Translation",
+//                 icon: <FileText size={16} />,
+//             },
+//             {
+//                 id: "background",
+//                 label: "Background",
+//                 icon: <BookOpen size={16} />,
+//             },
+//             { id: "references", label: "References", icon: <Book size={16} /> },
+//             { id: "glossary", label: "Glossary", icon: <Globe size={16} /> },
+//             { id: "media", label: "Media", icon: <FileVideo size={16} /> },
+//         ],
+//         [],
+//     );
+
+//     return (
+//         <AdminWrapper>
+//             <div
+//                 className=""
+//                 style={{
+//                     backgroundImage: "url('/images/bg.jpeg')",
+//                     backgroundSize: "cover",
+//                     backgroundPosition: "center",
+//                     backgroundRepeat: "no-repeat",
+//                     backgroundAttachment: "fixed",
+//                 }}
+//             >
+//                 {/* Dark overlay for better readability */}
+//                 <div className="absolute inset-0 bg-opacity-40"></div>
+
+//                 <div className="relative z-10">
+//                     {/* Home Content with glassmorphism effect */}
+//                     <div className="min-h-[calc(100vh-4rem)]">
+//                         <div className="w-full p-6 flex justify-between items-center">
+//                             <h1 className="text-3xl font-bold text-[#5d4c2e]">
+//                                 Inscriptions
+//                             </h1>
+//                             <button
+//                                 onClick={() => setShowForm(true)}
+//                                 className="px-4 py-2 bg-[#5d4c2e] text-white rounded hover:bg-[#4a3d24] transition flex items-center gap-2"
+//                             >
+//                                  Add Inscription
+//                             </button>
+//                         </div>
+
+//                         {/* Table Container */}
+//                         <div className="p-6">
+//                             <div
+//                                 className=""
+//                                 style={{
+//                                     backgroundImage: "url('/images/bg.jpeg')",
+//                                     backgroundSize: "cover",
+//                                     backgroundPosition: "center",
+//                                     backgroundRepeat: "no-repeat",
+//                                     backgroundAttachment: "fixed",
+//                                 }}
+//                             >
+//                                 <div className="bg-black/20 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden">
+//                                     {loading ? (
+//                                         <div className="text-center py-8">
+//                                             Loading...
+//                                         </div>
+//                                     ) : (
+//                                         <>
+//                                             <div className="overflow-x-auto">
+//                                                 <table
+//                                                     {...getTableProps()}
+//                                                     className="min-w-full divide-y divide-gray-200"
+//                                                 >
+//                                                     <thead className="">
+//                                                         {headerGroups.map(
+//                                                             (headerGroup) => (
+//                                                                 <tr
+//                                                                     {...headerGroup.getHeaderGroupProps()}
+//                                                                 >
+//                                                                     {headerGroup.headers.map(
+//                                                                         (
+//                                                                             column,
+//                                                                         ) => (
+//                                                                             <th
+//                                                                                 {...column.getHeaderProps(
+//                                                                                     column.getSortByToggleProps(),
+//                                                                                 )}
+//                                                                                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+//                                                                             >
+//                                                                                 <div className="flex items-center">
+//                                                                                     {column.render(
+//                                                                                         "Header",
+//                                                                                     )}
+//                                                                                     {column.isSorted ? (
+//                                                                                         column.isSortedDesc ? (
+//                                                                                             <ChevronDown
+//                                                                                                 size={
+//                                                                                                     16
+//                                                                                                 }
+//                                                                                                 className="ml-1"
+//                                                                                             />
+//                                                                                         ) : (
+//                                                                                             <ChevronUp
+//                                                                                                 size={
+//                                                                                                     16
+//                                                                                                 }
+//                                                                                                 className="ml-1"
+//                                                                                             />
+//                                                                                         )
+//                                                                                     ) : (
+//                                                                                         ""
+//                                                                                     )}
+//                                                                                 </div>
+//                                                                             </th>
+//                                                                         ),
+//                                                                     )}
+//                                                                 </tr>
+//                                                             ),
+//                                                         )}
+//                                                     </thead>
+//                                                     <tbody
+//                                                         {...getTableBodyProps()}
+//                                                         className=" divide-y divide-gray-200"
+//                                                     >
+//                                                         {rows.length > 0 ? (
+//                                                             rows.map((row) => {
+//                                                                 prepareRow(row);
+//                                                                 return (
+//                                                                     <tr
+//                                                                         {...row.getRowProps()}
+//                                                                         className=""
+//                                                                     >
+//                                                                         {row.cells.map(
+//                                                                             (
+//                                                                                 cell,
+//                                                                             ) => (
+//                                                                                 <td
+//                                                                                     {...cell.getCellProps()}
+//                                                                                     className="px-6 py-4 whitespace-nowrap"
+//                                                                                 >
+//                                                                                     {cell.render(
+//                                                                                         "Cell",
+//                                                                                     )}
+//                                                                                 </td>
+//                                                                             ),
+//                                                                         )}
+//                                                                     </tr>
+//                                                                 );
+//                                                             })
+//                                                         ) : (
+//                                                             <tr>
+//                                                                 <td
+//                                                                     colSpan={
+//                                                                         columns.length
+//                                                                     }
+//                                                                     className="px-6 py-8 text-center text-gray-500"
+//                                                                 >
+//                                                                     No
+//                                                                     inscriptions
+//                                                                     found. Click
+//                                                                     "Add
+//                                                                     Inscription"
+//                                                                     to create
+//                                                                     one.
+//                                                                 </td>
+//                                                             </tr>
+//                                                         )}
+//                                                     </tbody>
+//                                                 </table>
+//                                             </div>
+
+//                                             {/* Pagination */}
+//                                             {allInscriptions.length > 0 &&
+//                                                 pagination.total > 0 && (
+//                                                     <div className="flex items-center justify-between flex-col md:flex-row px-6 py-4 border-t border-gray-200 space-y-4 md:space-y-0">
+//                                                         <div className="flex items-center">
+//                                                             <span className="text-sm text-gray-700 mr-2">
+//                                                                 Show
+//                                                             </span>
+//                                                             <select
+//                                                                 value={
+//                                                                     pagination.per_page
+//                                                                 }
+//                                                                 onChange={(e) =>
+//                                                                     handlePageSizeChange(
+//                                                                         Number(
+//                                                                             e
+//                                                                                 .target
+//                                                                                 .value,
+//                                                                         ),
+//                                                                     )
+//                                                                 }
+//                                                                 className="border border-gray-300 bg-white/20 rounded-md px-2 py-1 text-sm"
+//                                                             >
+//                                                                 {[
+//                                                                     5, 10, 20,
+//                                                                     50,
+//                                                                 ].map(
+//                                                                     (size) => (
+//                                                                         <option
+//                                                                             key={
+//                                                                                 size
+//                                                                             }
+//                                                                             value={
+//                                                                                 size
+//                                                                             }
+//                                                                         >
+//                                                                             {
+//                                                                                 size
+//                                                                             }
+//                                                                         </option>
+//                                                                     ),
+//                                                                 )}
+//                                                             </select>
+//                                                             <span className="text-sm text-gray-700 ml-2">
+//                                                                 entries
+//                                                             </span>
+//                                                             <span className="text-sm text-gray-700 ml-4">
+//                                                                 Total:{" "}
+//                                                                 {
+//                                                                     pagination.total
+//                                                                 }{" "}
+//                                                                 records
+//                                                             </span>
+//                                                         </div>
+//                                                         <div className="flex items-center space-x-2">
+//                                                             <button
+//                                                                 onClick={() =>
+//                                                                     handlePageChange(
+//                                                                         1,
+//                                                                     )
+//                                                                 }
+//                                                                 disabled={
+//                                                                     pagination.current_page ===
+//                                                                     1
+//                                                                 }
+//                                                                 className={`p-1 rounded ${
+//                                                                     pagination.current_page ===
+//                                                                     1
+//                                                                         ? "opacity-50 cursor-not-allowed"
+//                                                                         : "hover:bg-gray-200"
+//                                                                 }`}
+//                                                             >
+//                                                                 <ChevronLeft
+//                                                                     size={20}
+//                                                                 />
+//                                                             </button>
+//                                                             <button
+//                                                                 onClick={() =>
+//                                                                     handlePageChange(
+//                                                                         pagination.current_page -
+//                                                                             1,
+//                                                                     )
+//                                                                 }
+//                                                                 disabled={
+//                                                                     pagination.current_page ===
+//                                                                     1
+//                                                                 }
+//                                                                 className={`px-3 py-1 rounded ${
+//                                                                     pagination.current_page ===
+//                                                                     1
+//                                                                         ? "opacity-50 cursor-not-allowed"
+//                                                                         : "hover:bg-gray-200"
+//                                                                 }`}
+//                                                             >
+//                                                                 Previous
+//                                                             </button>
+//                                                             <span className="text-sm text-gray-700">
+//                                                                 Page{" "}
+//                                                                 <strong>
+//                                                                     {
+//                                                                         pagination.current_page
+//                                                                     }
+//                                                                 </strong>{" "}
+//                                                                 of{" "}
+//                                                                 <strong>
+//                                                                     {
+//                                                                         pagination.last_page
+//                                                                     }
+//                                                                 </strong>
+//                                                             </span>
+//                                                             <button
+//                                                                 onClick={() =>
+//                                                                     handlePageChange(
+//                                                                         pagination.current_page +
+//                                                                             1,
+//                                                                     )
+//                                                                 }
+//                                                                 disabled={
+//                                                                     pagination.current_page ===
+//                                                                     pagination.last_page
+//                                                                 }
+//                                                                 className={`px-3 py-1 rounded ${
+//                                                                     pagination.current_page ===
+//                                                                     pagination.last_page
+//                                                                         ? "opacity-50 cursor-not-allowed"
+//                                                                         : "hover:bg-gray-200"
+//                                                                 }`}
+//                                                             >
+//                                                                 Next
+//                                                             </button>
+//                                                             <button
+//                                                                 onClick={() =>
+//                                                                     handlePageChange(
+//                                                                         pagination.last_page,
+//                                                                     )
+//                                                                 }
+//                                                                 disabled={
+//                                                                     pagination.current_page ===
+//                                                                     pagination.last_page
+//                                                                 }
+//                                                                 className={`p-1 rounded ${
+//                                                                     pagination.current_page ===
+//                                                                     pagination.last_page
+//                                                                         ? "opacity-50 cursor-not-allowed"
+//                                                                         : "hover:bg-gray-200"
+//                                                                 }`}
+//                                                             >
+//                                                                 <ChevronRight
+//                                                                     size={20}
+//                                                                 />
+//                                                             </button>
+//                                                         </div>
+//                                                     </div>
+//                                                 )}
+//                                         </>
+//                                     )}
+//                                 </div>
+//                             </div>
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             {/* Form Modal */}
+//             {showForm && (
+//                 <AddInscriptionForm
+//                     showForm={showForm}
+//                     setShowForm={handleCloseForm}
+//                     editingInscription={editingInscription}
+//                     setReloadTrigger={setReloadTrigger}
+//                     setEditingInscription={setEditingInscription}
+//                 />
+//             )}
+
+//             {/* Details Modal - Redesigned with background image */}
+//             {showDetailsModal && selectedInscription && (
+//                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+//                     {/* Modal content */}
+//                     <div className="relative z-10 bg-white/20 backdrop-blur-sm rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-white/20">
+
+//                     <div
+//                         className="absolute inset-0"
+//                         style={{
+//                             backgroundImage: "url('/images/bg.jpeg')",
+//                             backgroundSize: "cover",
+//                             backgroundPosition: "center",
+//                             backgroundRepeat: "no-repeat",
+//                         }}
+//                     >
+//                         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
+//                     </div>
+//                         {/* Header with gradient overlay */}
+//                         <div className="relative p-6 border-b border-gray-200/50">
+//                             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-indigo-600/20"></div>
+//                             <div className="relative flex justify-between items-center">
+//                                 <div>
+//                                     <h2 className="text-4xl font-bold text-gray-800">
+//                                         {selectedInscription.title}
+//                                     </h2>
+//                                 </div>
+//                                 <button
+//                                     onClick={handleCloseDetails}
+//                                     className="text-gray-500 hover:text-gray-700 text-2xl bg-white/90 backdrop-blur-sm rounded-full h-8 w-8 flex items-center justify-center shadow-sm hover:shadow border border-gray-200/50"
+//                                 >
+//                                     <X size={20} />
+//                                 </button>
+//                             </div>
+//                         </div>
+
+//                         {/* Tabs with glass effect */}
+//                         <div className="border-b border-gray-200/50">
+//                             <div className="flex overflow-x-auto bg-white/50 backdrop-blur-sm">
+//                                 {tabs.map((tab) => (
+//                                     <button
+//                                         key={tab.id}
+//                                         onClick={() => setActiveTab(tab.id)}
+//                                         className={`flex items-center px-6 py-3 text-sm font-medium border-b-2 transition-all ${
+//                                             activeTab === tab.id
+//                                                 ? "border-blue-600 text-blue-700 bg-white/80 backdrop-blur-sm"
+//                                                 : "border-transparent text-gray-600 hover:text-gray-800 hover:bg-white/60 backdrop-blur-sm"
+//                                         }`}
+//                                     >
+//                                         <span className="mr-2">{tab.icon}</span>
+//                                         {tab.label}
+//                                     </button>
+//                                 ))}
+//                             </div>
+//                         </div>
+
+//                         {/* Tab Content */}
+//                         <div className="flex-1 overflow-y-auto p-6  backdrop-blur-sm">
+//                             {/* Overview Tab */}
+//                             {activeTab === "overview" && (
+//                                 <div className="space-y-6">
+//                                     <div>
+//                                         {/* Banner Image */}
+//                                         <div className="bg-gradient-to-br from-gray-100/50 to-gray-200/50 rounded-lg overflow-hidden border border-gray-200/50">
+//                                             {selectedInscription.banner_image ? (
+//                                                 <img
+//                                                     src={`/storage/${selectedInscription.banner_image}`}
+//                                                     alt={
+//                                                         selectedInscription.title
+//                                                     }
+//                                                     className="w-full h-64 object-cover"
+//                                                 />
+//                                             ) : (
+//                                                 <div className="w-full h-64 bg-gradient-to-br from-gray-100/50 to-gray-200/50 flex items-center justify-center">
+//                                                     <span className="text-gray-400">
+//                                                         No Banner Image
+//                                                     </span>
+//                                                 </div>
+//                                             )}
+//                                         </div>
+//                                     </div>
+
+//                                     {/* Description */}
+//                                     <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                         <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+//                                             <FileText
+//                                                 className="mr-2"
+//                                                 size={20}
+//                                             />
+//                                             Description
+//                                         </h3>
+//                                         <div className="prose max-w-none rich-text-content">
+//                                             {selectedInscription.description ? (
+//                                                 parse(
+//                                                     selectedInscription.description,
+//                                                 )
+//                                             ) : (
+//                                                 <p className="text-gray-500 italic">
+//                                                     No description provided
+//                                                 </p>
+//                                             )}
+//                                         </div>
+//                                     </div>
+//                                 </div>
+//                             )}
+
+//                             {/* Text & Translation Tab */}
+//                             {activeTab === "text" && (
+//                                 <div className="space-y-6">
+//                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+//                                         {/* Original Text */}
+//                                         <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                             <h3 className="text-lg font-semibold text-gray-800 mb-3">
+//                                                 Original Text
+//                                             </h3>
+//                                             <div className="bg-gray-50/50 backdrop-blur-sm rounded p-4 border border-gray-200/50 rich-text-content">
+//                                                 {selectedInscription.text ? (
+//                                                     parse(
+//                                                         selectedInscription.text,
+//                                                     )
+//                                                 ) : (
+//                                                     <p className="text-gray-500 italic">
+//                                                         No original text
+//                                                         provided
+//                                                     </p>
+//                                                 )}
+//                                             </div>
+//                                         </div>
+
+//                                         {/* Translation */}
+//                                         <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                             <h3 className="text-lg font-semibold text-gray-800 mb-3">
+//                                                 Translation
+//                                             </h3>
+//                                             <div className="bg-blue-50/50 backdrop-blur-sm rounded p-4 border border-blue-200/50 rich-text-content">
+//                                                 {selectedInscription.translation ? (
+//                                                     parse(
+//                                                         selectedInscription.translation,
+//                                                     )
+//                                                 ) : (
+//                                                     <p className="text-gray-500 italic">
+//                                                         No translation provided
+//                                                     </p>
+//                                                 )}
+//                                             </div>
+//                                         </div>
+//                                     </div>
+//                                 </div>
+//                             )}
+
+//                             {/* Background Tab */}
+//                             {activeTab === "background" && (
+//                                 <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                     <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+//                                         <BookOpen className="mr-2" size={20} />
+//                                         Historical Background
+//                                     </h3>
+//                                     <div className="prose max-w-none rich-text-content">
+//                                         {selectedInscription.background ? (
+//                                             parse(
+//                                                 selectedInscription.background,
+//                                             )
+//                                         ) : (
+//                                             <p className="text-gray-500 italic">
+//                                                 No background information
+//                                                 provided
+//                                             </p>
+//                                         )}
+//                                     </div>
+//                                 </div>
+//                             )}
+
+//                             {/* References Tab */}
+//                             {activeTab === "references" && (
+//                                 <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                     <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+//                                         <Book className="mr-2" size={20} />
+//                                         References
+//                                     </h3>
+//                                     <div className="prose max-w-none rich-text-content">
+//                                         {selectedInscription.refrences ? (
+//                                             parse(selectedInscription.refrences)
+//                                         ) : (
+//                                             <p className="text-gray-500 italic">
+//                                                 No references provided
+//                                             </p>
+//                                         )}
+//                                     </div>
+//                                 </div>
+//                             )}
+
+//                             {/* Glossary Tab */}
+//                             {activeTab === "glossary" && (
+//                                 <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                     <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+//                                         <Globe className="mr-2" size={20} />
+//                                         Glossary
+//                                     </h3>
+//                                     <div className="prose max-w-none rich-text-content">
+//                                         {selectedInscription.glossary ? (
+//                                             parse(selectedInscription.glossary)
+//                                         ) : (
+//                                             <p className="text-gray-500 italic">
+//                                                 No glossary terms provided
+//                                             </p>
+//                                         )}
+//                                     </div>
+//                                 </div>
+//                             )}
+
+//                             {/* Media Tab */}
+//                             {activeTab === "media" && (
+//                                 <div className="space-y-6">
+//                                     {/* Video Section */}
+//                                     {selectedInscription.video && (
+//                                         <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                             <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+//                                                 <Video
+//                                                     className="mr-2"
+//                                                     size={20}
+//                                                 />
+//                                                 Video Content
+//                                             </h3>
+//                                             <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-700/50">
+//                                                 <video
+//                                                     className="w-full h-auto max-h-[400px]"
+//                                                     controls
+//                                                     src={`/storage/${selectedInscription.video}`}
+//                                                 >
+//                                                     Your browser does not
+//                                                     support the video tag.
+//                                                 </video>
+//                                             </div>
+//                                         </div>
+//                                     )}
+
+//                                     {/* Gallery Images */}
+//                                     {selectedInscription.images &&
+//                                         Array.isArray(
+//                                             selectedInscription.images,
+//                                         ) &&
+//                                         selectedInscription.images.length >
+//                                             0 && (
+//                                             <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                                 <h3 className="text-lg font-semibold text-gray-800 mb-3">
+//                                                     Gallery Images
+//                                                 </h3>
+//                                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+//                                                     {selectedInscription.images.map(
+//                                                         (image, index) => (
+//                                                             <div
+//                                                                 key={index}
+//                                                                 className="relative group"
+//                                                             >
+//                                                                 <div className="aspect-square overflow-hidden rounded-lg bg-gray-100/50 backdrop-blur-sm border border-gray-200/50">
+//                                                                     <img
+//                                                                         src={`/storage/${image.image_path}`}
+//                                                                         alt={`Gallery ${index + 1}`}
+//                                                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+//                                                                     />
+//                                                                 </div>
+//                                                             </div>
+//                                                         ),
+//                                                     )}
+//                                                 </div>
+//                                             </div>
+//                                         )}
+//                                 </div>
+//                             )}
+//                         </div>
+
+//                         {/* Footer */}
+//                         <div className="p-6 border-t border-gray-200/50 bg-gray-100/80 backdrop-blur-sm flex justify-end items-center">
+//                             <div className="flex space-x-3">
+//                                 <button
+//                                     onClick={handleCloseDetails}
+//                                     className="px-4 py-2 bg-gray-300/80 backdrop-blur-sm text-gray-800 rounded-lg hover:bg-gray-400/80 transition-colors border border-gray-300/50"
+//                                 >
+//                                     Close
+//                                 </button>
+//                                 <button
+//                                     onClick={() => {
+//                                         handleEdit(selectedInscription);
+//                                         handleCloseDetails();
+//                                     }}
+//                                     className="px-4 py-2 bg-blue-600/90 backdrop-blur-sm text-white rounded-lg hover:bg-blue-700/90 transition-colors flex items-center border border-blue-600/50"
+//                                 >
+//                                     <Edit size={16} className="mr-2" />
+//                                     Edit
+//                                 </button>
+//                             </div>
+//                         </div>
+//                     </div>
+//                 </div>
+//             )}
+//         </AdminWrapper>
+//     );
+// };
+
+// export default Inscriptions;
+
+
+import AddInscriptionForm from "@/AddFormComponents/AddInscriptionForm";
+import AdminWrapper from "@/AdminWrapper/AdminWrapper";
+import axios from "axios";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import {
+    Edit,
+    Trash2,
+    Eye,
+    ChevronUp,
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    FileText,
+    Video,
+    BookOpen,
+    FileVideo,
+    Book,
+    Globe,
+    X,
+} from "lucide-react";
+import { useTable, useSortBy, usePagination } from "react-table";
+import parse from 'html-react-parser';
+
+const Inscriptions = () => {
+    const [showForm, setShowForm] = useState(false);
+    const [allInscriptions, setAllInscriptions] = useState([]);
+    const [reloadTrigger, setReloadTrigger] = useState(false);
+    const [editingInscription, setEditingInscription] = useState(null);
+    const [selectedInscription, setSelectedInscription] = useState(null);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState("overview");
+    const [pagination, setPagination] = useState({
+        total: 0,
+        per_page: 10,
+        current_page: 1,
+        last_page: 1,
+    });
+
+    // For the Fetching of all inscriptions with pagination
+    const fetchInscriptions = useCallback(async (page = 1, pageSize = 10) => {
+        try {
+            setLoading(true);
+            const response = await axios.get(route("ourinscription.index"), {
+                params: {
+                    page: page,
+                    per_page: pageSize,
+                },
+            });
+
+            const responseData = response.data;
+
+            // Check different possible response structures
+            if (responseData.data) {
+                if (Array.isArray(responseData.data.data)) {
+                    // Laravel paginated response structure
+                    setAllInscriptions(responseData.data.data || []);
+                    setPagination({
+                        total: responseData.data.total || 0,
+                        per_page: responseData.data.per_page || pageSize,
+                        current_page: responseData.data.current_page || page,
+                        last_page: responseData.data.last_page || 1,
+                    });
+                } else if (Array.isArray(responseData.data)) {
+                    // Direct array response
+                    setAllInscriptions(responseData.data || []);
+                    setPagination({
+                        total: responseData.data.length || 0,
+                        per_page: pageSize,
+                        current_page: page,
+                        last_page:
+                            Math.ceil(responseData.data.length / pageSize) || 1,
+                    });
+                }
+            } else if (Array.isArray(responseData)) {
+                // Direct array response (no wrapper)
+                setAllInscriptions(responseData || []);
+                setPagination({
+                    total: responseData.length || 0,
+                    per_page: pageSize,
+                    current_page: page,
+                    last_page: Math.ceil(responseData.length / pageSize) || 1,
+                });
+            } else {
+                // Fallback to empty array
+                setAllInscriptions([]);
+            }
+        } catch (error) {
+            console.error("Error fetching inscriptions:", error);
+            setAllInscriptions([]);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchInscriptions(pagination.current_page, pagination.per_page);
+    }, [
+        reloadTrigger,
+        fetchInscriptions,
+        pagination.current_page,
+        pagination.per_page,
+    ]);
+
+    // For Delete the Inscription
+    const handleDelete = useCallback(async (id) => {
+        if (
+            !window.confirm("Are you sure you want to delete this inscription?")
+        ) {
+            return;
+        }
+
+        try {
+            await axios.delete(route("ourinscription.destroy", { id: id }));
+            setReloadTrigger((prev) => !prev);
+        } catch (error) {
+            console.error("Error deleting inscription:", error);
+            alert("Failed to delete inscription");
+        }
+    }, []);
+
+    // For the Edit the Inscription
+    const handleEdit = useCallback((inscription) => {
+        setEditingInscription(inscription);
+        setShowForm(true);
+    }, []);
+
+    // For View Details
+    const handleViewDetails = useCallback((inscription) => {
+        setSelectedInscription(inscription);
+        setActiveTab("overview");
+        setShowDetailsModal(true);
+    }, []);
+
+    // Close form handler
+    const handleCloseForm = useCallback(() => {
+        setShowForm(false);
+        setEditingInscription(null);
+    }, []);
+
+    // Close details modal
+    const handleCloseDetails = useCallback(() => {
+        setShowDetailsModal(false);
+        setSelectedInscription(null);
+    }, []);
+
+    // Handle page change
+    const handlePageChange = useCallback(
+        (newPage) => {
+            if (newPage >= 1 && newPage <= pagination.last_page) {
+                fetchInscriptions(newPage, pagination.per_page);
+            }
+        },
+        [pagination.last_page, pagination.per_page, fetchInscriptions],
+    );
+
+    // Handle page size change
+    const handlePageSizeChange = useCallback(
+        (newSize) => {
+            fetchInscriptions(1, newSize);
+        },
+        [fetchInscriptions],
+    );
+
+    // Helper function to strip HTML tags for table display
+    const stripHtml = (html) => {
+        if (!html) return '';
+        return html.replace(/<[^>]*>/g, '');
+    };
+
+    // React Table columns
+    const columns = useMemo(
+        () => [
+            {
+                Header: "ID",
+                accessor: (row, i) =>
+                    (pagination.current_page - 1) * pagination.per_page + i + 1,
+                id: "rowIndex",
+                width: 80,
+            },
+            {
+                Header: "Title",
+                accessor: "title",
+                Cell: ({ row }) => (
+                    <div className="flex items-center">
+                        <div>
+                            <div className="text-sm font-medium text-gray-900">
+                                {row.original.title}
+                            </div>
+                        </div>
+                    </div>
+                ),
+            },
+            {
+                Header: "Description",
+                accessor: "description",
+                Cell: ({ value }) => (
+                    <div className="text-sm text-gray-900 max-w-xs">
+                        {value
+                            ? stripHtml(value).length > 10
+                                ? `${stripHtml(value).substring(0, 10)}...`
+                                : stripHtml(value)
+                            : "No description"}
+                    </div>
+                ),
+            },
+
+            {
+                Header: "Text",
+                accessor: "text",
+                Cell: ({ value }) => (
+                    <div className="text-sm text-gray-900 max-w-xs">
+                        {value
+                            ? stripHtml(value).length > 10
+                                ? `${stripHtml(value).substring(0, 10)}...`
+                                : stripHtml(value)
+                            : "No text"}
+                    </div>
+                ),
+            },
+
+            {
+                Header: "Translation",
+                accessor: "translation",
+                Cell: ({ value }) => (
+                    <div className="text-sm text-gray-900 max-w-xs">
+                        {value
+                            ? stripHtml(value).length > 100
+                                ? `${stripHtml(value).substring(0, 10)}...`
+                                : stripHtml(value)
+                            : "No translation"}
+                    </div>
+                ),
+            },
+
+            {
+                Header: "Actions",
+                accessor: "actions",
+                Cell: ({ row }) => (
+                    <div className="flex space-x-2">
+                        <button
+                            onClick={() => handleViewDetails(row.original)}
+                            className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                            title="View Details"
+                        >
+                            <Eye size={18} />
+                        </button>
+                        <button
+                            onClick={() => handleEdit(row.original)}
+                            className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                            title="Edit"
+                        >
+                            <Edit size={18} />
+                        </button>
+                        <button
+                            onClick={() => handleDelete(row.original.id)}
+                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                            title="Delete"
+                        >
+                            <Trash2 size={18} />
+                        </button>
+                    </div>
+                ),
+                width: 120,
+            },
+        ],
+        [pagination, handleViewDetails, handleEdit, handleDelete],
+    );
+
+    // React Table instance
+    const tableInstance = useTable(
+        {
+            columns,
+            data: allInscriptions,
+            manualPagination: true,
+            pageCount: Math.ceil(pagination.total / pagination.per_page),
+            initialState: {
+                pageIndex: pagination.current_page - 1,
+            },
+        },
+        useSortBy,
+        usePagination,
+    );
+
+    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+        tableInstance;
+
+    // Details modal tabs
+    const tabs = useMemo(
+        () => [
+            { id: "overview", label: "Overview", icon: <Eye size={16} /> },
+            {
+                id: "text",
+                label: "Text & Translation",
+                icon: <FileText size={16} />,
+            },
+            {
+                id: "background",
+                label: "Background",
+                icon: <BookOpen size={16} />,
+            },
+            { id: "references", label: "References", icon: <Book size={16} /> },
+            { id: "glossary", label: "Glossary", icon: <Globe size={16} /> },
+            { id: "media", label: "Media", icon: <FileVideo size={16} /> },
+        ],
+        [],
+    );
+
+    return (
+        <AdminWrapper>
+            <div className="">
+                <div className="relative z-10">
+                    {/* Home Content with glassmorphism effect */}
+                    <div className="min-h-[calc(100vh-4rem)]">
+                        <div className="w-full p-6 flex justify-between items-center">
+                            <h1 className="text-3xl font-bold ">
+                                Inscriptions
+                            </h1>
+                            <button
+                                onClick={() => setShowForm(true)}
+                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-2"
+                            >
+                                <span>+</span> Add Inscription
+                            </button>
+                        </div>
+
+                        {/* Table Container */}
+                        <div className="p-6">
+                            <div className="">
+                                <div className="bg-white rounded-xl shadow-xl overflow-hidden">
+                                    {loading ? (
+                                        <div className="text-center py-8">
+                                            Loading...
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="overflow-x-auto">
+                                                <table
+                                                    {...getTableProps()}
+                                                    className="min-w-full divide-y divide-gray-200"
+                                                >
+                                                    <thead className="bg-gray-50">
+                                                        {headerGroups.map(
+                                                            (headerGroup) => (
+                                                                <tr
+                                                                    {...headerGroup.getHeaderGroupProps()}
+                                                                >
+                                                                    {headerGroup.headers.map(
+                                                                        (
+                                                                            column,
+                                                                        ) => (
+                                                                            <th
+                                                                                {...column.getHeaderProps(
+                                                                                    column.getSortByToggleProps(),
+                                                                                )}
+                                                                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                                                            >
+                                                                                <div className="flex items-center">
+                                                                                    {column.render(
+                                                                                        "Header",
+                                                                                    )}
+                                                                                    {column.isSorted ? (
+                                                                                        column.isSortedDesc ? (
+                                                                                            <ChevronDown
+                                                                                                size={
+                                                                                                    16
+                                                                                                }
+                                                                                                className="ml-1"
+                                                                                            />
+                                                                                        ) : (
+                                                                                            <ChevronUp
+                                                                                                size={
+                                                                                                    16
+                                                                                                }
+                                                                                                className="ml-1"
+                                                                                            />
+                                                                                        )
+                                                                                    ) : (
+                                                                                        ""
+                                                                                    )}
+                                                                                </div>
+                                                                            </th>
+                                                                        ),
+                                                                    )}
+                                                                </tr>
+                                                            ),
+                                                        )}
+                                                    </thead>
+                                                    <tbody
+                                                        {...getTableBodyProps()}
+                                                        className="bg-white divide-y divide-gray-200"
+                                                    >
+                                                        {rows.length > 0 ? (
+                                                            rows.map((row) => {
+                                                                prepareRow(row);
+                                                                return (
+                                                                    <tr
+                                                                        {...row.getRowProps()}
+                                                                        className="hover:bg-gray-50"
+                                                                    >
+                                                                        {row.cells.map(
+                                                                            (
+                                                                                cell,
+                                                                            ) => (
+                                                                                <td
+                                                                                    {...cell.getCellProps()}
+                                                                                    className="px-6 py-4 whitespace-nowrap"
+                                                                                >
+                                                                                    {cell.render(
+                                                                                        "Cell",
+                                                                                    )}
+                                                                                </td>
+                                                                            ),
+                                                                        )}
+                                                                    </tr>
+                                                                );
+                                                            })
+                                                        ) : (
+                                                            <tr>
+                                                                <td
+                                                                    colSpan={
+                                                                        columns.length
+                                                                    }
+                                                                    className="px-6 py-8 text-center text-gray-500"
+                                                                >
+                                                                    No
+                                                                    inscriptions
+                                                                    found. Click
+                                                                    "Add
+                                                                    Inscription"
+                                                                    to create
+                                                                    one.
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            {/* Pagination */}
+                                            {allInscriptions.length > 0 &&
+                                                pagination.total > 0 && (
+                                                    <div className="flex items-center justify-between flex-col md:flex-row px-6 py-4 border-t border-gray-200 space-y-4 md:space-y-0">
+                                                        <div className="flex items-center">
+                                                            <span className="text-sm text-gray-700 mr-2">
+                                                                Show
+                                                            </span>
+                                                            <select
+                                                                value={
+                                                                    pagination.per_page
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handlePageSizeChange(
+                                                                        Number(
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        ),
+                                                                    )
+                                                                }
+                                                                className="border border-gray-300 rounded-md px-2 py-1 text-sm"
+                                                            >
+                                                                {[
+                                                                    5, 10, 20,
+                                                                    50,
+                                                                ].map(
+                                                                    (size) => (
+                                                                        <option
+                                                                            key={
+                                                                                size
+                                                                            }
+                                                                            value={
+                                                                                size
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                size
+                                                                            }
+                                                                        </option>
+                                                                    ),
+                                                                )}
+                                                            </select>
+                                                            <span className="text-sm text-gray-700 ml-2">
+                                                                entries
+                                                            </span>
+                                                            <span className="text-sm text-gray-700 ml-4">
+                                                                Total:{" "}
+                                                                {
+                                                                    pagination.total
+                                                                }{" "}
+                                                                records
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center space-x-2">
+                                                            <button
+                                                                onClick={() =>
+                                                                    handlePageChange(
+                                                                        1,
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    pagination.current_page ===
+                                                                    1
+                                                                }
+                                                                className={`p-1 rounded ${
+                                                                    pagination.current_page ===
+                                                                    1
+                                                                        ? "opacity-50 cursor-not-allowed"
+                                                                        : "hover:bg-gray-200"
+                                                                }`}
+                                                            >
+                                                                <ChevronLeft
+                                                                    size={20}
+                                                                />
+                                                            </button>
+                                                            <button
+                                                                onClick={() =>
+                                                                    handlePageChange(
+                                                                        pagination.current_page -
+                                                                            1,
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    pagination.current_page ===
+                                                                    1
+                                                                }
+                                                                className={`px-3 py-1 rounded ${
+                                                                    pagination.current_page ===
+                                                                    1
+                                                                        ? "opacity-50 cursor-not-allowed"
+                                                                        : "hover:bg-gray-200"
+                                                                }`}
+                                                            >
+                                                                Previous
+                                                            </button>
+                                                            <span className="text-sm text-gray-700">
+                                                                Page{" "}
+                                                                <strong>
+                                                                    {
+                                                                        pagination.current_page
+                                                                    }
+                                                                </strong>{" "}
+                                                                of{" "}
+                                                                <strong>
+                                                                    {
+                                                                        pagination.last_page
+                                                                    }
+                                                                </strong>
+                                                            </span>
+                                                            <button
+                                                                onClick={() =>
+                                                                    handlePageChange(
+                                                                        pagination.current_page +
+                                                                            1,
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    pagination.current_page ===
+                                                                    pagination.last_page
+                                                                }
+                                                                className={`px-3 py-1 rounded ${
+                                                                    pagination.current_page ===
+                                                                    pagination.last_page
+                                                                        ? "opacity-50 cursor-not-allowed"
+                                                                        : "hover:bg-gray-200"
+                                                                }`}
+                                                            >
+                                                                Next
+                                                            </button>
+                                                            <button
+                                                                onClick={() =>
+                                                                    handlePageChange(
+                                                                        pagination.last_page,
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    pagination.current_page ===
+                                                                    pagination.last_page
+                                                                }
+                                                                className={`p-1 rounded ${
+                                                                    pagination.current_page ===
+                                                                    pagination.last_page
+                                                                        ? "opacity-50 cursor-not-allowed"
+                                                                        : "hover:bg-gray-200"
+                                                                }`}
+                                                            >
+                                                                <ChevronRight
+                                                                    size={20}
+                                                                />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Form Modal */}
+            {showForm && (
+                <AddInscriptionForm
+                    showForm={showForm}
+                    setShowForm={handleCloseForm}
+                    editingInscription={editingInscription}
+                    setReloadTrigger={setReloadTrigger}
+                    setEditingInscription={setEditingInscription}
+                />
+            )}
+
+            {/* Details Modal */}
+            {showDetailsModal && selectedInscription && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    {/* Dark overlay */}
+                    <div className="absolute inset-0 bg-black/50"></div>
+
+                    {/* Modal content */}
+                    <div className="relative z-10 bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+                        {/* Header */}
+                        <div className="p-6 border-b border-gray-200">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <h2 className="text-4xl font-bold text-gray-800">
+                                        {selectedInscription.title}
+                                    </h2>
+                                </div>
+                                <button
+                                    onClick={handleCloseDetails}
+                                    className="text-gray-500 hover:text-gray-700 text-2xl bg-white rounded-full h-8 w-8 flex items-center justify-center shadow-sm hover:shadow border border-gray-200"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Tabs */}
+                        <div className="border-b border-gray-200">
+                            <div className="flex overflow-x-auto">
+                                {tabs.map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`flex items-center px-6 py-3 text-sm font-medium border-b-2 transition-all ${
+                                            activeTab === tab.id
+                                                ? "border-blue-600 text-blue-700 bg-gray-50"
+                                                : "border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+                                        }`}
+                                    >
+                                        <span className="mr-2">{tab.icon}</span>
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Tab Content */}
+                        <div className="flex-1 overflow-y-auto p-6">
+                            {/* Overview Tab */}
+                            {activeTab === "overview" && (
+                                <div className="space-y-6">
+                                    <div>
+                                        {/* Banner Image */}
+                                        <div className="bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                                            {selectedInscription.banner_image ? (
+                                                <img
+                                                    src={`/storage/${selectedInscription.banner_image}`}
+                                                    alt={
+                                                        selectedInscription.title
+                                                    }
+                                                    className="w-full h-64 object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-64 bg-gray-100 flex items-center justify-center">
+                                                    <span className="text-gray-400">
+                                                        No Banner Image
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Description */}
+                                    <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                                        <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                            <FileText
+                                                className="mr-2"
+                                                size={20}
+                                            />
+                                            Description
+                                        </h3>
+                                        <div className="prose max-w-none rich-text-content">
+                                            {selectedInscription.description ? (
+                                                parse(selectedInscription.description)
+                                            ) : (
+                                                <p className="text-gray-500 italic">
+                                                    No description provided
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Text & Translation Tab */}
+                            {activeTab === "text" && (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        {/* Original Text */}
+                                        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                                            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                                                Original Text
+                                            </h3>
+                                            <div className="bg-gray-50 rounded p-4 border border-gray-200 rich-text-content">
+                                                {selectedInscription.text ? (
+                                                    parse(selectedInscription.text)
+                                                ) : (
+                                                    <p className="text-gray-500 italic">
+                                                        No original text provided
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Translation */}
+                                        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                                            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                                                Translation
+                                            </h3>
+                                            <div className="bg-blue-50 rounded p-4 border border-blue-200 rich-text-content">
+                                                {selectedInscription.translation ? (
+                                                    parse(selectedInscription.translation)
+                                                ) : (
+                                                    <p className="text-gray-500 italic">
+                                                        No translation provided
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Background Tab */}
+                            {activeTab === "background" && (
+                                <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                        <BookOpen className="mr-2" size={20} />
+                                        Historical Background
+                                    </h3>
+                                    <div className="prose max-w-none rich-text-content">
+                                        {selectedInscription.background ? (
+                                            parse(selectedInscription.background)
+                                        ) : (
+                                            <p className="text-gray-500 italic">
+                                                No background information provided
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* References Tab */}
+                            {activeTab === "references" && (
+                                <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                        <Book className="mr-2" size={20} />
+                                        References
+                                    </h3>
+                                    <div className="prose max-w-none rich-text-content">
+                                        {selectedInscription.refrences ? (
+                                            parse(selectedInscription.refrences)
+                                        ) : (
+                                            <p className="text-gray-500 italic">
+                                                No references provided
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Glossary Tab */}
+                            {activeTab === "glossary" && (
+                                <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                        <Globe className="mr-2" size={20} />
+                                        Glossary
+                                    </h3>
+                                    <div className="prose max-w-none rich-text-content">
+                                        {selectedInscription.glossary ? (
+                                            parse(selectedInscription.glossary)
+                                        ) : (
+                                            <p className="text-gray-500 italic">
+                                                No glossary terms provided
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Media Tab */}
+                            {activeTab === "media" && (
+                                <div className="space-y-6">
+                                    {/* Video Section */}
+                                    {selectedInscription.video && (
+                                        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                                            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                                <Video
+                                                    className="mr-2"
+                                                    size={20}
+                                                />
+                                                Video Content
+                                            </h3>
+                                            <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-700">
+                                                <video
+                                                    className="w-full h-auto max-h-[400px]"
+                                                    controls
+                                                    src={`/storage/${selectedInscription.video}`}
+                                                >
+                                                    Your browser does not
+                                                    support the video tag.
+                                                </video>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Gallery Images */}
+                                    {selectedInscription.images &&
+                                        Array.isArray(
+                                            selectedInscription.images,
+                                        ) &&
+                                        selectedInscription.images.length >
+                                            0 && (
+                                            <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                                                <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                                                    Gallery Images
+                                                </h3>
+                                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                                    {selectedInscription.images.map(
+                                                        (image, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className="relative group"
+                                                            >
+                                                                <div className="aspect-square overflow-hidden rounded-lg bg-gray-100 border border-gray-200">
+                                                                    <img
+                                                                        src={`/storage/${image.image_path}`}
+                                                                        alt={`Gallery ${index + 1}`}
+                                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        ),
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-6 border-t border-gray-200 bg-gray-100 flex justify-end items-center">
+                            <div className="flex space-x-3">
+                                <button
+                                    onClick={handleCloseDetails}
+                                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors border border-gray-300"
+                                >
+                                    Close
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        handleEdit(selectedInscription);
+                                        handleCloseDetails();
+                                    }}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center border border-blue-600"
+                                >
+                                    <Edit size={16} className="mr-2" />
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </AdminWrapper>
+    );
+};
+
+export default Inscriptions;
