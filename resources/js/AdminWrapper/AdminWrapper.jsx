@@ -41,7 +41,7 @@ const AdminWrapper = ({ children }) => {
                     isCollapsed ? "lg:ml-16" : "lg:ml-64"
                 }`}
             >
-                <div className="">{children}</div>
+                <div className="lg:p-6">{children}</div>
             </main>
         </div>
     );

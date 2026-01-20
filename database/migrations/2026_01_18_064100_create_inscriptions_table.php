@@ -20,9 +20,11 @@ return new class extends Migration
             $table->longText('background')->nullable();
             $table->longText('text')->nullable();
             $table->longText('translation')->nullable();
-            $table->longText('refrences')->nullable();
+            $table->string('status')->nullable();
+            $table->string('inscription_number')->unique();
+            $table->longText('references')->nullable();
             $table->longText('glossary')->nullable();
-            $table->string('slug')->unique();
+            $table->string('slug')->nullable();
             $table->timestamps();
         });
     }

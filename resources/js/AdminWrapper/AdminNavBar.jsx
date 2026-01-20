@@ -54,30 +54,25 @@ const AdminNavBar = ({ onMenuToggle }) => {
     }, [window.location.pathname]);
 
     return (
-        <nav 
-            className="fixed top-0 right-0 w-full lg:w-[98%] h-16 border-b z-30"
-            // style={{
-            //     backgroundImage: "url('/images/bg.jpeg')",
-            //     backgroundSize: "cover",
-            //     backgroundPosition: "center",
-            //     backgroundRepeat: "no-repeat",
-            //     backgroundColor: "#efe2c4", // Fallback color
-            // }}
-        >
-            {/* Background Overlay - Adjusted for better contrast */}
-            {/* <div className="absolute inset-0 bg-black/10 bg-opacity-40"></div> */}
-            
-            <div className="relative z-10 h-full px-4 sm:px-6 lg:px-8">
+        <nav className="fixed top-0 right-0 w-full lg:w-[98%] h-16 border-b z-30 bg-white">
+            <div className="h-full px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-full">
                     {/* Left side - Menu toggle and branding */}
                     <div className="flex items-center space-x-4">
                         <button
                             onClick={onMenuToggle}
-                            className="lg:hidden p-2 rounded-lg hover:bg-[#d4c8a8] hover:bg-opacity-30 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8b7b5e] focus:ring-opacity-50"
+                            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                             aria-label="Toggle menu"
                         >
-                            <Menu className="w-5 h-5 text-[#5d4c2e]" />
+                            <Menu className="w-5 h-5 text-gray-700" />
                         </button>
+
+                        {/* Optional: Add branding/logo here */}
+                        <div className="hidden lg:block">
+                            <h1 className="text-lg font-semibold text-gray-800">
+                                Nepal Inscription
+                            </h1>
+                        </div>
                     </div>
 
                     {/* Right side - User menu */}
@@ -87,12 +82,12 @@ const AdminNavBar = ({ onMenuToggle }) => {
                         <div className="relative" ref={userMenuRef}>
                             <button
                                 onClick={toggleUserMenu}
-                                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-[#d4c8a8] hover:bg-opacity-30 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8b7b5e] focus:ring-opacity-50"
+                                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                                 aria-expanded={isUserMenuOpen}
                                 aria-haspopup="true"
                             >
                                 <div className="flex items-center space-x-3">
-                                    <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-[#d4c8a8]">
+                                    <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-gray-200">
                                         {user?.image ? (
                                             <img
                                                 src={user.image}
@@ -106,17 +101,17 @@ const AdminNavBar = ({ onMenuToggle }) => {
                                                 }}
                                             />
                                         ) : (
-                                            <UserCircle className="w-6 h-6 text-[#5d4c2e]" />
+                                            <UserCircle className="w-6 h-6 text-gray-600" />
                                         )}
                                     </div>
                                     <div className="hidden sm:block text-left">
-                                        <span className="text-sm font-medium text-[#5d4c2e] block">
+                                        <span className="text-sm font-medium text-gray-700 block">
                                             {user?.name || "Guest"}
                                         </span>
                                     </div>
                                 </div>
                                 <ChevronDown
-                                    className={`w-4 h-4 text-[#5d4c2e] transition-transform duration-200 ${
+                                    className={`w-4 h-4 text-gray-600 transition-transform duration-200 ${
                                         isUserMenuOpen ? "rotate-180" : ""
                                     }`}
                                 />
@@ -124,41 +119,26 @@ const AdminNavBar = ({ onMenuToggle }) => {
 
                             {/* User dropdown menu */}
                             {isUserMenuOpen && (
-                                <div 
-                                    className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border py-2 z-40"
-                                    // style={{
-                                    //     backgroundImage: "url('/images/bg.jpeg')",
-                                    //     backgroundSize: "cover",
-                                    //     backgroundPosition: "center",
-                                    //     backgroundRepeat: "no-repeat",
-                                    //     backgroundColor: "#efe2c4",
-                                    //     borderColor: "#d4c8a8",
-                                    // }}
-                                >
-                                    {/* Background Overlay for dropdown */}
-                                    {/* <div className="absolute inset-0 bg-black/10 bg-opacity-50 rounded-lg"></div> */}
-                                    
-                                    <div className="relative z-10">
-                                        {/* User info section */}
-                                        <div className="px-4 py-3 border-b" style={{ borderColor: "#d4c8a8" }}>
-                                            <p className="text-sm font-medium text-[#5d4c2e] truncate">
-                                                {user?.name || "Guest"}
-                                            </p>
-                                            <p className="text-sm text-[#8b7b5e] truncate mt-1">
-                                                {user?.email || ""}
-                                            </p>
-                                        </div>
+                                <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-40">
+                                    {/* User info section */}
+                                    <div className="px-4 py-3 border-b border-gray-200">
+                                        <p className="text-sm font-medium text-gray-900 truncate">
+                                            {user?.name || "Guest"}
+                                        </p>
+                                        <p className="text-sm text-gray-500 truncate mt-1">
+                                            {user?.email || ""}
+                                        </p>
+                                    </div>
 
-                                        {/* Logout section */}
-                                        <div className="border-t pt-1" style={{ borderColor: "#d4c8a8" }}>
-                                            <button
-                                                onClick={handleLogout}
-                                                className="flex items-center w-full px-4 py-2 text-sm text-[#a0522d] hover:bg-[#d4c8a8] hover:bg-opacity-30 transition-colors duration-150 focus:outline-none focus:bg-[#d4c8a8] focus:bg-opacity-30"
-                                            >
-                                                <LogOut className="w-4 h-4 mr-3" />
-                                                Sign Out
-                                            </button>
-                                        </div>
+                                    {/* Logout section */}
+                                    <div className="border-t border-gray-200 pt-1">
+                                        <button
+                                            onClick={handleLogout}
+                                            className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors duration-150 focus:outline-none"
+                                        >
+                                            <LogOut className="w-4 h-4 mr-3" />
+                                            Sign Out
+                                        </button>
                                     </div>
                                 </div>
                             )}

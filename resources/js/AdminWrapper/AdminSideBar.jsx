@@ -36,8 +36,8 @@ const AdminSideBar = ({
                     }
                 `}
                 style={{
-                    backgroundColor: "#efe2c4",
-                    borderColor: "#d4c8a8",
+                    backgroundColor: "#ffffff",
+                    borderColor: "#e5e7eb",
                 }}
             >
                 {/* Content Container */}
@@ -47,10 +47,10 @@ const AdminSideBar = ({
                         className={`flex items-center justify-between p-4 border-b h-16 ${
                             isCollapsed ? "px-3" : ""
                         }`}
-                        style={{ borderColor: "#d4c8a8" }}
+                        style={{ borderColor: "#e5e7eb" }}
                     >
                         {!isCollapsed && (
-                            <div className="text-lg font-bold text-[#5d4c2e] whitespace-nowrap">
+                            <div className="text-xl font-bold text-gray-800 whitespace-nowrap">
                                 Nepal Inscription
                             </div>
                         )}
@@ -58,22 +58,22 @@ const AdminSideBar = ({
                             {/* Collapse Toggle Button - Only show on desktop */}
                             <button
                                 onClick={onToggleCollapse}
-                                className="hidden lg:flex p-1.5 hover:bg-[#d4c8a8] hover:bg-opacity-30 rounded-lg transition-colors duration-200"
+                                className="hidden lg:flex p-1.5 hover:bg-blue-50 rounded-lg transition-colors duration-200"
                                 title={
                                     isCollapsed
                                         ? "Expand sidebar"
                                         : "Collapse sidebar"
                                 }
                             >
-                                <Menu className="w-4 h-4 text-[#5d4c2e]" />
+                                <Menu className="w-4 h-4 text-gray-600" />
                             </button>
 
                             {/* Mobile Close Button */}
                             <button
                                 onClick={onMobileToggle}
-                                className="lg:hidden p-1.5 hover:bg-[#d4c8a8] hover:bg-opacity-30 rounded-lg transition-colors duration-200"
+                                className="lg:hidden p-1.5 hover:bg-blue-50 rounded-lg transition-colors duration-200"
                             >
-                                <X className="w-4 h-4 text-[#5d4c2e]" />
+                                <X className="w-4 h-4 text-gray-600" />
                             </button>
                         </div>
                     </div>
@@ -94,8 +94,8 @@ const AdminSideBar = ({
                                 ${isCollapsed ? "p-3 justify-center" : "p-3"}
                                 ${
                                     isActive("/dashboard")
-                                        ? "bg-[#d4c8a8] text-[#5d4c2e] font-semibold border-l-4 border-[#8b7b5e]"
-                                        : "text-[#8b7b5e] hover:bg-[#d4c8a8] hover:bg-opacity-30 hover:text-[#5d4c2e]"
+                                        ? "bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600"
+                                        : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
                                 }
                             `}
                             title={isCollapsed ? "Dashboard" : ""}
@@ -105,8 +105,8 @@ const AdminSideBar = ({
                                 ${isCollapsed ? "w-5 h-5" : "w-5 h-5"}
                                 ${
                                     isActive("/dashboard")
-                                        ? "text-[#5d4c2e]"
-                                        : "text-[#8b7b5e] group-hover:text-[#5d4c2e]"
+                                        ? "text-blue-600"
+                                        : "text-gray-500 group-hover:text-blue-600"
                                 }
                             `}
                             />
@@ -119,9 +119,10 @@ const AdminSideBar = ({
                                 <div
                                     className="absolute left-full ml-2 px-2 py-1 text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50"
                                     style={{
-                                        backgroundColor: "#efe2c4",
-                                        border: "1px solid #d4c8a8",
-                                        color: "#5d4c2e",
+                                        backgroundColor: "#ffffff",
+                                        border: "1px solid #e5e7eb",
+                                        color: "#374151",
+                                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                                     }}
                                 >
                                     Dashboard
@@ -139,8 +140,8 @@ const AdminSideBar = ({
                                 ${isCollapsed ? "p-3 justify-center" : "p-3"}
                                 ${
                                     isActive("/inscriptions")
-                                        ? "bg-[#d4c8a8] text-[#5d4c2e] font-semibold border-l-4 border-[#8b7b5e]"
-                                        : "text-[#8b7b5e] hover:bg-[#d4c8a8] hover:bg-opacity-30 hover:text-[#5d4c2e]"
+                                        ? "bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600"
+                                        : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
                                 }
                             `}
                             title={isCollapsed ? "Inscriptions" : ""}
@@ -150,8 +151,8 @@ const AdminSideBar = ({
                                 ${isCollapsed ? "w-5 h-5" : "w-5 h-5"}
                                 ${
                                     isActive("/inscriptions")
-                                        ? "text-[#5d4c2e]"
-                                        : "text-[#8b7b5e] group-hover:text-[#5d4c2e]"
+                                        ? "text-blue-600"
+                                        : "text-gray-500 group-hover:text-blue-600"
                                 }
                             `}
                             />
@@ -164,9 +165,10 @@ const AdminSideBar = ({
                                 <div
                                     className="absolute left-full ml-2 px-2 py-1 text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50"
                                     style={{
-                                        backgroundColor: "#efe2c4",
-                                        border: "1px solid #d4c8a8",
-                                        color: "#5d4c2e",
+                                        backgroundColor: "#ffffff",
+                                        border: "1px solid #e5e7eb",
+                                        color: "#374151",
+                                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                                     }}
                                 >
                                     Inscriptions

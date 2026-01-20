@@ -6,72 +6,92 @@ use App\Models\Inscription;
 use App\Models\InscriptionImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class InscriptionController extends Controller
 {
     /**
-     * Display a listing of inscriptions
+     * Display a listing of inscriptions with pagination.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $inscriptions = Inscription::with('images')
-            ->latest()
-            ->get();
+        try {
+            $perPage = $request->get('per_page', 10);
+            $page = $request->get('page', 1);
 
-        return response()->json([
-            'success' => true,
-            'data' => $inscriptions,
-        ]);
+            $query = Inscription::with('images')->latest();
+
+            $paginated = $query->paginate($perPage, ['*'], 'page', $page);
+
+            return response()->json([
+                'success' => true,
+                'data' => $paginated->items(),
+                'meta' => [
+                    'total' => $paginated->total(),
+                    'per_page' => $paginated->perPage(),
+                    'current_page' => $paginated->currentPage(),
+                    'last_page' => $paginated->lastPage(),
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching inscriptions: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch inscriptions',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
-     * Store a newly created inscription
+     * Store a newly created inscription.
      */
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'banner_image' => 'nullable|image|max:2048',
-            'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv|max:102400', // 100MB max
+            'inscription_number' => 'required|string|unique:inscriptions,inscription_number',
+            'banner_image' => 'nullable|image|max:307200',
+            'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv,webm,mpg,mpeg|max:307200',
             'description' => 'required|string',
             'background' => 'nullable|string',
             'text' => 'nullable|string',
             'translation' => 'nullable|string',
             'references' => 'nullable|string',
             'glossary' => 'nullable|string',
-            'images.*' => 'nullable|image|max:2048',
+            'status' => 'nullable|in:draft,published,archived',
+            'images.*' => 'nullable|image|max:307200',
         ]);
 
         DB::beginTransaction();
 
         try {
-            // Banner image upload
-            $bannerPath = null;
-            if ($request->hasFile('banner_image')) {
-                $bannerPath = $request->file('banner_image')
-                    ->store('inscriptions/banners', 'public');
-            }
+            // Banner image
+            $bannerPath = $request->file('banner_image')
+                ? $request->file('banner_image')->store('inscriptions/banners', 'public')
+                : null;
 
-            // Video upload
-            $videoPath = null;
-            if ($request->hasFile('video')) {
-                $videoPath = $request->file('video')
-                    ->store('inscriptions/videos', 'public');
-            }
+            // Video
+            $videoPath = $request->file('video')
+                ? $request->file('video')->store('inscriptions/videos', 'public')
+                : null;
 
             $inscription = Inscription::create([
                 'title' => $request->title,
+                'inscription_number' => $request->inscription_number,
                 'banner_image' => $bannerPath,
-                'video' => $videoPath, // Store file path instead of URL
+                'video' => $videoPath,
                 'description' => $request->description,
                 'background' => $request->background,
                 'text' => $request->text,
                 'translation' => $request->translation,
-                'refrences' => $request->references,
+                'references' => $request->references,
                 'glossary' => $request->glossary,
-                'slug' => Str::slug($request->title).'-'.time(),
+                'status' => $request->status ?? 'draft',
+                // ❌ NO SLUG HERE – MODEL HANDLES IT
             ]);
 
             // Multiple images
@@ -101,79 +121,70 @@ class InscriptionController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create inscription: '.$e->getMessage(),
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
-     * Update an existing inscription
+     * Update an existing inscription.
      */
     public function update(Request $request, $id)
     {
         $inscription = Inscription::with('images')->findOrFail($id);
 
         $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'banner_image' => 'nullable|image|max:2048',
-            'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv|max:102400', // 100MB max
-            'description' => 'sometimes|required|string',
+            'title' => 'sometimes|string|max:255',
+            'inscription_number' => 'sometimes|string|unique:inscriptions,inscription_number,'.$id,
+            'banner_image' => 'nullable|image|max:307200',
+            'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv,webm,mpg,mpeg|max:307200',
+            'description' => 'sometimes|string',
             'background' => 'nullable|string',
             'text' => 'nullable|string',
             'translation' => 'nullable|string',
             'references' => 'nullable|string',
             'glossary' => 'nullable|string',
-            'images.*' => 'nullable|image|max:2048',
+            'status' => 'nullable|in:draft,published,archived',
+            'removed_image_ids' => 'nullable|array',
+            'removed_image_ids.*' => 'exists:inscription_images,id',
         ]);
 
         DB::beginTransaction();
 
         try {
-            // Update banner image
             if ($request->hasFile('banner_image')) {
-                if ($inscription->banner_image) {
-                    Storage::disk('public')->delete($inscription->banner_image);
-                }
-
+                Storage::disk('public')->delete($inscription->banner_image);
                 $inscription->banner_image = $request->file('banner_image')
                     ->store('inscriptions/banners', 'public');
             }
 
-            // Update video
             if ($request->hasFile('video')) {
-                if ($inscription->video) {
-                    Storage::disk('public')->delete($inscription->video);
-                }
-
+                Storage::disk('public')->delete($inscription->video);
                 $inscription->video = $request->file('video')
                     ->store('inscriptions/videos', 'public');
             }
 
-            // Update other fields
-            $inscription->update([
-                'title' => $request->title ?? $inscription->title,
-                'description' => $request->description ?? $inscription->description,
-                'background' => $request->background ?? $inscription->background,
-                'text' => $request->text ?? $inscription->text,
-                'translation' => $request->translation ?? $inscription->translation,
-                'refrences' => $request->references ?? $inscription->refrences,
-                'glossary' => $request->glossary ?? $inscription->glossary,
-                'slug' => $request->title ? Str::slug($request->title).'-'.time() : $inscription->slug,
-            ]);
+            $inscription->update($request->only([
+                'title',
+                'inscription_number',
+                'description',
+                'background',
+                'text',
+                'translation',
+                'references',
+                'glossary',
+                'status',
+            ]));
 
-            // Add new images (does not delete old ones)
-            if ($request->hasFile('images')) {
-                $currentCount = $inscription->images()->count();
+            // Remove images
+            if ($request->filled('removed_image_ids')) {
+                $images = $inscription->images()
+                    ->whereIn('id', $request->removed_image_ids)
+                    ->get();
 
-                foreach ($request->file('images') as $index => $image) {
-                    $path = $image->store('inscriptions/images', 'public');
-
-                    InscriptionImage::create([
-                        'inscription_id' => $inscription->id,
-                        'image_path' => $path,
-                        'alt_text' => $request->title.' - Image '.($currentCount + $index + 1),
-                        'sort_order' => $currentCount + $index + 1,
-                    ]);
+                foreach ($images as $image) {
+                    Storage::disk('public')->delete($image->image_path);
+                    $image->delete();
                 }
             }
 
@@ -190,16 +201,18 @@ class InscriptionController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update inscription: '.$e->getMessage(),
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
-     * Delete an inscription
+     * Delete an inscription.
      */
     public function destroy($id)
     {
+        Log::info('Deleting inscription ID: '.$id);
+
         $inscription = Inscription::with('images')->findOrFail($id);
 
         DB::beginTransaction();
@@ -208,22 +221,30 @@ class InscriptionController extends Controller
             // Delete banner image
             if ($inscription->banner_image) {
                 Storage::disk('public')->delete($inscription->banner_image);
+                Log::info('Deleted banner image: '.$inscription->banner_image);
             }
 
             // Delete video
             if ($inscription->video) {
                 Storage::disk('public')->delete($inscription->video);
+                Log::info('Deleted video: '.$inscription->video);
             }
 
             // Delete related images
+            $imageCount = 0;
             foreach ($inscription->images as $image) {
                 Storage::disk('public')->delete($image->image_path);
                 $image->delete();
+                $imageCount++;
             }
+
+            Log::info('Deleted '.$imageCount.' gallery images');
 
             $inscription->delete();
 
             DB::commit();
+
+            Log::info('Inscription deleted successfully');
 
             return response()->json([
                 'success' => true,
@@ -233,6 +254,8 @@ class InscriptionController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
+            Log::error('Error deleting inscription: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete inscription: '.$e->getMessage(),
@@ -241,10 +264,12 @@ class InscriptionController extends Controller
     }
 
     /**
-     * Delete a single image of an inscription
+     * Delete a single image of an inscription.
      */
     public function destroyImage($imageId)
     {
+        Log::info('Deleting image ID: '.$imageId);
+
         $image = InscriptionImage::findOrFail($imageId);
 
         DB::beginTransaction();
@@ -253,12 +278,15 @@ class InscriptionController extends Controller
             // Delete image file from storage
             if ($image->image_path) {
                 Storage::disk('public')->delete($image->image_path);
+                Log::info('Deleted image file: '.$image->image_path);
             }
 
             // Delete DB record
             $image->delete();
 
             DB::commit();
+
+            Log::info('Image deleted successfully');
 
             return response()->json([
                 'success' => true,
@@ -268,10 +296,41 @@ class InscriptionController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
+            Log::error('Error deleting image: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete image: '.$e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Test endpoint to check current PHP upload limits.
+     */
+    public function testUploadLimits()
+    {
+        $currentUploadLimit = ini_get('upload_max_filesize');
+        $currentPostLimit = ini_get('post_max_size');
+
+        return response()->json([
+            'success' => true,
+            'limits' => [
+                'upload_max_filesize' => $currentUploadLimit,
+                'post_max_size' => $currentPostLimit,
+                'max_execution_time' => ini_get('max_execution_time'),
+                'max_input_time' => ini_get('max_input_time'),
+                'memory_limit' => ini_get('memory_limit'),
+                'upload_max_filesize_bytes' => $this->sizeToBytes($currentUploadLimit),
+                'post_max_size_bytes' => $this->sizeToBytes($currentPostLimit),
+                'required_bytes' => 300 * 1024 * 1024, // 300MB
+            ],
+            'server_info' => [
+                'php_version' => PHP_VERSION,
+                'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
+                'is_cli' => PHP_SAPI === 'cli',
+                'laravel_version' => app()->version(),
+            ],
+        ]);
     }
 }

@@ -3,37 +3,41 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Inscription extends Model
 {
-    //
     protected $fillable = [
-        'title', 'banner_image', 'video', 'description', 'background', 'text', 'translation', 'refrences', 'glossary', 'slug',
+        'title',
+        'banner_image',
+        'video',
+        'description',
+        'background',
+        'text',
+        'translation',
+        'references',
+        'status',
+        'inscription_number',
+        'glossary',
+        'slug',
     ];
 
     /**
-     * Auto-generate unique slug after creation
+     * Auto-generate slug from inscription_number (lowercase, no random)
      */
     protected static function booted()
     {
         static::created(function ($inscription) {
-
-            // Only generate if slug is empty
-            if (! $inscription->slug) {
-
-                $titleSlug = Str::slug($inscription->title); // title-based slug
-                $randomFiveDigits = random_int(10000, 99999); // secure random
-                $uniqueSlug = "{$titleSlug}-{$randomFiveDigits}-{$inscription->id}";
-
+            if (! $inscription->slug && $inscription->inscription_number) {
                 $inscription->updateQuietly([
-                    'slug' => $uniqueSlug,
+                    'slug' => Str::slug(strtolower($inscription->inscription_number)),
                 ]);
             }
         });
     }
 
     /**
-     * An inscription can have multiple images
+     * Relationships
      */
     public function images()
     {

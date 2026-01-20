@@ -1,13 +1,14 @@
-// import { X, Camera, Upload, Video, Image } from "lucide-react";
-// import React, { useState } from "react";
+// import { X, Camera, Upload, Video, Image, Trash2 } from "lucide-react";
+// import React, { useEffect, useState } from "react";
 // import { useForm } from "react-hook-form";
 // import axios from "axios";
 // import ReactQuill from "react-quill";
 // import "react-quill/dist/quill.snow.css";
 
-// const AddInscriptionForm = ({ 
+// const EditInscriptionForm = ({ 
 //     showForm, 
-//     setShowForm,
+//     setShowForm, 
+//     editingInscription,
 //     setReloadTrigger
 // }) => {
 //     const inputClass = "w-full p-2 rounded bg-white text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-[#5d4c2e] focus:outline-none border border-gray-300";
@@ -58,11 +59,15 @@
 
 //     const [bannerPreview, setBannerPreview] = useState(null);
 //     const [bannerFile, setBannerFile] = useState(null);
-//     const [imagesPreviews, setImagesPreviews] = useState([]);
-//     const [imageFiles, setImageFiles] = useState([]);
+//     const [existingImages, setExistingImages] = useState([]);
+//     const [newImagesPreviews, setNewImagesPreviews] = useState([]);
+//     const [newImageFiles, setNewImageFiles] = useState([]);
 //     const [videoPreview, setVideoPreview] = useState(null);
 //     const [videoFile, setVideoFile] = useState(null);
 //     const [submitting, setSubmitting] = useState(false);
+//     const [removingImageIds, setRemovingImageIds] = useState([]);
+
+//     const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
 //     const {
 //         register,
@@ -71,6 +76,46 @@
 //         reset,
 //         setValue,
 //     } = useForm();
+
+//     // Initialize form with editing data
+//     useEffect(() => {
+//         if (editingInscription) {
+//             // Set form values
+//             setValue("title", editingInscription.title);
+            
+//             // Set Quill content values
+//             setDescription(editingInscription.description || "");
+//             setBackground(editingInscription.background || "");
+//             setText(editingInscription.text || "");
+//             setTranslation(editingInscription.translation || "");
+//             setReferences(editingInscription.references || editingInscription.refrences || "");
+//             setGlossary(editingInscription.glossary || "");
+            
+//             // Also set form values for validation
+//             setValue("description", editingInscription.description || "");
+//             setValue("background", editingInscription.background || "");
+//             setValue("text", editingInscription.text || "");
+//             setValue("translation", editingInscription.translation || "");
+//             setValue("references", editingInscription.references || editingInscription.refrences || "");
+//             setValue("glossary", editingInscription.glossary || "");
+            
+//             // Set previews for existing files
+//             if (editingInscription.banner_image) {
+//                 setBannerPreview(`${imgurl}/${editingInscription.banner_image}`);
+//             }
+            
+//             if (editingInscription.video) {
+//                 setVideoPreview(`${imgurl}/${editingInscription.video}`);
+//             }
+            
+//             // Set existing images
+//             if (editingInscription.images && editingInscription.images.length > 0) {
+//                 setExistingImages(editingInscription.images);
+//             }
+//         } else {
+//             resetForm();
+//         }
+//     }, [editingInscription, reset, setValue]);
 
 //     // Handle Quill change functions
 //     const handleDescriptionChange = (content) => {
@@ -133,7 +178,7 @@
 //         const files = Array.from(e.target.files);
 //         if (files.length > 0) {
 //             // Filter only image files
-//             const imageFiles = files.filter(file => file.type.startsWith('image/'));
+//             let imageFiles = files.filter(file => file.type.startsWith('image/'));
             
 //             if (imageFiles.length !== files.length) {
 //                 alert('Some files are not images and were ignored');
@@ -148,13 +193,13 @@
 //                 }
                 
 //                 const newFiles = [...imageFiles];
-//                 setImageFiles(prev => [...prev, ...newFiles]);
+//                 setNewImageFiles(prev => [...prev, ...newFiles]);
                 
 //                 // Create previews for new files
 //                 newFiles.forEach(file => {
 //                     const reader = new FileReader();
 //                     reader.onloadend = () => {
-//                         setImagesPreviews(prev => [...prev, reader.result]);
+//                         setNewImagesPreviews(prev => [...prev, reader.result]);
 //                     };
 //                     reader.readAsDataURL(file);
 //                 });
@@ -185,10 +230,11 @@
 //         }
 //     };
 
-//     // Handle Create Inscription
-//     const handleCreate = async (formData) => {
+//     // Handle Update Inscription
+//     const handleUpdate = async (formData) => {
 //         try {
-//             const response = await axios.post(route("ourinscription.store"), formData, {
+//             formData.append("_method", "PUT");
+//             const response = await axios.post(route("ourinscription.update", editingInscription.id), formData, {
 //                 headers: {
 //                     "Content-Type": "multipart/form-data",
 //                 },
@@ -201,9 +247,21 @@
 //             setReloadTrigger((prev) => !prev);
 //             return response.data;
 //         } catch (error) {
-//             console.error("Error creating inscription", error);
+//             console.error("Error updating inscription", error);
 //             throw error;
 //         }
+//     };
+
+//     // Remove existing image
+//     const handleRemoveExistingImage = (imageId) => {
+//         setRemovingImageIds(prev => [...prev, imageId]);
+//         setExistingImages(prev => prev.filter(img => img.id !== imageId));
+//     };
+
+//     // Remove new image
+//     const handleRemoveNewImage = (index) => {
+//         setNewImagesPreviews(prev => prev.filter((_, i) => i !== index));
+//         setNewImageFiles(prev => prev.filter((_, i) => i !== index));
 //     };
 
 //     // Handle form submission
@@ -220,8 +278,8 @@
 //             return;
 //         }
 
-//         // Validate all images size
-//         const oversizedImages = imageFiles.filter(file => file.size > 300 * 1024 * 1024);
+//         // Validate all new images size
+//         const oversizedImages = newImageFiles.filter(file => file.size > 300 * 1024 * 1024);
 //         if (oversizedImages.length > 0) {
 //             alert(`Some images exceed 300MB limit. Please remove them.`);
 //             return;
@@ -236,33 +294,37 @@
 //             }
 //         });
 
-//         // Append banner file
+//         // Append banner file if changed
 //         if (bannerFile) {
 //             formData.append('banner_image', bannerFile);
 //         }
         
-//         // Append video file
+//         // Append video file if changed
 //         if (videoFile) {
 //             formData.append('video', videoFile);
 //         }
         
-//         // Append multiple images correctly
-//         imageFiles.forEach((file, index) => {
+//         // Append new images
+//         newImageFiles.forEach((file, index) => {
 //             formData.append(`images[${index}]`, file);
+//         });
+        
+//         // Append removed image IDs
+//         removingImageIds.forEach(id => {
+//             formData.append('removed_image_ids[]', id);
 //         });
 
 //         try {
 //             setSubmitting(true);
             
-//             const result = await handleCreate(formData);
+//             const result = await handleUpdate(formData);
             
 //             if (result.success) {
-//                 // Reset and close form
 //                 resetForm();
-//                 alert(result.message || "Inscription added successfully!");
+//                 alert(result.message || "Inscription updated successfully!");
 //                 setShowForm(false);
 //             } else {
-//                 alert(result.message || "Failed to add inscription");
+//                 alert(result.message || "Failed to update inscription");
 //             }
             
 //         } catch (error) {
@@ -270,7 +332,7 @@
 //                                error.response?.data?.errors?.images?.[0] || 
 //                                error.response?.data?.errors?.video?.[0] ||
 //                                error.response?.data?.errors?.banner_image?.[0] ||
-//                                "Error saving inscription";
+//                                "Error updating inscription";
 //             alert(errorMessage);
 //             console.error("Submission error:", error.response?.data);
 //         } finally {
@@ -289,13 +351,15 @@
 //         setGlossary("");
 //         setBannerPreview(null);
 //         setBannerFile(null);
-//         setImagesPreviews([]);
-//         setImageFiles([]);
+//         setExistingImages([]);
+//         setNewImagesPreviews([]);
+//         setNewImageFiles([]);
 //         if (videoPreview && videoPreview.startsWith('blob:')) {
 //             URL.revokeObjectURL(videoPreview);
 //         }
 //         setVideoPreview(null);
 //         setVideoFile(null);
+//         setRemovingImageIds([]);
 //     };
 
 //     // Handle close form
@@ -330,7 +394,7 @@
 //                     {/* Header */}
 //                     <div className="flex justify-between items-center mb-4">
 //                         <h2 className="text-2xl font-bold">
-//                             Add Inscription
+//                             Edit Inscription
 //                         </h2>
 //                         <button onClick={handleClose} className="hover:text-red-500" type="button">
 //                             <X className="w-6 h-6" />
@@ -374,14 +438,21 @@
 //                                                     alt="Banner Preview"
 //                                                     className="mx-auto h-40 w-full object-cover rounded-lg shadow-lg bg-white"
 //                                                 />
+//                                                 {bannerFile && (
+//                                                     <div className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs">
+//                                                         New
+//                                                     </div>
+//                                                 )}
 //                                             </div>
 //                                             <p className="text-sm text-gray-600">Click to change image</p>
+//                                             <p className="text-xs text-gray-500">Max size: 300MB</p>
 //                                         </div>
 //                                     ) : (
 //                                         <div className="space-y-4">
 //                                             <Upload className="mx-auto h-12 w-12 text-gray-400" />
 //                                             <p className="text-lg text-gray-700">Click to upload banner image</p>
-//                                             <p className="text-sm text-gray-500">Recommended: 1200x400px | Max: 300MB</p>
+//                                             <p className="text-sm text-gray-500">Recommended: 1200x400px</p>
+//                                             <p className="text-sm text-gray-500">Max size: 300MB</p>
 //                                         </div>
 //                                     )}
 //                                     <input
@@ -399,32 +470,80 @@
 //                                     <Image className="mr-3 text-gray-600" size={22} />
 //                                     Images (Multiple)
 //                                 </label>
+                                
+//                                 {/* Existing Images */}
+//                                 {existingImages.length > 0 && (
+//                                     <div className="mb-4">
+//                                         <h4 className="text-md font-medium text-gray-700 mb-2">Existing Images</h4>
+//                                         <div className="grid grid-cols-3 gap-3 mb-4">
+//                                             {existingImages.map((image) => (
+//                                                 <div key={image.id} className="relative group">
+//                                                     <img
+//                                                         src={`${imgurl}/${image.image_path}`}
+//                                                         alt={`Existing image`}
+//                                                         className="h-24 w-full object-cover rounded-lg shadow bg-white"
+//                                                     />
+//                                                     <button
+//                                                         type="button"
+//                                                         onClick={() => handleRemoveExistingImage(image.id)}
+//                                                         className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
+//                                                         title="Remove image"
+//                                                     >
+//                                                         <Trash2 size={12} />
+//                                                     </button>
+//                                                     {removingImageIds.includes(image.id) && (
+//                                                         <div className="absolute inset-0 bg-red-500/20 rounded-lg flex items-center justify-center">
+//                                                             <span className="text-xs text-white bg-red-600 px-2 py-1 rounded">Removing</span>
+//                                                         </div>
+//                                                     )}
+//                                                 </div>
+//                                             ))}
+//                                         </div>
+//                                     </div>
+//                                 )}
+                                
+//                                 {/* New Images Upload */}
 //                                 <div className="border-2 border-dashed border-gray-400 rounded-xl p-6 text-center hover:border-gray-600 transition-all duration-300 relative bg-white">
-//                                     {imagesPreviews.length > 0 ? (
+//                                     {newImagesPreviews.length > 0 || existingImages.length > 0 ? (
 //                                         <div className="space-y-4">
-//                                             <div className="grid grid-cols-3 gap-4">
-//                                                 {imagesPreviews.map((preview, index) => (
-//                                                     <div key={index} className="relative">
-//                                                         <img
-//                                                             src={preview}
-//                                                             alt={`Preview ${index + 1}`}
-//                                                             className="h-24 w-full object-cover rounded-lg shadow bg-white"
-//                                                         />
+//                                             {newImagesPreviews.length > 0 && (
+//                                                 <div>
+//                                                     <h4 className="text-md font-medium text-gray-700 mb-2">New Images</h4>
+//                                                     <div className="grid grid-cols-3 gap-3 mb-4">
+//                                                         {newImagesPreviews.map((preview, index) => (
+//                                                             <div key={index} className="relative group">
+//                                                                 <img
+//                                                                     src={preview}
+//                                                                     alt={`New image ${index + 1}`}
+//                                                                     className="h-24 w-full object-cover rounded-lg shadow bg-white"
+//                                                                 />
+//                                                                 <button
+//                                                                     type="button"
+//                                                                     onClick={() => handleRemoveNewImage(index)}
+//                                                                     className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
+//                                                                     title="Remove image"
+//                                                                 >
+//                                                                     <Trash2 size={12} />
+//                                                                 </button>
+//                                                             </div>
+//                                                         ))}
 //                                                     </div>
-//                                                 ))}
-//                                             </div>
+//                                                 </div>
+//                                             )}
 //                                             <div className="space-y-2">
 //                                                 <p className="text-sm text-gray-600">
-//                                                     {imagesPreviews.length} image(s) selected
+//                                                     Total: {existingImages.length + newImagesPreviews.length} image(s)
 //                                                 </p>
 //                                                 <p className="text-sm text-gray-500">Click to add more images</p>
+//                                                 <p className="text-xs text-gray-500">Max size: 300MB per file</p>
 //                                             </div>
 //                                         </div>
 //                                     ) : (
 //                                         <div className="space-y-4">
 //                                             <Upload className="mx-auto h-12 w-12 text-gray-400" />
 //                                             <p className="text-lg text-gray-700">Click to upload multiple images</p>
-//                                             <p className="text-sm text-gray-500">Hold Ctrl/Cmd to select multiple files | Max: 300MB per file</p>
+//                                             <p className="text-sm text-gray-500">Hold Ctrl/Cmd to select multiple files</p>
+//                                             <p className="text-sm text-gray-500">Max size: 300MB per file</p>
 //                                         </div>
 //                                     )}
 //                                     <input
@@ -452,15 +571,27 @@
 //                                                     className="mx-auto h-40 w-full object-cover rounded-lg shadow-lg bg-white"
 //                                                     controls
 //                                                 />
+//                                                 {videoFile && (
+//                                                     <div className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs">
+//                                                         New
+//                                                     </div>
+//                                                 )}
 //                                             </div>
-//                                             {videoFile && (
+//                                             {videoFile ? (
 //                                                 <div className="text-center">
 //                                                     <p className="text-sm text-gray-600">
 //                                                         File: {videoFile.name} ({formatFileSize(videoFile.size)})
 //                                                     </p>
 //                                                 </div>
+//                                             ) : editingInscription.video && (
+//                                                 <div className="text-center">
+//                                                     <p className="text-sm text-gray-600">
+//                                                         Current video will be kept
+//                                                     </p>
+//                                                 </div>
 //                                             )}
 //                                             <p className="text-sm text-gray-600">Click to change video</p>
+//                                             <p className="text-xs text-gray-500">Max size: 300MB</p>
 //                                         </div>
 //                                     ) : (
 //                                         <div className="space-y-4">
@@ -600,9 +731,9 @@
 //                                 <button
 //                                     type="submit"
 //                                     disabled={submitting}
-//                                     className={`w-full bg-gray-800 text-white py-3 rounded-lg font-semibold transition text-lg ${submitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-900'}`}
+//                                     className={`w-full bg-blue-600 text-white py-3 rounded-lg font-semibold transition text-lg ${submitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
 //                                 >
-//                                     {submitting ? 'Saving...' : 'Add Inscription'}
+//                                     {submitting ? 'Updating...' : 'Update Inscription'}
 //                                 </button>
 //                             </div>
 //                         </form>
@@ -613,20 +744,21 @@
 //     );
 // };
 
-// export default AddInscriptionForm;
+// export default EditInscriptionForm;
 
 
 
-import { X, Camera, Upload, Video, Image } from "lucide-react";
-import React, { useState } from "react";
+import { X, Camera, Upload, Video, Image, Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-const AddInscriptionForm = ({ 
+const EditInscriptionForm = ({ 
     showForm, 
-    setShowForm,
+    setShowForm, 
+    editingInscription,
     setReloadTrigger
 }) => {
     const inputClass = "w-full p-2 rounded bg-white text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-[#5d4c2e] focus:outline-none border border-gray-300";
@@ -677,11 +809,15 @@ const AddInscriptionForm = ({
 
     const [bannerPreview, setBannerPreview] = useState(null);
     const [bannerFile, setBannerFile] = useState(null);
-    const [imagesPreviews, setImagesPreviews] = useState([]);
-    const [imageFiles, setImageFiles] = useState([]);
+    const [existingImages, setExistingImages] = useState([]);
+    const [newImagesPreviews, setNewImagesPreviews] = useState([]);
+    const [newImageFiles, setNewImageFiles] = useState([]);
     const [videoPreview, setVideoPreview] = useState(null);
     const [videoFile, setVideoFile] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const [removingImageIds, setRemovingImageIds] = useState([]);
+
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     const {
         register,
@@ -690,6 +826,48 @@ const AddInscriptionForm = ({
         reset,
         setValue,
     } = useForm();
+
+    // Initialize form with editing data
+    useEffect(() => {
+        if (editingInscription) {
+            // Set form values
+            setValue("title", editingInscription.title);
+            setValue("inscription_number", editingInscription.inscription_number);
+            setValue("status", editingInscription.status || "draft");
+            
+            // Set Quill content values
+            setDescription(editingInscription.description || "");
+            setBackground(editingInscription.background || "");
+            setText(editingInscription.text || "");
+            setTranslation(editingInscription.translation || "");
+            setReferences(editingInscription.references || editingInscription.refrences || "");
+            setGlossary(editingInscription.glossary || "");
+            
+            // Also set form values for validation
+            setValue("description", editingInscription.description || "");
+            setValue("background", editingInscription.background || "");
+            setValue("text", editingInscription.text || "");
+            setValue("translation", editingInscription.translation || "");
+            setValue("references", editingInscription.references || editingInscription.refrences || "");
+            setValue("glossary", editingInscription.glossary || "");
+            
+            // Set previews for existing files
+            if (editingInscription.banner_image) {
+                setBannerPreview(`${imgurl}/${editingInscription.banner_image}`);
+            }
+            
+            if (editingInscription.video) {
+                setVideoPreview(`${imgurl}/${editingInscription.video}`);
+            }
+            
+            // Set existing images
+            if (editingInscription.images && editingInscription.images.length > 0) {
+                setExistingImages(editingInscription.images);
+            }
+        } else {
+            resetForm();
+        }
+    }, [editingInscription, reset, setValue]);
 
     // Handle Quill change functions
     const handleDescriptionChange = (content) => {
@@ -752,7 +930,7 @@ const AddInscriptionForm = ({
         const files = Array.from(e.target.files);
         if (files.length > 0) {
             // Filter only image files
-            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            let imageFiles = files.filter(file => file.type.startsWith('image/'));
             
             if (imageFiles.length !== files.length) {
                 alert('Some files are not images and were ignored');
@@ -767,13 +945,13 @@ const AddInscriptionForm = ({
                 }
                 
                 const newFiles = [...imageFiles];
-                setImageFiles(prev => [...prev, ...newFiles]);
+                setNewImageFiles(prev => [...prev, ...newFiles]);
                 
                 // Create previews for new files
                 newFiles.forEach(file => {
                     const reader = new FileReader();
                     reader.onloadend = () => {
-                        setImagesPreviews(prev => [...prev, reader.result]);
+                        setNewImagesPreviews(prev => [...prev, reader.result]);
                     };
                     reader.readAsDataURL(file);
                 });
@@ -804,10 +982,11 @@ const AddInscriptionForm = ({
         }
     };
 
-    // Handle Create Inscription
-    const handleCreate = async (formData) => {
+    // Handle Update Inscription
+    const handleUpdate = async (formData) => {
         try {
-            const response = await axios.post(route("ourinscription.store"), formData, {
+            formData.append("_method", "PUT");
+            const response = await axios.post(route("ourinscription.update", editingInscription.id), formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -820,9 +999,21 @@ const AddInscriptionForm = ({
             setReloadTrigger((prev) => !prev);
             return response.data;
         } catch (error) {
-            console.error("Error creating inscription", error);
+            console.error("Error updating inscription", error);
             throw error;
         }
+    };
+
+    // Remove existing image
+    const handleRemoveExistingImage = (imageId) => {
+        setRemovingImageIds(prev => [...prev, imageId]);
+        setExistingImages(prev => prev.filter(img => img.id !== imageId));
+    };
+
+    // Remove new image
+    const handleRemoveNewImage = (index) => {
+        setNewImagesPreviews(prev => prev.filter((_, i) => i !== index));
+        setNewImageFiles(prev => prev.filter((_, i) => i !== index));
     };
 
     // Handle form submission
@@ -839,8 +1030,8 @@ const AddInscriptionForm = ({
             return;
         }
 
-        // Validate all images size
-        const oversizedImages = imageFiles.filter(file => file.size > 300 * 1024 * 1024);
+        // Validate all new images size
+        const oversizedImages = newImageFiles.filter(file => file.size > 300 * 1024 * 1024);
         if (oversizedImages.length > 0) {
             alert(`Some images exceed 300MB limit. Please remove them.`);
             return;
@@ -854,37 +1045,38 @@ const AddInscriptionForm = ({
                 formData.append(key, data[key]);
             }
         });
-        
-        // Automatically append status as "draft"
-        formData.append('status', 'draft');
 
-        // Append banner file
+        // Append banner file if changed
         if (bannerFile) {
             formData.append('banner_image', bannerFile);
         }
         
-        // Append video file
+        // Append video file if changed
         if (videoFile) {
             formData.append('video', videoFile);
         }
         
-        // Append multiple images correctly
-        imageFiles.forEach((file, index) => {
+        // Append new images
+        newImageFiles.forEach((file, index) => {
             formData.append(`images[${index}]`, file);
+        });
+        
+        // Append removed image IDs
+        removingImageIds.forEach(id => {
+            formData.append('removed_image_ids[]', id);
         });
 
         try {
             setSubmitting(true);
             
-            const result = await handleCreate(formData);
+            const result = await handleUpdate(formData);
             
             if (result.success) {
-                // Reset and close form
                 resetForm();
-                alert(result.message || "Inscription added successfully!");
+                alert(result.message || "Inscription updated successfully!");
                 setShowForm(false);
             } else {
-                alert(result.message || "Failed to add inscription");
+                alert(result.message || "Failed to update inscription");
             }
             
         } catch (error) {
@@ -893,7 +1085,7 @@ const AddInscriptionForm = ({
                                error.response?.data?.errors?.video?.[0] ||
                                error.response?.data?.errors?.banner_image?.[0] ||
                                error.response?.data?.errors?.inscription_number?.[0] ||
-                               "Error saving inscription";
+                               "Error updating inscription";
             alert(errorMessage);
             console.error("Submission error:", error.response?.data);
         } finally {
@@ -912,13 +1104,15 @@ const AddInscriptionForm = ({
         setGlossary("");
         setBannerPreview(null);
         setBannerFile(null);
-        setImagesPreviews([]);
-        setImageFiles([]);
+        setExistingImages([]);
+        setNewImagesPreviews([]);
+        setNewImageFiles([]);
         if (videoPreview && videoPreview.startsWith('blob:')) {
             URL.revokeObjectURL(videoPreview);
         }
         setVideoPreview(null);
         setVideoFile(null);
+        setRemovingImageIds([]);
     };
 
     // Handle close form
@@ -953,7 +1147,7 @@ const AddInscriptionForm = ({
                     {/* Header */}
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-bold">
-                            Add Inscription
+                            Edit Inscription
                         </h2>
                         <button onClick={handleClose} className="hover:text-red-500" type="button">
                             <X className="w-6 h-6" />
@@ -1001,6 +1195,23 @@ const AddInscriptionForm = ({
                                 )}
                             </div>
 
+                            {/* Status */}
+                            <div>
+                                <label className="block mb-2 font-medium text-lg">Status *</label>
+                                <select
+                                    className={`${inputClass} ${errors.status ? "border-2 border-red-500" : ""}`}
+                                    {...register("status", {
+                                        required: "Status is required",
+                                    })}
+                                >
+                                    <option value="draft">Draft</option>
+                                    <option value="published">Published</option>
+                                </select>
+                                {errors.status && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.status.message}</p>
+                                )}
+                            </div>
+
                             {/* Banner Image */}
                             <div className="space-y-2">
                                 <label className="flex items-center text-lg font-semibold text-gray-700">
@@ -1016,14 +1227,21 @@ const AddInscriptionForm = ({
                                                     alt="Banner Preview"
                                                     className="mx-auto h-40 w-full object-cover rounded-lg shadow-lg bg-white"
                                                 />
+                                                {bannerFile && (
+                                                    <div className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs">
+                                                        New
+                                                    </div>
+                                                )}
                                             </div>
                                             <p className="text-sm text-gray-600">Click to change image</p>
+                                            <p className="text-xs text-gray-500">Max size: 300MB</p>
                                         </div>
                                     ) : (
                                         <div className="space-y-4">
                                             <Upload className="mx-auto h-12 w-12 text-gray-400" />
                                             <p className="text-lg text-gray-700">Click to upload banner image</p>
-                                            <p className="text-sm text-gray-500">Recommended: 1200x400px | Max: 300MB</p>
+                                            <p className="text-sm text-gray-500">Recommended: 1200x400px</p>
+                                            <p className="text-sm text-gray-500">Max size: 300MB</p>
                                         </div>
                                     )}
                                     <input
@@ -1041,32 +1259,80 @@ const AddInscriptionForm = ({
                                     <Image className="mr-3 text-gray-600" size={22} />
                                     Images (Multiple)
                                 </label>
+                                
+                                {/* Existing Images */}
+                                {existingImages.length > 0 && (
+                                    <div className="mb-4">
+                                        <h4 className="text-md font-medium text-gray-700 mb-2">Existing Images</h4>
+                                        <div className="grid grid-cols-3 gap-3 mb-4">
+                                            {existingImages.map((image) => (
+                                                <div key={image.id} className="relative group">
+                                                    <img
+                                                        src={`${imgurl}/${image.image_path}`}
+                                                        alt={`Existing image`}
+                                                        className="h-24 w-full object-cover rounded-lg shadow bg-white"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveExistingImage(image.id)}
+                                                        className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
+                                                        title="Remove image"
+                                                    >
+                                                        <Trash2 size={12} />
+                                                    </button>
+                                                    {removingImageIds.includes(image.id) && (
+                                                        <div className="absolute inset-0 bg-red-500/20 rounded-lg flex items-center justify-center">
+                                                            <span className="text-xs text-white bg-red-600 px-2 py-1 rounded">Removing</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                {/* New Images Upload */}
                                 <div className="border-2 border-dashed border-gray-400 rounded-xl p-6 text-center hover:border-gray-600 transition-all duration-300 relative bg-white">
-                                    {imagesPreviews.length > 0 ? (
+                                    {newImagesPreviews.length > 0 || existingImages.length > 0 ? (
                                         <div className="space-y-4">
-                                            <div className="grid grid-cols-3 gap-4">
-                                                {imagesPreviews.map((preview, index) => (
-                                                    <div key={index} className="relative">
-                                                        <img
-                                                            src={preview}
-                                                            alt={`Preview ${index + 1}`}
-                                                            className="h-24 w-full object-cover rounded-lg shadow bg-white"
-                                                        />
+                                            {newImagesPreviews.length > 0 && (
+                                                <div>
+                                                    <h4 className="text-md font-medium text-gray-700 mb-2">New Images</h4>
+                                                    <div className="grid grid-cols-3 gap-3 mb-4">
+                                                        {newImagesPreviews.map((preview, index) => (
+                                                            <div key={index} className="relative group">
+                                                                <img
+                                                                    src={preview}
+                                                                    alt={`New image ${index + 1}`}
+                                                                    className="h-24 w-full object-cover rounded-lg shadow bg-white"
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleRemoveNewImage(index)}
+                                                                    className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
+                                                                    title="Remove image"
+                                                                >
+                                                                    <Trash2 size={12} />
+                                                                </button>
+                                                            </div>
+                                                        ))}
                                                     </div>
-                                                ))}
-                                            </div>
+                                                </div>
+                                            )}
                                             <div className="space-y-2">
                                                 <p className="text-sm text-gray-600">
-                                                    {imagesPreviews.length} image(s) selected
+                                                    Total: {existingImages.length + newImagesPreviews.length} image(s)
                                                 </p>
                                                 <p className="text-sm text-gray-500">Click to add more images</p>
+                                                <p className="text-xs text-gray-500">Max size: 300MB per file</p>
                                             </div>
                                         </div>
                                     ) : (
                                         <div className="space-y-4">
                                             <Upload className="mx-auto h-12 w-12 text-gray-400" />
                                             <p className="text-lg text-gray-700">Click to upload multiple images</p>
-                                            <p className="text-sm text-gray-500">Hold Ctrl/Cmd to select multiple files | Max: 300MB per file</p>
+                                            <p className="text-sm text-gray-500">Hold Ctrl/Cmd to select multiple files</p>
+                                            <p className="text-sm text-gray-500">Max size: 300MB per file</p>
                                         </div>
                                     )}
                                     <input
@@ -1094,15 +1360,27 @@ const AddInscriptionForm = ({
                                                     className="mx-auto h-40 w-full object-cover rounded-lg shadow-lg bg-white"
                                                     controls
                                                 />
+                                                {videoFile && (
+                                                    <div className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs">
+                                                        New
+                                                    </div>
+                                                )}
                                             </div>
-                                            {videoFile && (
+                                            {videoFile ? (
                                                 <div className="text-center">
                                                     <p className="text-sm text-gray-600">
                                                         File: {videoFile.name} ({formatFileSize(videoFile.size)})
                                                     </p>
                                                 </div>
+                                            ) : editingInscription.video && (
+                                                <div className="text-center">
+                                                    <p className="text-sm text-gray-600">
+                                                        Current video will be kept
+                                                    </p>
+                                                </div>
                                             )}
                                             <p className="text-sm text-gray-600">Click to change video</p>
+                                            <p className="text-xs text-gray-500">Max size: 300MB</p>
                                         </div>
                                     ) : (
                                         <div className="space-y-4">
@@ -1244,7 +1522,7 @@ const AddInscriptionForm = ({
                                     disabled={submitting}
                                     className={`w-full bg-blue-600 text-white py-3 rounded-lg font-semibold transition text-lg ${submitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
                                 >
-                                    {submitting ? 'Saving...' : 'Add Inscription'}
+                                    {submitting ? 'Updating...' : 'Update Inscription'}
                                 </button>
                             </div>
                         </form>
@@ -1255,4 +1533,4 @@ const AddInscriptionForm = ({
     );
 };
 
-export default AddInscriptionForm;
+export default EditInscriptionForm;

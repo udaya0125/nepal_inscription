@@ -19,7 +19,7 @@
 //     X,
 // } from "lucide-react";
 // import { useTable, useSortBy, usePagination } from "react-table";
-// import parse from "html-react-parser";
+// import parse from 'html-react-parser';
 
 // const Inscriptions = () => {
 //     const [showForm, setShowForm] = useState(false);
@@ -164,8 +164,8 @@
 
 //     // Helper function to strip HTML tags for table display
 //     const stripHtml = (html) => {
-//         if (!html) return "";
-//         return html.replace(/<[^>]*>/g, "");
+//         if (!html) return '';
+//         return html.replace(/<[^>]*>/g, '');
 //     };
 
 //     // React Table columns
@@ -225,7 +225,7 @@
 //                 Cell: ({ value }) => (
 //                     <div className="text-sm text-gray-900 max-w-xs">
 //                         {value
-//                             ? stripHtml(value).length > 10
+//                             ? stripHtml(value).length > 100
 //                                 ? `${stripHtml(value).substring(0, 10)}...`
 //                                 : stripHtml(value)
 //                             : "No translation"}
@@ -240,21 +240,21 @@
 //                     <div className="flex space-x-2">
 //                         <button
 //                             onClick={() => handleViewDetails(row.original)}
-//                             className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-white/20"
+//                             className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
 //                             title="View Details"
 //                         >
 //                             <Eye size={18} />
 //                         </button>
 //                         <button
 //                             onClick={() => handleEdit(row.original)}
-//                             className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-white/20"
+//                             className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
 //                             title="Edit"
 //                         >
 //                             <Edit size={18} />
 //                         </button>
 //                         <button
 //                             onClick={() => handleDelete(row.original.id)}
-//                             className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-white/20"
+//                             className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
 //                             title="Delete"
 //                         >
 //                             <Trash2 size={18} />
@@ -308,47 +308,26 @@
 
 //     return (
 //         <AdminWrapper>
-//             <div
-//                 className=""
-//                 style={{
-//                     backgroundImage: "url('/images/bg.jpeg')",
-//                     backgroundSize: "cover",
-//                     backgroundPosition: "center",
-//                     backgroundRepeat: "no-repeat",
-//                     backgroundAttachment: "fixed",
-//                 }}
-//             >
-//                 {/* Dark overlay for better readability */}
-//                 <div className="absolute inset-0 bg-opacity-40"></div>
-
+//             <div>
 //                 <div className="relative z-10">
 //                     {/* Home Content with glassmorphism effect */}
 //                     <div className="min-h-[calc(100vh-4rem)]">
 //                         <div className="w-full p-6 flex justify-between items-center">
-//                             <h1 className="text-3xl font-bold text-[#5d4c2e]">
+//                             <h1 className="text-3xl font-bold ">
 //                                 Inscriptions
 //                             </h1>
 //                             <button
 //                                 onClick={() => setShowForm(true)}
-//                                 className="px-4 py-2 bg-[#5d4c2e] text-white rounded hover:bg-[#4a3d24] transition flex items-center gap-2"
+//                                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-2"
 //                             >
-//                                  Add Inscription
+//                             Add Inscription
 //                             </button>
 //                         </div>
 
 //                         {/* Table Container */}
 //                         <div className="p-6">
-//                             <div
-//                                 className=""
-//                                 style={{
-//                                     backgroundImage: "url('/images/bg.jpeg')",
-//                                     backgroundSize: "cover",
-//                                     backgroundPosition: "center",
-//                                     backgroundRepeat: "no-repeat",
-//                                     backgroundAttachment: "fixed",
-//                                 }}
-//                             >
-//                                 <div className="bg-black/20 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden">
+//                             <div className="">
+//                                 <div className="bg-white rounded-xl shadow-xl overflow-hidden">
 //                                     {loading ? (
 //                                         <div className="text-center py-8">
 //                                             Loading...
@@ -360,7 +339,7 @@
 //                                                     {...getTableProps()}
 //                                                     className="min-w-full divide-y divide-gray-200"
 //                                                 >
-//                                                     <thead className="">
+//                                                     <thead className="bg-gray-50">
 //                                                         {headerGroups.map(
 //                                                             (headerGroup) => (
 //                                                                 <tr
@@ -409,7 +388,7 @@
 //                                                     </thead>
 //                                                     <tbody
 //                                                         {...getTableBodyProps()}
-//                                                         className=" divide-y divide-gray-200"
+//                                                         className="bg-white divide-y divide-gray-200"
 //                                                     >
 //                                                         {rows.length > 0 ? (
 //                                                             rows.map((row) => {
@@ -417,7 +396,7 @@
 //                                                                 return (
 //                                                                     <tr
 //                                                                         {...row.getRowProps()}
-//                                                                         className=""
+//                                                                         className="hover:bg-gray-50"
 //                                                                     >
 //                                                                         {row.cells.map(
 //                                                                             (
@@ -479,7 +458,7 @@
 //                                                                         ),
 //                                                                     )
 //                                                                 }
-//                                                                 className="border border-gray-300 bg-white/20 rounded-md px-2 py-1 text-sm"
+//                                                                 className="border border-gray-300 rounded-md px-2 py-1 text-sm"
 //                                                             >
 //                                                                 {[
 //                                                                     5, 10, 20,
@@ -632,27 +611,17 @@
 //                 />
 //             )}
 
-//             {/* Details Modal - Redesigned with background image */}
+//             {/* Details Modal */}
 //             {showDetailsModal && selectedInscription && (
 //                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-//                     {/* Modal content */}
-//                     <div className="relative z-10 bg-white/20 backdrop-blur-sm rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-white/20">
+//                     {/* Dark overlay */}
+//                     <div className="absolute inset-0 bg-black/50"></div>
 
-//                     <div
-//                         className="absolute inset-0"
-//                         style={{
-//                             backgroundImage: "url('/images/bg.jpeg')",
-//                             backgroundSize: "cover",
-//                             backgroundPosition: "center",
-//                             backgroundRepeat: "no-repeat",
-//                         }}
-//                     >
-//                         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
-//                     </div>
-//                         {/* Header with gradient overlay */}
-//                         <div className="relative p-6 border-b border-gray-200/50">
-//                             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-indigo-600/20"></div>
-//                             <div className="relative flex justify-between items-center">
+//                     {/* Modal content */}
+//                     <div className="relative z-10 bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+//                         {/* Header */}
+//                         <div className="p-6 border-b border-gray-200">
+//                             <div className="flex justify-between items-center">
 //                                 <div>
 //                                     <h2 className="text-4xl font-bold text-gray-800">
 //                                         {selectedInscription.title}
@@ -660,24 +629,24 @@
 //                                 </div>
 //                                 <button
 //                                     onClick={handleCloseDetails}
-//                                     className="text-gray-500 hover:text-gray-700 text-2xl bg-white/90 backdrop-blur-sm rounded-full h-8 w-8 flex items-center justify-center shadow-sm hover:shadow border border-gray-200/50"
+//                                     className="text-gray-500 hover:text-gray-700 text-2xl bg-white rounded-full h-8 w-8 flex items-center justify-center shadow-sm hover:shadow border border-gray-200"
 //                                 >
 //                                     <X size={20} />
 //                                 </button>
 //                             </div>
 //                         </div>
 
-//                         {/* Tabs with glass effect */}
-//                         <div className="border-b border-gray-200/50">
-//                             <div className="flex overflow-x-auto bg-white/50 backdrop-blur-sm">
+//                         {/* Tabs */}
+//                         <div className="border-b border-gray-200">
+//                             <div className="flex overflow-x-auto">
 //                                 {tabs.map((tab) => (
 //                                     <button
 //                                         key={tab.id}
 //                                         onClick={() => setActiveTab(tab.id)}
 //                                         className={`flex items-center px-6 py-3 text-sm font-medium border-b-2 transition-all ${
 //                                             activeTab === tab.id
-//                                                 ? "border-blue-600 text-blue-700 bg-white/80 backdrop-blur-sm"
-//                                                 : "border-transparent text-gray-600 hover:text-gray-800 hover:bg-white/60 backdrop-blur-sm"
+//                                                 ? "border-blue-600 text-blue-700 bg-gray-50"
+//                                                 : "border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-100"
 //                                         }`}
 //                                     >
 //                                         <span className="mr-2">{tab.icon}</span>
@@ -688,23 +657,23 @@
 //                         </div>
 
 //                         {/* Tab Content */}
-//                         <div className="flex-1 overflow-y-auto p-6  backdrop-blur-sm">
+//                         <div className="flex-1 overflow-y-auto p-6">
 //                             {/* Overview Tab */}
 //                             {activeTab === "overview" && (
 //                                 <div className="space-y-6">
 //                                     <div>
 //                                         {/* Banner Image */}
-//                                         <div className="bg-gradient-to-br from-gray-100/50 to-gray-200/50 rounded-lg overflow-hidden border border-gray-200/50">
+//                                         <div className="bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
 //                                             {selectedInscription.banner_image ? (
 //                                                 <img
-//                                                     src={`/storage/${selectedInscription.banner_image}`}
+//                                                     src={`${imgurl}/${selectedInscription.banner_image}`}
 //                                                     alt={
 //                                                         selectedInscription.title
 //                                                     }
 //                                                     className="w-full h-64 object-cover"
 //                                                 />
 //                                             ) : (
-//                                                 <div className="w-full h-64 bg-gradient-to-br from-gray-100/50 to-gray-200/50 flex items-center justify-center">
+//                                                 <div className="w-full h-64 bg-gray-100 flex items-center justify-center">
 //                                                     <span className="text-gray-400">
 //                                                         No Banner Image
 //                                                     </span>
@@ -714,7 +683,7 @@
 //                                     </div>
 
 //                                     {/* Description */}
-//                                     <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
 //                                         <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
 //                                             <FileText
 //                                                 className="mr-2"
@@ -724,9 +693,7 @@
 //                                         </h3>
 //                                         <div className="prose max-w-none rich-text-content">
 //                                             {selectedInscription.description ? (
-//                                                 parse(
-//                                                     selectedInscription.description,
-//                                                 )
+//                                                 parse(selectedInscription.description)
 //                                             ) : (
 //                                                 <p className="text-gray-500 italic">
 //                                                     No description provided
@@ -742,34 +709,29 @@
 //                                 <div className="space-y-6">
 //                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 //                                         {/* Original Text */}
-//                                         <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
 //                                             <h3 className="text-lg font-semibold text-gray-800 mb-3">
 //                                                 Original Text
 //                                             </h3>
-//                                             <div className="bg-gray-50/50 backdrop-blur-sm rounded p-4 border border-gray-200/50 rich-text-content">
+//                                             <div className="bg-gray-50 rounded p-4 border border-gray-200 rich-text-content">
 //                                                 {selectedInscription.text ? (
-//                                                     parse(
-//                                                         selectedInscription.text,
-//                                                     )
+//                                                     parse(selectedInscription.text)
 //                                                 ) : (
 //                                                     <p className="text-gray-500 italic">
-//                                                         No original text
-//                                                         provided
+//                                                         No original text provided
 //                                                     </p>
 //                                                 )}
 //                                             </div>
 //                                         </div>
 
 //                                         {/* Translation */}
-//                                         <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
 //                                             <h3 className="text-lg font-semibold text-gray-800 mb-3">
 //                                                 Translation
 //                                             </h3>
-//                                             <div className="bg-blue-50/50 backdrop-blur-sm rounded p-4 border border-blue-200/50 rich-text-content">
+//                                             <div className="bg-blue-50 rounded p-4 border border-blue-200 rich-text-content">
 //                                                 {selectedInscription.translation ? (
-//                                                     parse(
-//                                                         selectedInscription.translation,
-//                                                     )
+//                                                     parse(selectedInscription.translation)
 //                                                 ) : (
 //                                                     <p className="text-gray-500 italic">
 //                                                         No translation provided
@@ -783,20 +745,17 @@
 
 //                             {/* Background Tab */}
 //                             {activeTab === "background" && (
-//                                 <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                 <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
 //                                     <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
 //                                         <BookOpen className="mr-2" size={20} />
 //                                         Historical Background
 //                                     </h3>
 //                                     <div className="prose max-w-none rich-text-content">
 //                                         {selectedInscription.background ? (
-//                                             parse(
-//                                                 selectedInscription.background,
-//                                             )
+//                                             parse(selectedInscription.background)
 //                                         ) : (
 //                                             <p className="text-gray-500 italic">
-//                                                 No background information
-//                                                 provided
+//                                                 No background information provided
 //                                             </p>
 //                                         )}
 //                                     </div>
@@ -805,7 +764,7 @@
 
 //                             {/* References Tab */}
 //                             {activeTab === "references" && (
-//                                 <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                 <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
 //                                     <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
 //                                         <Book className="mr-2" size={20} />
 //                                         References
@@ -824,7 +783,7 @@
 
 //                             {/* Glossary Tab */}
 //                             {activeTab === "glossary" && (
-//                                 <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                 <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
 //                                     <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
 //                                         <Globe className="mr-2" size={20} />
 //                                         Glossary
@@ -846,7 +805,7 @@
 //                                 <div className="space-y-6">
 //                                     {/* Video Section */}
 //                                     {selectedInscription.video && (
-//                                         <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
 //                                             <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
 //                                                 <Video
 //                                                     className="mr-2"
@@ -854,11 +813,11 @@
 //                                                 />
 //                                                 Video Content
 //                                             </h3>
-//                                             <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-700/50">
+//                                             <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-700">
 //                                                 <video
 //                                                     className="w-full h-auto max-h-[400px]"
 //                                                     controls
-//                                                     src={`/storage/${selectedInscription.video}`}
+//                                                     src={`${imgurl}/${selectedInscription.video}`}
 //                                                 >
 //                                                     Your browser does not
 //                                                     support the video tag.
@@ -874,7 +833,7 @@
 //                                         ) &&
 //                                         selectedInscription.images.length >
 //                                             0 && (
-//                                             <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200/50 p-6 shadow-sm">
+//                                             <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
 //                                                 <h3 className="text-lg font-semibold text-gray-800 mb-3">
 //                                                     Gallery Images
 //                                                 </h3>
@@ -885,9 +844,9 @@
 //                                                                 key={index}
 //                                                                 className="relative group"
 //                                                             >
-//                                                                 <div className="aspect-square overflow-hidden rounded-lg bg-gray-100/50 backdrop-blur-sm border border-gray-200/50">
+//                                                                 <div className="aspect-square overflow-hidden rounded-lg bg-gray-100 border border-gray-200">
 //                                                                     <img
-//                                                                         src={`/storage/${image.image_path}`}
+//                                                                         src={`${imgurl}/${image.image_path}`}
 //                                                                         alt={`Gallery ${index + 1}`}
 //                                                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
 //                                                                     />
@@ -903,11 +862,11 @@
 //                         </div>
 
 //                         {/* Footer */}
-//                         <div className="p-6 border-t border-gray-200/50 bg-gray-100/80 backdrop-blur-sm flex justify-end items-center">
+//                         {/* <div className="p-6 border-t border-gray-200 bg-gray-100 flex justify-end items-center">
 //                             <div className="flex space-x-3">
 //                                 <button
 //                                     onClick={handleCloseDetails}
-//                                     className="px-4 py-2 bg-gray-300/80 backdrop-blur-sm text-gray-800 rounded-lg hover:bg-gray-400/80 transition-colors border border-gray-300/50"
+//                                     className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors border border-gray-300"
 //                                 >
 //                                     Close
 //                                 </button>
@@ -916,13 +875,13 @@
 //                                         handleEdit(selectedInscription);
 //                                         handleCloseDetails();
 //                                     }}
-//                                     className="px-4 py-2 bg-blue-600/90 backdrop-blur-sm text-white rounded-lg hover:bg-blue-700/90 transition-colors flex items-center border border-blue-600/50"
+//                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center border border-blue-600"
 //                                 >
 //                                     <Edit size={16} className="mr-2" />
 //                                     Edit
 //                                 </button>
 //                             </div>
-//                         </div>
+//                         </div> */}
 //                     </div>
 //                 </div>
 //             )}
@@ -931,7 +890,6 @@
 // };
 
 // export default Inscriptions;
-
 
 import AddInscriptionForm from "@/AddFormComponents/AddInscriptionForm";
 import AdminWrapper from "@/AdminWrapper/AdminWrapper";
@@ -954,10 +912,12 @@ import {
     X,
 } from "lucide-react";
 import { useTable, useSortBy, usePagination } from "react-table";
-import parse from 'html-react-parser';
+import parse from "html-react-parser";
+import EditInscriptionForm from "@/EditFormComponents/EditInscriptionForm";
 
 const Inscriptions = () => {
-    const [showForm, setShowForm] = useState(false);
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [showEditForm, setShowEditForm] = useState(false);
     const [allInscriptions, setAllInscriptions] = useState([]);
     const [reloadTrigger, setReloadTrigger] = useState(false);
     const [editingInscription, setEditingInscription] = useState(null);
@@ -971,6 +931,9 @@ const Inscriptions = () => {
         current_page: 1,
         last_page: 1,
     });
+    const [deletingImageId, setDeletingImageId] = useState(null);
+
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // For the Fetching of all inscriptions with pagination
     const fetchInscriptions = useCallback(async (page = 1, pageSize = 10) => {
@@ -1057,7 +1020,7 @@ const Inscriptions = () => {
     // For the Edit the Inscription
     const handleEdit = useCallback((inscription) => {
         setEditingInscription(inscription);
-        setShowForm(true);
+        setShowEditForm(true);
     }, []);
 
     // For View Details
@@ -1067,9 +1030,13 @@ const Inscriptions = () => {
         setShowDetailsModal(true);
     }, []);
 
-    // Close form handler
-    const handleCloseForm = useCallback(() => {
-        setShowForm(false);
+    // Close form handlers
+    const handleCloseAddForm = useCallback(() => {
+        setShowAddForm(false);
+    }, []);
+
+    const handleCloseEditForm = useCallback(() => {
+        setShowEditForm(false);
         setEditingInscription(null);
     }, []);
 
@@ -1077,6 +1044,7 @@ const Inscriptions = () => {
     const handleCloseDetails = useCallback(() => {
         setShowDetailsModal(false);
         setSelectedInscription(null);
+        setDeletingImageId(null);
     }, []);
 
     // Handle page change
@@ -1097,10 +1065,38 @@ const Inscriptions = () => {
         [fetchInscriptions],
     );
 
+    // Delete gallery image
+    const handleDeleteImage = useCallback(async (imageId) => {
+        if (!window.confirm("Are you sure you want to delete this image?")) {
+            return;
+        }
+
+        try {
+            setDeletingImageId(imageId);
+            await axios.delete(
+                route("ourinscription.destroyImage", { id: imageId }),
+            );
+
+            // Update the selected inscription state to remove the deleted image
+            setSelectedInscription((prev) => ({
+                ...prev,
+                images: prev.images.filter((img) => img.id !== imageId),
+            }));
+
+            // Refresh the inscriptions list
+            setReloadTrigger((prev) => !prev);
+        } catch (error) {
+            console.error("Error deleting image:", error);
+            alert("Failed to delete image");
+        } finally {
+            setDeletingImageId(null);
+        }
+    }, []);
+
     // Helper function to strip HTML tags for table display
     const stripHtml = (html) => {
-        if (!html) return '';
-        return html.replace(/<[^>]*>/g, '');
+        if (!html) return "";
+        return html.replace(/<[^>]*>/g, "");
     };
 
     // React Table columns
@@ -1139,6 +1135,26 @@ const Inscriptions = () => {
                     </div>
                 ),
             },
+            // In the columns definition of Inscriptions.jsx, add this column:
+            {
+                Header: "Status",
+                accessor: "status",
+                Cell: ({ value }) => (
+                    <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            value === "published"
+                                ? "bg-green-100 text-green-800"
+                                : value === "draft"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-gray-100 text-gray-800"
+                        }`}
+                    >
+                        {value
+                            ? value.charAt(0).toUpperCase() + value.slice(1)
+                            : "Draft"}
+                    </span>
+                ),
+            },
 
             {
                 Header: "Text",
@@ -1160,7 +1176,7 @@ const Inscriptions = () => {
                 Cell: ({ value }) => (
                     <div className="text-sm text-gray-900 max-w-xs">
                         {value
-                            ? stripHtml(value).length > 100
+                            ? stripHtml(value).length > 10
                                 ? `${stripHtml(value).substring(0, 10)}...`
                                 : stripHtml(value)
                             : "No translation"}
@@ -1243,19 +1259,19 @@ const Inscriptions = () => {
 
     return (
         <AdminWrapper>
-            <div className="">
+            <div>
                 <div className="relative z-10">
                     {/* Home Content with glassmorphism effect */}
-                    <div className="min-h-[calc(100vh-4rem)]">
+                    <div className="">
                         <div className="w-full p-6 flex justify-between items-center">
                             <h1 className="text-3xl font-bold ">
                                 Inscriptions
                             </h1>
                             <button
-                                onClick={() => setShowForm(true)}
+                                onClick={() => setShowAddForm(true)}
                                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-2"
                             >
-                                <span>+</span> Add Inscription
+                                Add Inscription
                             </button>
                         </div>
 
@@ -1535,14 +1551,22 @@ const Inscriptions = () => {
                 </div>
             </div>
 
-            {/* Form Modal */}
-            {showForm && (
+            {/* Add Form Modal */}
+            {showAddForm && (
                 <AddInscriptionForm
-                    showForm={showForm}
-                    setShowForm={handleCloseForm}
+                    showForm={showAddForm}
+                    setShowForm={handleCloseAddForm}
+                    setReloadTrigger={setReloadTrigger}
+                />
+            )}
+
+            {/* Edit Form Modal */}
+            {showEditForm && editingInscription && (
+                <EditInscriptionForm
+                    showForm={showEditForm}
+                    setShowForm={handleCloseEditForm}
                     editingInscription={editingInscription}
                     setReloadTrigger={setReloadTrigger}
-                    setEditingInscription={setEditingInscription}
                 />
             )}
 
@@ -1601,7 +1625,7 @@ const Inscriptions = () => {
                                         <div className="bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
                                             {selectedInscription.banner_image ? (
                                                 <img
-                                                    src={`/storage/${selectedInscription.banner_image}`}
+                                                    src={`${imgurl}/${selectedInscription.banner_image}`}
                                                     alt={
                                                         selectedInscription.title
                                                     }
@@ -1628,7 +1652,9 @@ const Inscriptions = () => {
                                         </h3>
                                         <div className="prose max-w-none rich-text-content">
                                             {selectedInscription.description ? (
-                                                parse(selectedInscription.description)
+                                                parse(
+                                                    selectedInscription.description,
+                                                )
                                             ) : (
                                                 <p className="text-gray-500 italic">
                                                     No description provided
@@ -1650,10 +1676,13 @@ const Inscriptions = () => {
                                             </h3>
                                             <div className="bg-gray-50 rounded p-4 border border-gray-200 rich-text-content">
                                                 {selectedInscription.text ? (
-                                                    parse(selectedInscription.text)
+                                                    parse(
+                                                        selectedInscription.text,
+                                                    )
                                                 ) : (
                                                     <p className="text-gray-500 italic">
-                                                        No original text provided
+                                                        No original text
+                                                        provided
                                                     </p>
                                                 )}
                                             </div>
@@ -1666,7 +1695,9 @@ const Inscriptions = () => {
                                             </h3>
                                             <div className="bg-blue-50 rounded p-4 border border-blue-200 rich-text-content">
                                                 {selectedInscription.translation ? (
-                                                    parse(selectedInscription.translation)
+                                                    parse(
+                                                        selectedInscription.translation,
+                                                    )
                                                 ) : (
                                                     <p className="text-gray-500 italic">
                                                         No translation provided
@@ -1687,10 +1718,13 @@ const Inscriptions = () => {
                                     </h3>
                                     <div className="prose max-w-none rich-text-content">
                                         {selectedInscription.background ? (
-                                            parse(selectedInscription.background)
+                                            parse(
+                                                selectedInscription.background,
+                                            )
                                         ) : (
                                             <p className="text-gray-500 italic">
-                                                No background information provided
+                                                No background information
+                                                provided
                                             </p>
                                         )}
                                     </div>
@@ -1705,8 +1739,8 @@ const Inscriptions = () => {
                                         References
                                     </h3>
                                     <div className="prose max-w-none rich-text-content">
-                                        {selectedInscription.refrences ? (
-                                            parse(selectedInscription.refrences)
+                                        {selectedInscription.references ? (
+                                            parse(selectedInscription.references)
                                         ) : (
                                             <p className="text-gray-500 italic">
                                                 No references provided
@@ -1752,7 +1786,7 @@ const Inscriptions = () => {
                                                 <video
                                                     className="w-full h-auto max-h-[400px]"
                                                     controls
-                                                    src={`/storage/${selectedInscription.video}`}
+                                                    src={`${imgurl}/${selectedInscription.video}`}
                                                 >
                                                     Your browser does not
                                                     support the video tag.
@@ -1776,16 +1810,40 @@ const Inscriptions = () => {
                                                     {selectedInscription.images.map(
                                                         (image, index) => (
                                                             <div
-                                                                key={index}
+                                                                key={image.id}
                                                                 className="relative group"
                                                             >
                                                                 <div className="aspect-square overflow-hidden rounded-lg bg-gray-100 border border-gray-200">
                                                                     <img
-                                                                        src={`/storage/${image.image_path}`}
+                                                                        src={`${imgurl}/${image.image_path}`}
                                                                         alt={`Gallery ${index + 1}`}
                                                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                                                     />
                                                                 </div>
+                                                                <button
+                                                                    onClick={() =>
+                                                                        handleDeleteImage(
+                                                                            image.id,
+                                                                        )
+                                                                    }
+                                                                    disabled={
+                                                                        deletingImageId ===
+                                                                        image.id
+                                                                    }
+                                                                    className="absolute top-2 right-2 bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 disabled:opacity-50"
+                                                                    title="Delete image"
+                                                                >
+                                                                    {deletingImageId ===
+                                                                    image.id ? (
+                                                                        <span className="animate-spin block h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                                                                    ) : (
+                                                                        <Trash2
+                                                                            size={
+                                                                                14
+                                                                            }
+                                                                        />
+                                                                    )}
+                                                                </button>
                                                             </div>
                                                         ),
                                                     )}
@@ -1794,28 +1852,6 @@ const Inscriptions = () => {
                                         )}
                                 </div>
                             )}
-                        </div>
-
-                        {/* Footer */}
-                        <div className="p-6 border-t border-gray-200 bg-gray-100 flex justify-end items-center">
-                            <div className="flex space-x-3">
-                                <button
-                                    onClick={handleCloseDetails}
-                                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors border border-gray-300"
-                                >
-                                    Close
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        handleEdit(selectedInscription);
-                                        handleCloseDetails();
-                                    }}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center border border-blue-600"
-                                >
-                                    <Edit size={16} className="mr-2" />
-                                    Edit
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
