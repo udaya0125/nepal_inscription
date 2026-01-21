@@ -39,8 +39,13 @@ class Inscription extends Model
     /**
      * Relationships
      */
+    // public function images()
+    // {
+    //     return $this->hasMany(InscriptionImage::class);
+    // }
+
     public function images()
     {
-        return $this->hasMany(InscriptionImage::class);
+        return $this->hasMany(InscriptionImage::class)->orderBy('sort_order');
     }
 }

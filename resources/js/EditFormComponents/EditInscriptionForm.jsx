@@ -748,8 +748,8 @@
 
 
 
-import { X, Camera, Upload, Video, Image, Trash2 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { X, Camera, Upload, Video, Image, Trash2, GripVertical } from "lucide-react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import ReactQuill from "react-quill";
@@ -816,6 +816,8 @@ const EditInscriptionForm = ({
     const [videoFile, setVideoFile] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [removingImageIds, setRemovingImageIds] = useState([]);
+    const [draggingImage, setDraggingImage] = useState(null);
+    const [dragOverIndex, setDragOverIndex] = useState(null);
 
     const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
@@ -860,9 +862,13 @@ const EditInscriptionForm = ({
                 setVideoPreview(`${imgurl}/${editingInscription.video}`);
             }
             
-            // Set existing images
+            // Set existing images with sort_order
             if (editingInscription.images && editingInscription.images.length > 0) {
-                setExistingImages(editingInscription.images);
+                // Sort existing images by sort_order
+                const sortedImages = [...editingInscription.images].sort((a, b) => 
+                    (a.sort_order || 0) - (b.sort_order || 0)
+                );
+                setExistingImages(sortedImages);
             }
         } else {
             resetForm();
@@ -947,11 +953,17 @@ const EditInscriptionForm = ({
                 const newFiles = [...imageFiles];
                 setNewImageFiles(prev => [...prev, ...newFiles]);
                 
-                // Create previews for new files
-                newFiles.forEach(file => {
+                // Create previews for new files with temporary sort_order
+                newFiles.forEach((file, index) => {
                     const reader = new FileReader();
                     reader.onloadend = () => {
-                        setNewImagesPreviews(prev => [...prev, reader.result]);
+                        const newPreview = {
+                            id: `new-${Date.now()}-${index}`,
+                            preview: reader.result,
+                            file: file,
+                            sort_order: newImagesPreviews.length + existingImages.length + index
+                        };
+                        setNewImagesPreviews(prev => [...prev, newPreview]);
                     };
                     reader.readAsDataURL(file);
                 });
@@ -982,27 +994,69 @@ const EditInscriptionForm = ({
         }
     };
 
-    // Handle Update Inscription
-    const handleUpdate = async (formData) => {
-        try {
-            formData.append("_method", "PUT");
-            const response = await axios.post(route("ourinscription.update", editingInscription.id), formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-                timeout: 300000, // 5 minutes timeout for large file uploads
-                onUploadProgress: (progressEvent) => {
-                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    console.log(`Upload progress: ${percentCompleted}%`);
-                },
-            });
-            setReloadTrigger((prev) => !prev);
-            return response.data;
-        } catch (error) {
-            console.error("Error updating inscription", error);
-            throw error;
+    // Drag and drop handlers for existing images
+    const handleDragStart = useCallback((e, index, type) => {
+        e.dataTransfer.setData('text/plain', JSON.stringify({ index, type }));
+        setDraggingImage({ index, type });
+        e.currentTarget.classList.add('opacity-50');
+    }, []);
+
+    const handleDragOver = useCallback((e, index, type) => {
+        e.preventDefault();
+        setDragOverIndex({ index, type });
+    }, []);
+
+    const handleDragEnd = useCallback((e) => {
+        e.preventDefault();
+        setDraggingImage(null);
+        setDragOverIndex(null);
+        e.currentTarget.classList.remove('opacity-50');
+    }, []);
+
+    const handleDrop = useCallback((e, dropIndex, dropType) => {
+        e.preventDefault();
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        const { index: dragIndex, type: dragType } = data;
+
+        if (dragType === dropType) {
+            if (dragType === 'existing') {
+                // Reorder existing images
+                const updatedImages = [...existingImages];
+                const [draggedItem] = updatedImages.splice(dragIndex, 1);
+                updatedImages.splice(dropIndex, 0, draggedItem);
+                
+                // Update sort_order based on new position
+                const reorderedImages = updatedImages.map((img, idx) => ({
+                    ...img,
+                    sort_order: idx + 1
+                }));
+                
+                setExistingImages(reorderedImages);
+            } else if (dragType === 'new') {
+                // Reorder new images
+                const updatedPreviews = [...newImagesPreviews];
+                const [draggedItem] = updatedPreviews.splice(dragIndex, 1);
+                updatedPreviews.splice(dropIndex, 0, draggedItem);
+                
+                // Update sort_order based on new position
+                const reorderedPreviews = updatedPreviews.map((preview, idx) => ({
+                    ...preview,
+                    sort_order: existingImages.length + idx + 1
+                }));
+                
+                setNewImagesPreviews(reorderedPreviews);
+                
+                // Also reorder files array
+                const updatedFiles = [...newImageFiles];
+                const [draggedFile] = updatedFiles.splice(dragIndex, 1);
+                updatedFiles.splice(dropIndex, 0, draggedFile);
+                setNewImageFiles(updatedFiles);
+            }
         }
-    };
+        
+        setDraggingImage(null);
+        setDragOverIndex(null);
+    }, [existingImages, newImagesPreviews, newImageFiles]);
 
     // Remove existing image
     const handleRemoveExistingImage = (imageId) => {
@@ -1014,6 +1068,38 @@ const EditInscriptionForm = ({
     const handleRemoveNewImage = (index) => {
         setNewImagesPreviews(prev => prev.filter((_, i) => i !== index));
         setNewImageFiles(prev => prev.filter((_, i) => i !== index));
+    };
+
+    // Handle Update Inscription
+    const handleUpdate = async (formData) => {
+        try {
+            // Add sort_order data for existing images
+            existingImages.forEach((img, index) => {
+                formData.append(`existing_image_sort[${img.id}]`, index + 1);
+            });
+            
+            // Add sort_order for new images
+            newImagesPreviews.forEach((preview, index) => {
+                formData.append(`new_image_sort[${index}]`, existingImages.length + index + 1);
+            });
+
+            formData.append("_method", "PUT");
+            const response = await axios.post(route("ourinscription.update", editingInscription.id), formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                timeout: 300000,
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    console.log(`Upload progress: ${percentCompleted}%`);
+                },
+            });
+            setReloadTrigger((prev) => !prev);
+            return response.data;
+        } catch (error) {
+            console.error("Error updating inscription", error);
+            throw error;
+        }
     };
 
     // Handle form submission
@@ -1113,6 +1199,8 @@ const EditInscriptionForm = ({
         setVideoPreview(null);
         setVideoFile(null);
         setRemovingImageIds([]);
+        setDraggingImage(null);
+        setDragOverIndex(null);
     };
 
     // Handle close form
@@ -1257,7 +1345,7 @@ const EditInscriptionForm = ({
                             <div className="space-y-2">
                                 <label className="flex items-center text-lg font-semibold text-gray-700">
                                     <Image className="mr-3 text-gray-600" size={22} />
-                                    Images (Multiple)
+                                    Gallery Images (Drag to reorder)
                                 </label>
                                 
                                 {/* Existing Images */}
@@ -1265,17 +1353,39 @@ const EditInscriptionForm = ({
                                     <div className="mb-4">
                                         <h4 className="text-md font-medium text-gray-700 mb-2">Existing Images</h4>
                                         <div className="grid grid-cols-3 gap-3 mb-4">
-                                            {existingImages.map((image) => (
-                                                <div key={image.id} className="relative group">
+                                            {existingImages.map((image, index) => (
+                                                <div 
+                                                    key={image.id} 
+                                                    className={`relative group border-2 rounded-lg transition-all duration-200 ${
+                                                        dragOverIndex?.index === index && dragOverIndex?.type === 'existing' 
+                                                            ? 'border-blue-500 bg-blue-50' 
+                                                            : 'border-transparent'
+                                                    } ${
+                                                        draggingImage?.index === index && draggingImage?.type === 'existing'
+                                                            ? 'cursor-grabbing'
+                                                            : 'cursor-grab'
+                                                    }`}
+                                                    draggable
+                                                    onDragStart={(e) => handleDragStart(e, index, 'existing')}
+                                                    onDragOver={(e) => handleDragOver(e, index, 'existing')}
+                                                    onDragEnd={handleDragEnd}
+                                                    onDrop={(e) => handleDrop(e, index, 'existing')}
+                                                >
+                                                    <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-t-lg border-b">
+                                                        <GripVertical className="text-gray-400 cursor-move" size={16} />
+                                                        <span className="text-xs text-gray-600 font-medium">
+                                                            Position: {index + 1}
+                                                        </span>
+                                                    </div>
                                                     <img
                                                         src={`${imgurl}/${image.image_path}`}
                                                         alt={`Existing image`}
-                                                        className="h-24 w-full object-cover rounded-lg shadow bg-white"
+                                                        className="h-20 w-full object-cover rounded-b-lg"
                                                     />
                                                     <button
                                                         type="button"
                                                         onClick={() => handleRemoveExistingImage(image.id)}
-                                                        className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
+                                                        className="absolute top-10 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
                                                         title="Remove image"
                                                     >
                                                         <Trash2 size={12} />
@@ -1291,50 +1401,72 @@ const EditInscriptionForm = ({
                                     </div>
                                 )}
                                 
-                                {/* New Images Upload */}
-                                <div className="border-2 border-dashed border-gray-400 rounded-xl p-6 text-center hover:border-gray-600 transition-all duration-300 relative bg-white">
-                                    {newImagesPreviews.length > 0 || existingImages.length > 0 ? (
-                                        <div className="space-y-4">
-                                            {newImagesPreviews.length > 0 && (
-                                                <div>
-                                                    <h4 className="text-md font-medium text-gray-700 mb-2">New Images</h4>
-                                                    <div className="grid grid-cols-3 gap-3 mb-4">
-                                                        {newImagesPreviews.map((preview, index) => (
-                                                            <div key={index} className="relative group">
-                                                                <img
-                                                                    src={preview}
-                                                                    alt={`New image ${index + 1}`}
-                                                                    className="h-24 w-full object-cover rounded-lg shadow bg-white"
-                                                                />
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleRemoveNewImage(index)}
-                                                                    className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
-                                                                    title="Remove image"
-                                                                >
-                                                                    <Trash2 size={12} />
-                                                                </button>
-                                                            </div>
-                                                        ))}
+                                {/* New Images */}
+                                {newImagesPreviews.length > 0 && (
+                                    <div className="mb-4">
+                                        <h4 className="text-md font-medium text-gray-700 mb-2">New Images (Will be added after existing)</h4>
+                                        <div className="grid grid-cols-3 gap-3 mb-4">
+                                            {newImagesPreviews.map((preview, index) => (
+                                                <div 
+                                                    key={preview.id} 
+                                                    className={`relative group border-2 rounded-lg transition-all duration-200 ${
+                                                        dragOverIndex?.index === index && dragOverIndex?.type === 'new' 
+                                                            ? 'border-blue-500 bg-blue-50' 
+                                                            : 'border-transparent'
+                                                    } ${
+                                                        draggingImage?.index === index && draggingImage?.type === 'new'
+                                                            ? 'cursor-grabbing'
+                                                            : 'cursor-grab'
+                                                    }`}
+                                                    draggable
+                                                    onDragStart={(e) => handleDragStart(e, index, 'new')}
+                                                    onDragOver={(e) => handleDragOver(e, index, 'new')}
+                                                    onDragEnd={handleDragEnd}
+                                                    onDrop={(e) => handleDrop(e, index, 'new')}
+                                                >
+                                                    <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-t-lg border-b border-blue-200">
+                                                        <GripVertical className="text-blue-400 cursor-move" size={16} />
+                                                        <span className="text-xs text-blue-600 font-medium">
+                                                            Position: {existingImages.length + index + 1}
+                                                        </span>
                                                     </div>
+                                                    <img
+                                                        src={preview.preview}
+                                                        alt={`New image ${index + 1}`}
+                                                        className="h-20 w-full object-cover rounded-b-lg"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveNewImage(index)}
+                                                        className="absolute top-10 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
+                                                        title="Remove image"
+                                                    >
+                                                        <Trash2 size={12} />
+                                                    </button>
                                                 </div>
-                                            )}
-                                            <div className="space-y-2">
-                                                <p className="text-sm text-gray-600">
-                                                    Total: {existingImages.length + newImagesPreviews.length} image(s)
-                                                </p>
-                                                <p className="text-sm text-gray-500">Click to add more images</p>
-                                                <p className="text-xs text-gray-500">Max size: 300MB per file</p>
-                                            </div>
+                                            ))}
                                         </div>
-                                    ) : (
-                                        <div className="space-y-4">
-                                            <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                                    </div>
+                                )}
+                                
+                                {/* Images Upload Area */}
+                                <div className="border-2 border-dashed border-gray-400 rounded-xl p-6 text-center hover:border-gray-600 transition-all duration-300 relative bg-white">
+                                    <div className="space-y-4">
+                                        <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                                        <div>
                                             <p className="text-lg text-gray-700">Click to upload multiple images</p>
                                             <p className="text-sm text-gray-500">Hold Ctrl/Cmd to select multiple files</p>
-                                            <p className="text-sm text-gray-500">Max size: 300MB per file</p>
                                         </div>
-                                    )}
+                                        {existingImages.length + newImagesPreviews.length > 0 && (
+                                            <div className="mt-4">
+                                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
+                                                    <span className="text-sm font-medium text-gray-700">
+                                                        Total Images: {existingImages.length + newImagesPreviews.length}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                     <input
                                         type="file"
                                         accept="image/*"

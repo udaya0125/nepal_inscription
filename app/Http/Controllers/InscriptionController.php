@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class InscriptionController extends Controller
 {
@@ -44,6 +45,50 @@ class InscriptionController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Display inscription by slug (API endpoint)
+     */
+    public function showBySlug($slug)
+    {
+        try {
+            $inscription = Inscription::where('slug', $slug)
+                ->with(['images' => function ($query) {
+                    $query->orderBy('sort_order', 'asc');
+                }])
+                ->firstOrFail();
+
+            return response()->json([
+                'success' => true,
+                'data' => $inscription,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching inscription by slug: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Inscription not found',
+                'error' => $e->getMessage(),
+            ], 404);
+        }
+    }
+
+    /**
+     * Show details page (Inertia render)
+     */
+     public function showDetails($slug)
+    {
+        $inscription = Inscription::where('slug', $slug)
+            ->with(['images' => function($query) {
+                $query->orderBy('sort_order', 'asc');
+            }])
+            ->firstOrFail();
+            
+        return Inertia::render('MainPages/InscriptionPage', [
+            'inscription' => $inscription
+        ]);
     }
 
     /**
@@ -129,6 +174,9 @@ class InscriptionController extends Controller
     /**
      * Update an existing inscription.
      */
+    /**
+     * Update an existing inscription.
+     */
     public function update(Request $request, $id)
     {
         $inscription = Inscription::with('images')->findOrFail($id);
@@ -147,6 +195,7 @@ class InscriptionController extends Controller
             'status' => 'nullable|in:draft,published,archived',
             'removed_image_ids' => 'nullable|array',
             'removed_image_ids.*' => 'exists:inscription_images,id',
+            'images.*' => 'nullable|image|max:307200',
         ]);
 
         DB::beginTransaction();
@@ -176,6 +225,16 @@ class InscriptionController extends Controller
                 'status',
             ]));
 
+            // Update sort_order for existing images
+            if ($request->filled('existing_image_sort')) {
+                foreach ($request->existing_image_sort as $imageId => $sortOrder) {
+                    $image = InscriptionImage::find($imageId);
+                    if ($image && $image->inscription_id == $inscription->id) {
+                        $image->update(['sort_order' => $sortOrder]);
+                    }
+                }
+            }
+
             // Remove images
             if ($request->filled('removed_image_ids')) {
                 $images = $inscription->images()
@@ -188,12 +247,43 @@ class InscriptionController extends Controller
                 }
             }
 
+            // Add new images with sort_order
+            if ($request->hasFile('images')) {
+                $existingImageCount = $inscription->images()->count();
+
+                foreach ($request->file('images') as $index => $image) {
+                    $path = $image->store('inscriptions/images', 'public');
+
+                    // Get sort order from request or use default
+                    $sortOrder = $request->filled("new_image_sort.{$index}")
+                        ? $request->input("new_image_sort.{$index}")
+                        : $existingImageCount + $index + 1;
+
+                    InscriptionImage::create([
+                        'inscription_id' => $inscription->id,
+                        'image_path' => $path,
+                        'alt_text' => $inscription->title.' - Image '.($existingImageCount + $index + 1),
+                        'sort_order' => $sortOrder,
+                    ]);
+                }
+            }
+
+            // If no new images but only sorting, make sure sort_order is sequential
+            if (! $request->hasFile('images') && $inscription->images()->count() > 0) {
+                $images = $inscription->images()->orderBy('sort_order')->get();
+                foreach ($images as $index => $image) {
+                    $image->update(['sort_order' => $index + 1]);
+                }
+            }
+
             DB::commit();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Inscription updated successfully',
-                'data' => $inscription->load('images'),
+                'data' => $inscription->load(['images' => function ($query) {
+                    $query->orderBy('sort_order');
+                }]),
             ]);
 
         } catch (\Exception $e) {

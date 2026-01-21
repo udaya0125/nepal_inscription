@@ -1,10 +1,10 @@
 <?php
 
+use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\InscriptionController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -25,39 +25,48 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-    //-----------------------------------------
-    // Inscription Routes
-    //-----------------------------------------
+// -----------------------------------------
+// Inscription Routes
+// -----------------------------------------
 
-    Route::get('/inscriptions', function(){
-        return Inertia::render('AdminPages/Inscriptions');     
-    });
+Route::get('/inscriptions', function () {
+    return Inertia::render('AdminPages/Inscriptions');
+});
 
-    //-----------------------------------------
-    // Dashboard & Inscription Management Routes
-    //-----------------------------------------
+// -----------------------------------------
+// Dashboard & Inscription Management Routes
+// -----------------------------------------
 
-    Route::get('/dashboard', function(){
-        return Inertia::render('AdminPages/Dashboard');     
-    });
+Route::get('/dashboard', function () {
+    return Inertia::render('AdminPages/Dashboard');
+});
 
+// Route::get('/inscription-details', function(){
+//     return Inertia::render('AdminPages/InscriptionPage');
+// });
 
-    //-----------------------------------------
-    // Our Inscription CRUD Routes
-    //-----------------------------------------
+Route::get('/inscription-details', function () {
+    return Inertia::render('MainPages/InscriptionPage');
+});
 
-    Route::get('/ourinscription', [InscriptionController::class, 'index'])->name('ourinscription.index');
-    Route::post('/ourinscription', [InscriptionController::class, 'store'])->name('ourinscription.store');
-    Route::put('/ourinscription/{id}', [InscriptionController::class, 'update'])->name('ourinscription.update');
-    Route::delete('/ourinscription/{id}', [InscriptionController::class, 'destroy'])->name('ourinscription.destroy');
-    Route::delete('/ourinscription/image/{id}', [InscriptionController::class, 'destroyImage'])->name('ourinscription.destroyImage');
+// routes/web.php
+Route::get('/inscription-details/{slug}', [InscriptionController::class, 'showDetails'])->name('inscription.showDetails');
 
+// -----------------------------------------
+// Our Inscription CRUD Routes
+// -----------------------------------------
 
-    //-----------------------------------------
-    // Test Upload Limits Route
-    //-----------------------------------------
- 
-    Route::get('/test-upload-limits', function() {
+Route::get('/ourinscription', [InscriptionController::class, 'index'])->name('ourinscription.index');
+Route::post('/ourinscription', [InscriptionController::class, 'store'])->name('ourinscription.store');
+Route::put('/ourinscription/{id}', [InscriptionController::class, 'update'])->name('ourinscription.update');
+Route::delete('/ourinscription/{id}', [InscriptionController::class, 'destroy'])->name('ourinscription.destroy');
+Route::delete('/ourinscription/image/{id}', [InscriptionController::class, 'destroyImage'])->name('ourinscription.destroyImage');
+
+// -----------------------------------------
+// Test Upload Limits Route
+// -----------------------------------------
+
+Route::get('/test-upload-limits', function () {
     return response()->json([
         'success' => true,
         'limits' => [
@@ -71,6 +80,5 @@ Route::middleware('auth')->group(function () {
         'middleware_applied' => true,
     ]);
 });
-
 
 require __DIR__.'/auth.php';

@@ -910,10 +910,12 @@ import {
     Book,
     Globe,
     X,
+    Info,
 } from "lucide-react";
 import { useTable, useSortBy, usePagination } from "react-table";
 import parse from "html-react-parser";
 import EditInscriptionForm from "@/EditFormComponents/EditInscriptionForm";
+import { Link } from "@inertiajs/react";
 
 const Inscriptions = () => {
     const [showAddForm, setShowAddForm] = useState(false);
@@ -1189,6 +1191,11 @@ const Inscriptions = () => {
                 accessor: "actions",
                 Cell: ({ row }) => (
                     <div className="flex space-x-2">
+                        <Link 
+                            href={`/inscription-details/${row.original.slug}`}
+                         className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50">
+                            <Info size={18}/>
+                        </Link>
                         <button
                             onClick={() => handleViewDetails(row.original)}
                             className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
