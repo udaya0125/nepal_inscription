@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Inscription;
 use App\Models\InscriptionImage;
+use App\Models\ActivityLog; // 👈 Added
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -78,7 +79,7 @@ class InscriptionController extends Controller
     /**
      * Show details page (Inertia render)
      */
-     public function showDetails($slug)
+    public function showDetails($slug)
     {
         $inscription = Inscription::where('slug', $slug)
             ->with(['images' => function($query) {
@@ -136,7 +137,6 @@ class InscriptionController extends Controller
                 'references' => $request->references,
                 'glossary' => $request->glossary,
                 'status' => $request->status ?? 'draft',
-                // ❌ NO SLUG HERE – MODEL HANDLES IT
             ]);
 
             // Multiple images
@@ -152,6 +152,13 @@ class InscriptionController extends Controller
                     ]);
                 }
             }
+
+            // 🔔 LOG ACTIVITY: Creation
+            ActivityLog::create([
+                'name' => 'inscription_created',
+                'ip_address' => $request->ip(),
+                'title' => $inscription->title . ' (' . $inscription->inscription_number . ')',
+            ]);
 
             DB::commit();
 
@@ -171,9 +178,6 @@ class InscriptionController extends Controller
         }
     }
 
-    /**
-     * Update an existing inscription.
-     */
     /**
      * Update an existing inscription.
      */
@@ -254,7 +258,6 @@ class InscriptionController extends Controller
                 foreach ($request->file('images') as $index => $image) {
                     $path = $image->store('inscriptions/images', 'public');
 
-                    // Get sort order from request or use default
                     $sortOrder = $request->filled("new_image_sort.{$index}")
                         ? $request->input("new_image_sort.{$index}")
                         : $existingImageCount + $index + 1;
@@ -268,13 +271,20 @@ class InscriptionController extends Controller
                 }
             }
 
-            // If no new images but only sorting, make sure sort_order is sequential
+            // Re-sequence sort_order if needed
             if (! $request->hasFile('images') && $inscription->images()->count() > 0) {
                 $images = $inscription->images()->orderBy('sort_order')->get();
                 foreach ($images as $index => $image) {
                     $image->update(['sort_order' => $index + 1]);
                 }
             }
+
+            // 🔔 LOG ACTIVITY: Update
+            ActivityLog::create([
+                'name' => $request->user() ? $request->user()->name : 'Unknown',
+                'ip_address' => $request->ip(),
+                'title' => $inscription->title . ' (' . $inscription->inscription_number . ')',
+            ]);
 
             DB::commit();
 
@@ -299,7 +309,7 @@ class InscriptionController extends Controller
     /**
      * Delete an inscription.
      */
-    public function destroy($id)
+    public function destroy($id, Request $request) // 👈 Added Request $request
     {
         Log::info('Deleting inscription ID: '.$id);
 
@@ -330,7 +340,15 @@ class InscriptionController extends Controller
 
             Log::info('Deleted '.$imageCount.' gallery images');
 
+            $deletedTitle = $inscription->title . ' (' . $inscription->inscription_number . ')';
             $inscription->delete();
+
+            // 🔔 LOG ACTIVITY: Deletion
+            ActivityLog::create([
+                'name' => $request->user() ? $request->user()->name : 'Unknown',
+                'ip_address' => $request->ip(),
+                'title' => $deletedTitle,
+            ]);
 
             DB::commit();
 
@@ -365,13 +383,11 @@ class InscriptionController extends Controller
         DB::beginTransaction();
 
         try {
-            // Delete image file from storage
             if ($image->image_path) {
                 Storage::disk('public')->delete($image->image_path);
                 Log::info('Deleted image file: '.$image->image_path);
             }
 
-            // Delete DB record
             $image->delete();
 
             DB::commit();
@@ -422,5 +438,23 @@ class InscriptionController extends Controller
                 'laravel_version' => app()->version(),
             ],
         ]);
+    }
+
+    /**
+     * Helper to convert size like '300M' to bytes.
+     */
+    private function sizeToBytes($sizeStr)
+    {
+        $sizeStr = trim($sizeStr);
+        $last = strtolower($sizeStr[strlen($sizeStr)-1]);
+        $value = (int) $sizeStr;
+
+        switch ($last) {
+            case 'g': $value *= 1024;
+            case 'm': $value *= 1024;
+            case 'k': $value *= 1024;
+        }
+
+        return $value;
     }
 }

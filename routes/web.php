@@ -1,7 +1,8 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\InscriptionController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -20,40 +21,50 @@ use Inertia\Inertia;
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    
 
+    // -----------------------------------------
+    // Inscription Routes
+    // -----------------------------------------
 
-// -----------------------------------------
-// Inscription Routes
-// -----------------------------------------
+    Route::get('/inscriptions', function () {
+        return Inertia::render('AdminPages/Inscriptions');
+    });
 
-Route::get('/inscriptions', function () {
-    return Inertia::render('AdminPages/Inscriptions');
-});
+    // -----------------------------------------
+    // Dashboard & Inscription Management Routes
+    // -----------------------------------------
 
-// -----------------------------------------
-// Dashboard & Inscription Management Routes
-// -----------------------------------------
+    Route::get('/', function () {
+        return Inertia::render('AdminPages/Dashboard');
+    });
 
-Route::get('/', function () {
-    return Inertia::render('AdminPages/Dashboard');
-});
+    Route::get('/user-management', function () {
+        return Inertia::render('AdminPages/UserManagement');
+    });
 
-// Route::get('/inscription-details', function(){
-//     return Inertia::render('AdminPages/InscriptionPage');
-// });
+    Route::get('/activity-log', function () {
+        return Inertia::render('AdminPages/ActivityLog');
+    });
 
-Route::get('/inscription-details', function () {
-    return Inertia::render('MainPages/InscriptionPage');
-});
+    // Route::get('/inscription-details', function(){
+    //     return Inertia::render('AdminPages/InscriptionPage');
+    // });
 
+    Route::get('/inscription-details', function () {
+        return Inertia::render('MainPages/InscriptionPage');
+    });
 
 });
 Route::get('/loginpage', function () {
     return Inertia::render('MainPages/Login');
 });
 
+Route::get('/ourlogs.index', [ActivityLogController::class, 'index'])->name('ourlogs.index');
 
+Route::get('/ouruser', [UserController::class, 'index'])->name('ouruser.index');
+Route::post('/ouruser', [UserController::class, 'store'])->name('ouruser.store');
+Route::put('/ouruser/{id}', [UserController::class, 'update'])->name('ouruser.update');
+Route::delete('/ouruser/{id}', [UserController::class, 'destroy'])->name('ouruser.destroy');
 
 // routes/web.php
 Route::get('/inscription-details/{slug}', [InscriptionController::class, 'showDetails'])->name('inscription.showDetails');
