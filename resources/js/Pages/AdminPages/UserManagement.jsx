@@ -3,6 +3,8 @@ import {
     ChevronDown,
     ChevronLeft,
     ChevronRight,
+    SquarePen,
+    Trash2,
 } from "lucide-react";
 import React, { useState, useEffect, useMemo } from "react";
 import { useTable, useSortBy, usePagination } from "react-table";
@@ -152,13 +154,13 @@ const UserManagement = () => {
                             onClick={() => handleEdit(row.original)}
                             className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
                         >
-                            Edit
+                            <SquarePen size={16} className="inline-block mr-1" />
                         </button>
                         <button
                             onClick={() => handleDelete(row.original.id)}
                             className="text-red-600 hover:text-red-900 text-sm font-medium"
                         >
-                            Delete
+                            <Trash2 size={16} className="inline-block mr-1" />
                         </button>
                     </div>
                 ),

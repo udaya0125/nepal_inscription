@@ -375,7 +375,7 @@ const AdminSideBar = ({
                                     </span>
                                 </Link>
 
-                                <Link
+                                {/* <Link
                                     href="/our-teams"
                                     className={`
                                         flex items-center p-2 rounded-lg transition-colors duration-200
@@ -386,9 +386,9 @@ const AdminSideBar = ({
                                     <span className="text-sm whitespace-nowrap">
                                         Our Teams
                                     </span>
-                                </Link>
+                                </Link> */}
 
-                                <Link
+                                {/* <Link
                                     href="/gallery"
                                     className={`
                                         flex items-center p-2 rounded-lg transition-colors duration-200
@@ -399,9 +399,9 @@ const AdminSideBar = ({
                                     <span className="text-sm whitespace-nowrap">
                                         Gallery
                                     </span>
-                                </Link>
+                                </Link> */}
 
-                                <Link
+                                {/* <Link
                                     href="/events"
                                     className={`
                                         flex items-center p-2 rounded-lg transition-colors duration-200
@@ -412,9 +412,9 @@ const AdminSideBar = ({
                                     <span className="text-sm whitespace-nowrap">
                                         Events
                                     </span>
-                                </Link>
+                                </Link> */}
 
-                                <Link
+                                {/* <Link
                                     href="/partners"
                                     className={`
                                         flex items-center p-2 rounded-lg transition-colors duration-200
@@ -425,7 +425,7 @@ const AdminSideBar = ({
                                     <span className="text-sm whitespace-nowrap">
                                         Partners
                                     </span>
-                                </Link>
+                                </Link> */}
                             </div>
                         )}
 

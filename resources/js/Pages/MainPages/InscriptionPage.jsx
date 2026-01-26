@@ -324,7 +324,6 @@ const InscriptionPage = ({ inscription }) => {
                                     <video
                                         src={getVideoUrl(inscription.video)}
                                         controls
-                                        poster={getImageUrl(inscription.banner_image)}
                                         className="w-full h-[400px] object-cover bg-gray-900"
                                         onPlay={handleVideoPlay}
                                         onPause={handleVideoPause}

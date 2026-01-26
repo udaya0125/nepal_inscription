@@ -51,9 +51,6 @@ export default function Login({ status, canResetPassword }) {
                         <h1 className="text-4xl font-semibold text-slate-900 tracking-tight">
                             Welcome Back
                         </h1>
-                        <p className="text-slate-500 text-sm">
-                            Enter your credentials to continue
-                        </p>
                     </div>
 
                     {status && (
