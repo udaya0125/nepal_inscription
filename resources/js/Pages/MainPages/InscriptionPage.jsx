@@ -9,6 +9,8 @@ const InscriptionPage = ({ inscription }) => {
     const [isVideoPlaying, setIsVideoPlaying] = useState(false);
     const [imageLoading, setImageLoading] = useState(true);
     const [visibleThumbnails, setVisibleThumbnails] = useState(5);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
+
 
     const tabs = [
         "Description",
@@ -100,7 +102,7 @@ const InscriptionPage = ({ inscription }) => {
         // If it's already a full URL (like placeholder images), return as-is
         if (path.startsWith('http')) return path;
         // For stored images, prepend the storage URL
-        return `/storage/${path}`;
+        return `${imgurl}/${path}`;
     };
 
     // Helper function to get full video URL

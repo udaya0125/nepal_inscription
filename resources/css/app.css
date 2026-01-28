@@ -170,7 +170,7 @@
 }
 
 /* Custom scrollbar for Quill editor */
-.ql-editor::-webkit-scrollbar,
+/* .ql-editor::-webkit-scrollbar,
 .quill-custom .ql-editor::-webkit-scrollbar {
   width: 8px;
 }
@@ -190,4 +190,4 @@
 .ql-editor::-webkit-scrollbar-thumb:hover,
 .quill-custom .ql-editor::-webkit-scrollbar-thumb:hover {
   background: #555;
-}
+} */

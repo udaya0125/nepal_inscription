@@ -792,11 +792,11 @@ const EditInscriptionForm = ({
     // Quill height configuration
     const quillHeight = {
         description: "250px",
-        background: "200px",
-        text: "200px",
-        translation: "200px",
-        references: "200px",
-        glossary: "200px"
+        background: "250px",
+        text: "250px",
+        translation: "250px",
+        references: "250px",
+        glossary: "250px"
     };
 
     // State for React Quill content

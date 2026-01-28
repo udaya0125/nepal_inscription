@@ -101,7 +101,7 @@ class InscriptionController extends Controller
             'title' => 'required|string|max:255',
             'inscription_number' => 'required|string|unique:inscriptions,inscription_number',
             'banner_image' => 'nullable|image|max:307200',
-            'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv,webm,mpg,mpeg|max:307200',
+            'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv,webm,mpg,mpeg|max:307200', // 300MB
             'description' => 'required|string',
             'background' => 'nullable|string',
             'text' => 'nullable|string',

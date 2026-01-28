@@ -73,7 +73,7 @@ Route::get('/inscription-details/{slug}', [InscriptionController::class, 'showDe
 // Our Inscription CRUD Routes
 // -----------------------------------------
 
-Route::get('/ourinscription', [InscriptionController::class, 'index'])->name('ourinscription.index');
+
 Route::post('/ourinscription', [InscriptionController::class, 'store'])->name('ourinscription.store');
 Route::put('/ourinscription/{id}', [InscriptionController::class, 'update'])->name('ourinscription.update');
 Route::delete('/ourinscription/{id}', [InscriptionController::class, 'destroy'])->name('ourinscription.destroy');
@@ -97,5 +97,7 @@ Route::get('/test-upload-limits', function () {
         'middleware_applied' => true,
     ]);
 });
+
+Route::get('/ourinscription', [InscriptionController::class, 'index'])->name('ourinscription.index');
 
 require __DIR__.'/auth.php';

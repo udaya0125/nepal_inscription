@@ -1125,6 +1125,19 @@ const Inscriptions = () => {
                 ),
             },
             {
+                Header: "Inscription Number",
+                accessor: "inscription_number",
+                Cell: ({ row }) => (
+                    <div className="flex items-center">
+                        <div>
+                            <div className="text-sm font-medium text-gray-900">
+                                {row.original.inscription_number}
+                            </div>
+                        </div>
+                    </div>
+                ),
+            },
+            {
                 Header: "Description",
                 accessor: "description",
                 Cell: ({ value }) => (

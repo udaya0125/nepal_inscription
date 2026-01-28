@@ -660,11 +660,11 @@ const AddInscriptionForm = ({
     // Quill height configuration
     const quillHeight = {
         description: "250px",
-        background: "200px",
-        text: "200px",
-        translation: "200px",
-        references: "200px",
-        glossary: "200px"
+        background: "250px",
+        text: "250px",
+        translation: "250px",
+        references: "250px",
+        glossary: "250px"
     };
 
     // State for React Quill content
@@ -811,7 +811,7 @@ const AddInscriptionForm = ({
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
-                timeout: 300000, // 5 minutes timeout for large file uploads
+                timeout: 1200000, // 5 minutes timeout for large file uploads
                 onUploadProgress: (progressEvent) => {
                     const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                     console.log(`Upload progress: ${percentCompleted}%`);
