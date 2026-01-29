@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Inscription;
-use App\Models\InscriptionImage;
-use App\Models\ActivityLog; // 👈 Added
+use App\Models\InscriptionImage; // 👈 Added
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -82,13 +82,13 @@ class InscriptionController extends Controller
     public function showDetails($slug)
     {
         $inscription = Inscription::where('slug', $slug)
-            ->with(['images' => function($query) {
+            ->with(['images' => function ($query) {
                 $query->orderBy('sort_order', 'asc');
             }])
             ->firstOrFail();
-            
+
         return Inertia::render('MainPages/InscriptionPage', [
-            'inscription' => $inscription
+            'inscription' => $inscription,
         ]);
     }
 
@@ -100,16 +100,19 @@ class InscriptionController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'inscription_number' => 'required|string|unique:inscriptions,inscription_number',
-            'banner_image' => 'nullable|image|max:307200',
-            'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv,webm,mpg,mpeg|max:307200', // 300MB
+            // 'banner_image' => 'nullable|image|max:512000', // 500MB
+            'banner_image' => 'nullable|image|max:153600', // 150MB
+            // 'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv,webm,mpg,mpeg|max:512000', // 500MB
+            'video' => 'nullable|string|max:255',
             'description' => 'required|string',
             'background' => 'nullable|string',
             'text' => 'nullable|string',
             'translation' => 'nullable|string',
             'references' => 'nullable|string',
             'glossary' => 'nullable|string',
-            'status' => 'nullable|in:draft,published,archived',
-            'images.*' => 'nullable|image|max:307200',
+            'status' => 'nullable|in:draft,published',
+            // 'images.*' => 'nullable|image|max:512000', // 500MB
+            'images.*' => 'nullable|image|max:153600', // 150MB
         ]);
 
         DB::beginTransaction();
@@ -121,9 +124,10 @@ class InscriptionController extends Controller
                 : null;
 
             // Video
-            $videoPath = $request->file('video')
-                ? $request->file('video')->store('inscriptions/videos', 'public')
-                : null;
+            // $videoPath = $request->file('video')
+            //     ? $request->file('video')->store('inscriptions/videos', 'public')
+            //     : null;
+            $videoPath = $request->video;
 
             $inscription = Inscription::create([
                 'title' => $request->title,
@@ -157,7 +161,7 @@ class InscriptionController extends Controller
             ActivityLog::create([
                 'name' => 'inscription_created',
                 'ip_address' => $request->ip(),
-                'title' => $inscription->title . ' (' . $inscription->inscription_number . ')',
+                'title' => $inscription->title.' ('.$inscription->inscription_number.')',
             ]);
 
             DB::commit();
@@ -188,18 +192,21 @@ class InscriptionController extends Controller
         $request->validate([
             'title' => 'sometimes|string|max:255',
             'inscription_number' => 'sometimes|string|unique:inscriptions,inscription_number,'.$id,
-            'banner_image' => 'nullable|image|max:307200',
-            'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv,webm,mpg,mpeg|max:307200',
+            // 'banner_image' => 'nullable|image|max:512000', // 500MB
+            'banner_image' => 'nullable|image|max:153600', // 150MB
+            // 'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv,webm,mpg,mpeg|max:512000', // 500MB
+            'video' => 'nullable|string|max:255',
             'description' => 'sometimes|string',
             'background' => 'nullable|string',
             'text' => 'nullable|string',
             'translation' => 'nullable|string',
             'references' => 'nullable|string',
             'glossary' => 'nullable|string',
-            'status' => 'nullable|in:draft,published,archived',
+            'status' => 'nullable|in:draft,published',
             'removed_image_ids' => 'nullable|array',
             'removed_image_ids.*' => 'exists:inscription_images,id',
-            'images.*' => 'nullable|image|max:307200',
+            // 'images.*' => 'nullable|image|max:512000', // 500MB
+            'images.*' => 'nullable|image|max:153600', // 150MB
         ]);
 
         DB::beginTransaction();
@@ -211,10 +218,14 @@ class InscriptionController extends Controller
                     ->store('inscriptions/banners', 'public');
             }
 
-            if ($request->hasFile('video')) {
-                Storage::disk('public')->delete($inscription->video);
-                $inscription->video = $request->file('video')
-                    ->store('inscriptions/videos', 'public');
+            // if ($request->hasFile('video')) {
+            //     Storage::disk('public')->delete($inscription->video);
+            //     $inscription->video = $request->file('video')
+            //         ->store('inscriptions/videos', 'public');
+            // }
+
+            if ($request->filled('video')) {
+                $inscription->video = $request->video; // string URL/path
             }
 
             $inscription->update($request->only([
@@ -227,6 +238,7 @@ class InscriptionController extends Controller
                 'references',
                 'glossary',
                 'status',
+                'video',
             ]));
 
             // Update sort_order for existing images
@@ -283,7 +295,7 @@ class InscriptionController extends Controller
             ActivityLog::create([
                 'name' => $request->user() ? $request->user()->name : 'Unknown',
                 'ip_address' => $request->ip(),
-                'title' => $inscription->title . ' (' . $inscription->inscription_number . ')',
+                'title' => $inscription->title.' ('.$inscription->inscription_number.')',
             ]);
 
             DB::commit();
@@ -340,7 +352,7 @@ class InscriptionController extends Controller
 
             Log::info('Deleted '.$imageCount.' gallery images');
 
-            $deletedTitle = $inscription->title . ' (' . $inscription->inscription_number . ')';
+            $deletedTitle = $inscription->title.' ('.$inscription->inscription_number.')';
             $inscription->delete();
 
             // 🔔 LOG ACTIVITY: Deletion
@@ -446,7 +458,7 @@ class InscriptionController extends Controller
     private function sizeToBytes($sizeStr)
     {
         $sizeStr = trim($sizeStr);
-        $last = strtolower($sizeStr[strlen($sizeStr)-1]);
+        $last = strtolower($sizeStr[strlen($sizeStr) - 1]);
         $value = (int) $sizeStr;
 
         switch ($last) {

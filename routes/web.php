@@ -100,4 +100,8 @@ Route::get('/test-upload-limits', function () {
 
 Route::get('/ourinscription', [InscriptionController::class, 'index'])->name('ourinscription.index');
 
+
+Route::get('/inscriptions/video-chunk', [InscriptionController::class, 'uploadVideoChunk']);
+
+
 require __DIR__.'/auth.php';
