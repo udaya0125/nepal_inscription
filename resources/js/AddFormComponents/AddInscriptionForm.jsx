@@ -1765,12 +1765,6 @@ const AddInscriptionForm = ({
                                             </p>
                                         </div>
                                     )}
-                                    
-                                    {/* <div className="text-sm text-gray-600 space-y-1">
-                                        <p>• Enter the video path/URL from your storage</p>
-                                        <p>• Example: <code className="bg-gray-100 px-1 rounded">inscriptions/videos/filename.mp4</code></p>
-                                        <p>• Supported formats: MP4, AVI, MOV, WMV, FLV, MKV, WEBM, MPG, MPEG</p>
-                                    </div> */}
                                 </div>
                             </div>
 

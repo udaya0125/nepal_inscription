@@ -319,6 +319,55 @@ class InscriptionController extends Controller
     }
 
     /**
+     * Update inscription status only.
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:draft,published',
+        ]);
+
+        $inscription = Inscription::findOrFail($id);
+
+        DB::beginTransaction();
+
+        try {
+            $oldStatus = $inscription->status;
+            $inscription->status = $request->status;
+            $inscription->save();
+
+            // 🔔 LOG ACTIVITY: Status Update
+            // ActivityLog::create([
+            //     'name' => $request->user() ? $request->user()->name : 'Unknown',
+            //     'ip_address' => $request->ip(),
+            //     'title' => $inscription->title.' ('.$inscription->inscription_number.')',
+            //     'details' => "Status changed from {$oldStatus} to {$request->status}",
+            // ]);
+            ActivityLog::create([
+                'name' => $request->user() ? $request->user()->name : 'Unknown',
+                'ip_address' => $request->ip(),
+                'title' => "{$inscription->title} {$oldStatus} → {$request->status}",
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status updated successfully',
+                'data' => $inscription,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update status: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Delete an inscription.
      */
     public function destroy($id, Request $request) // 👈 Added Request $request

@@ -1101,6 +1101,29 @@ const Inscriptions = () => {
         return html.replace(/<[^>]*>/g, "");
     };
 
+    const handleStatusChange = useCallback(async (id, newStatus) => {
+        try {
+            setLoading(true);
+            await axios.patch(
+                route("ourinscription.updateStatus", { id: id }),
+                {
+                    status: newStatus,
+                },
+            );
+
+            // Refresh the data
+            setReloadTrigger((prev) => !prev);
+
+            // Show success message
+            alert(`Status changed to ${newStatus} successfully!`);
+        } catch (error) {
+            console.error("Error updating status:", error);
+            alert("Failed to update status");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     // React Table columns
     const columns = useMemo(
         () => [
@@ -1137,77 +1160,66 @@ const Inscriptions = () => {
                     </div>
                 ),
             },
-            {
-                Header: "Description",
-                accessor: "description",
-                Cell: ({ value }) => (
-                    <div className="text-sm text-gray-900 max-w-xs">
-                        {value
-                            ? stripHtml(value).length > 10
-                                ? `${stripHtml(value).substring(0, 10)}...`
-                                : stripHtml(value)
-                            : "No description"}
-                    </div>
-                ),
-            },
-            // In the columns definition of Inscriptions.jsx, add this column:
-            {
+            // {
+            //     Header: "Status",
+            //     accessor: "status",
+            //     Cell: ({ value }) => (
+            //         <span
+            //             className={`px-2 py-1 rounded-full text-xs font-medium ${
+            //                 value === "published"
+            //                     ? "bg-green-100 text-green-800"
+            //                     : value === "draft"
+            //                       ? "bg-yellow-100 text-yellow-800"
+            //                       : "bg-gray-100 text-gray-800"
+            //             }`}
+            //         >
+            //             {value
+            //                 ? value.charAt(0).toUpperCase() + value.slice(1)
+            //                 : "Draft"}
+            //         </span>
+            //     ),
+            // },
+
+           {
                 Header: "Status",
                 accessor: "status",
-                Cell: ({ value }) => (
-                    <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            value === "published"
-                                ? "bg-green-100 text-green-800"
-                                : value === "draft"
-                                  ? "bg-yellow-100 text-yellow-800"
-                                  : "bg-gray-100 text-gray-800"
-                        }`}
-                    >
-                        {value
-                            ? value.charAt(0).toUpperCase() + value.slice(1)
-                            : "Draft"}
-                    </span>
-                ),
+                Cell: ({ row }) => {
+                    const status = row.original.status || 'draft';
+                    const statusOptions = [
+                        { value: 'draft', label: 'Draft', color: 'bg-yellow-100 text-yellow-800' },
+                        { value: 'published', label: 'Published', color: 'bg-green-100 text-green-800' }
+                    ];
+                    
+                    const currentOption = statusOptions.find(opt => opt.value === status) || statusOptions[0];
+                    
+                    return (
+                        <div className="relative group">
+                            <select
+                                value={status}
+                                onChange={(e) => handleStatusChange(row.original.id, e.target.value)}
+                                className={`px-3 py-1 rounded-full text-xs font-medium cursor-pointer appearance-none pr-8 ${currentOption.color} border border-transparent hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                                disabled={loading}
+                            >
+                                {statusOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    );
+                },
             },
-
-            {
-                Header: "Text",
-                accessor: "text",
-                Cell: ({ value }) => (
-                    <div className="text-sm text-gray-900 max-w-xs">
-                        {value
-                            ? stripHtml(value).length > 10
-                                ? `${stripHtml(value).substring(0, 10)}...`
-                                : stripHtml(value)
-                            : "No text"}
-                    </div>
-                ),
-            },
-
-            {
-                Header: "Translation",
-                accessor: "translation",
-                Cell: ({ value }) => (
-                    <div className="text-sm text-gray-900 max-w-xs">
-                        {value
-                            ? stripHtml(value).length > 10
-                                ? `${stripHtml(value).substring(0, 10)}...`
-                                : stripHtml(value)
-                            : "No translation"}
-                    </div>
-                ),
-            },
-
             {
                 Header: "Actions",
                 accessor: "actions",
                 Cell: ({ row }) => (
                     <div className="flex space-x-2">
-                        <Link 
+                        <Link
                             href={`/inscription-details/${row.original.slug}`}
-                         className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50">
-                            <Info size={18}/>
+                            className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                        >
+                            <Info size={18} />
                         </Link>
                         <button
                             onClick={() => handleViewDetails(row.original)}
@@ -1760,7 +1772,9 @@ const Inscriptions = () => {
                                     </h3>
                                     <div className="prose max-w-none rich-text-content">
                                         {selectedInscription.references ? (
-                                            parse(selectedInscription.references)
+                                            parse(
+                                                selectedInscription.references,
+                                            )
                                         ) : (
                                             <p className="text-gray-500 italic">
                                                 No references provided

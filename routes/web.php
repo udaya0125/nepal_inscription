@@ -103,5 +103,7 @@ Route::get('/ourinscription', [InscriptionController::class, 'index'])->name('ou
 
 Route::get('/inscriptions/video-chunk', [InscriptionController::class, 'uploadVideoChunk']);
 
+Route::patch('/inscriptions/{id}/status', [InscriptionController::class, 'updateStatus'])->name("ourinscription.updateStatus");
+
 
 require __DIR__.'/auth.php';
