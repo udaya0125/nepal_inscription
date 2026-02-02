@@ -1760,9 +1760,9 @@ const AddInscriptionForm = ({
                                                     controls
                                                 />
                                             </div>
-                                            <p className="text-xs text-gray-500 mt-2">
+                                            {/* <p className="text-xs text-gray-500 mt-2">
                                                 URL: {videoUrl}
-                                            </p>
+                                            </p> */}
                                         </div>
                                     )}
                                 </div>

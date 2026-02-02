@@ -1864,7 +1864,7 @@ const Inscriptions = () => {
                                                                         deletingImageId ===
                                                                         image.id
                                                                     }
-                                                                    className="absolute top-2 right-2 bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 disabled:opacity-50"
+                                                                    className="absolute top-2 right-2 bg-red-600 text-white p-1.5 rounded-full  transition-opacity hover:bg-red-700 disabled:opacity-50"
                                                                     title="Delete image"
                                                                 >
                                                                     {deletingImageId ===
@@ -1873,7 +1873,7 @@ const Inscriptions = () => {
                                                                     ) : (
                                                                         <Trash2
                                                                             size={
-                                                                                14
+                                                                                16
                                                                             }
                                                                         />
                                                                     )}

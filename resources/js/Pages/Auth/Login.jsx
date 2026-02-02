@@ -17,7 +17,7 @@ export default function Login({ status, canResetPassword }) {
 
     const [focusedField, setFocusedField] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
-    const logo = '/images/logo3.png'; // Replace with your logo path
+    const logo = '/images/logo3.jpeg'; // Replace with your logo path
 
     const submit = (e) => {
         e.preventDefault();
@@ -44,8 +44,8 @@ export default function Login({ status, canResetPassword }) {
                     <div className="text-center space-y-2 mb-10">
                         {/* Logo */}
                         <div className="flex justify-center mb-6">
-                            <div className="w-20 h-20 rounded-2xl shadow-lg overflow-hidden">
-                                <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+                            <div className="w-24 rounded-2xl">
+                                <img src={logo} alt="Logo" className="w-full h-full object-contain" />
                             </div>
                         </div>
                         <h1 className="text-4xl font-semibold text-slate-900 tracking-tight">

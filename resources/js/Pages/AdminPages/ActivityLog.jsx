@@ -1,4 +1,3 @@
-
 import {
     ChevronUp,
     ChevronDown,
@@ -20,7 +19,7 @@ const ActivityLog = () => {
             try {
                 setLoading(true);
                 setError(null);
-                
+
                 const response = await axios.get(route("ourlogs.index"));
 
                 // Access the data property of the response
@@ -32,7 +31,7 @@ const ActivityLog = () => {
                 } else {
                     console.error(
                         "Unexpected response structure:",
-                        responseData
+                        responseData,
                     );
                     setActivityLogs([]);
                     setError("Unexpected data format received from server.");
@@ -71,20 +70,20 @@ const ActivityLog = () => {
                     // Slice the title to 50 characters and add ellipsis if longer
                     const maxLength = 50;
                     if (value && value.length > maxLength) {
-                        return value.slice(0, maxLength) + '...';
+                        return value.slice(0, maxLength) + "...";
                     }
-                    return value || '-';
+                    return value || "-";
                 },
             },
             {
                 Header: "Date",
                 accessor: "created_at",
                 Cell: ({ value }) => {
-                    return value ? new Date(value).toLocaleString() : '-';
+                    return value ? new Date(value).toLocaleString() : "-";
                 },
             },
         ],
-        []
+        [],
     );
 
     const {
@@ -109,7 +108,7 @@ const ActivityLog = () => {
             initialState: { pageIndex: 0, pageSize: 5 },
         },
         useSortBy,
-        usePagination
+        usePagination,
     );
 
     return (
@@ -143,13 +142,13 @@ const ActivityLog = () => {
                                                 (column) => (
                                                     <th
                                                         {...column.getHeaderProps(
-                                                            column.getSortByToggleProps()
+                                                            column.getSortByToggleProps(),
                                                         )}
                                                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                                     >
                                                         <div className="flex items-center">
                                                             {column.render(
-                                                                "Header"
+                                                                "Header",
                                                             )}
                                                             {column.isSorted ? (
                                                                 column.isSortedDesc ? (
@@ -172,7 +171,7 @@ const ActivityLog = () => {
                                                             )}
                                                         </div>
                                                     </th>
-                                                )
+                                                ),
                                             )}
                                         </tr>
                                     ))}
@@ -195,7 +194,7 @@ const ActivityLog = () => {
                                                             className="px-6 py-4 whitespace-nowrap"
                                                         >
                                                             {cell.render(
-                                                                "Cell"
+                                                                "Cell",
                                                             )}
                                                         </td>
                                                     ))}
@@ -215,7 +214,7 @@ const ActivityLog = () => {
                                 </tbody>
                             </table>
                         </div>
-                        
+
                         {/* Pagination */}
                         <div className="flex items-center justify-between flex-col md:flex-row mt-4 space-y-4 md:space-y-0">
                             <div className="flex items-center">
@@ -237,6 +236,9 @@ const ActivityLog = () => {
                                 </select>
                                 <span className="text-sm text-gray-700 ml-2">
                                     entries
+                                </span>
+                                <span className="text-sm text-gray-700 ml-4">
+                                    Total: {activityLogs.length} records
                                 </span>
                             </div>
                             <div className="flex items-center space-x-2">

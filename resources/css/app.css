@@ -169,25 +169,3 @@
   font-size: 0.9em;
 }
 
-/* Custom scrollbar for Quill editor */
-/* .ql-editor::-webkit-scrollbar,
-.quill-custom .ql-editor::-webkit-scrollbar {
-  width: 8px;
-}
-
-.ql-editor::-webkit-scrollbar-track,
-.quill-custom .ql-editor::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.ql-editor::-webkit-scrollbar-thumb,
-.quill-custom .ql-editor::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-.ql-editor::-webkit-scrollbar-thumb:hover,
-.quill-custom .ql-editor::-webkit-scrollbar-thumb:hover {
-  background: #555;
-} */

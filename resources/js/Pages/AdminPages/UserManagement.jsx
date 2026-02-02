@@ -13,7 +13,6 @@ import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 import AddUserForm from "@/AddFormComponents/AddUserForm";
 import EditUserForm from "@/EditFormComponents/EditUserForm";
 
-
 const UserManagement = () => {
     const [allUser, setAllUser] = useState([]);
     const [reloadTrigger, setReloadTrigger] = useState(false);
@@ -30,14 +29,17 @@ const UserManagement = () => {
                 setLoading(true);
                 setError(null);
                 const response = await axios.get(route("ouruser.index"));
-                
+
                 // Handle both paginated and non-paginated responses
                 if (response.data && Array.isArray(response.data.data)) {
                     setAllUser(response.data.data);
                 } else if (Array.isArray(response.data)) {
                     setAllUser(response.data);
                 } else {
-                    console.error("Unexpected response structure:", response.data);
+                    console.error(
+                        "Unexpected response structure:",
+                        response.data,
+                    );
                     setAllUser([]);
                     setError("Unexpected data format received from server.");
                 }
@@ -55,14 +57,14 @@ const UserManagement = () => {
 
     // For delete the user
     const handleDelete = async (id) => {
-        if (!confirm('Are you sure you want to delete this user?')) return;
-        
+        if (!confirm("Are you sure you want to delete this user?")) return;
+
         try {
             await axios.delete(route("ouruser.destroy", { id: id }));
             setReloadTrigger((prev) => !prev);
         } catch (error) {
             console.log(error);
-            alert('Error deleting user');
+            alert("Error deleting user");
         }
     };
 
@@ -83,7 +85,7 @@ const UserManagement = () => {
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
-                }
+                },
             );
             setReloadTrigger((prev) => !prev);
             setShowEditForm(false);
@@ -142,7 +144,7 @@ const UserManagement = () => {
                 Header: "Created At",
                 accessor: "created_at",
                 Cell: ({ value }) => {
-                    return value ? new Date(value).toLocaleDateString() : '-';
+                    return value ? new Date(value).toLocaleDateString() : "-";
                 },
             },
             {
@@ -154,7 +156,10 @@ const UserManagement = () => {
                             onClick={() => handleEdit(row.original)}
                             className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
                         >
-                            <SquarePen size={16} className="inline-block mr-1" />
+                            <SquarePen
+                                size={16}
+                                className="inline-block mr-1"
+                            />
                         </button>
                         <button
                             onClick={() => handleDelete(row.original.id)}
@@ -166,7 +171,7 @@ const UserManagement = () => {
                 ),
             },
         ],
-        []
+        [],
     );
 
     const {
@@ -191,7 +196,7 @@ const UserManagement = () => {
             initialState: { pageIndex: 0, pageSize: 5 },
         },
         useSortBy,
-        usePagination
+        usePagination,
     );
 
     return (
@@ -217,7 +222,9 @@ const UserManagement = () => {
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                         </div>
                     ) : error ? (
-                        <div className="text-center py-8 text-red-500">{error}</div>
+                        <div className="text-center py-8 text-red-500">
+                            {error}
+                        </div>
                     ) : (
                         <>
                             <div className="overflow-x-auto rounded-lg shadow">
@@ -234,13 +241,13 @@ const UserManagement = () => {
                                                     (column) => (
                                                         <th
                                                             {...column.getHeaderProps(
-                                                                column.getSortByToggleProps()
+                                                                column.getSortByToggleProps(),
                                                             )}
                                                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                                         >
                                                             <div className="flex items-center">
                                                                 {column.render(
-                                                                    "Header"
+                                                                    "Header",
                                                                 )}
                                                                 {column.isSorted ? (
                                                                     column.isSortedDesc ? (
@@ -263,7 +270,7 @@ const UserManagement = () => {
                                                                 )}
                                                             </div>
                                                         </th>
-                                                    )
+                                                    ),
                                                 )}
                                             </tr>
                                         ))}
@@ -280,16 +287,18 @@ const UserManagement = () => {
                                                         {...row.getRowProps()}
                                                         className="hover:bg-gray-50"
                                                     >
-                                                        {row.cells.map((cell) => (
-                                                            <td
-                                                                {...cell.getCellProps()}
-                                                                className="px-6 py-4 whitespace-nowrap"
-                                                            >
-                                                                {cell.render(
-                                                                    "Cell"
-                                                                )}
-                                                            </td>
-                                                        ))}
+                                                        {row.cells.map(
+                                                            (cell) => (
+                                                                <td
+                                                                    {...cell.getCellProps()}
+                                                                    className="px-6 py-4 whitespace-nowrap"
+                                                                >
+                                                                    {cell.render(
+                                                                        "Cell",
+                                                                    )}
+                                                                </td>
+                                                            ),
+                                                        )}
                                                     </tr>
                                                 );
                                             })
@@ -306,7 +315,7 @@ const UserManagement = () => {
                                     </tbody>
                                 </table>
                             </div>
-                            
+
                             {/* Pagination */}
                             <div className="flex items-center justify-between flex-col md:flex-row mt-4 space-y-4 md:space-y-0">
                                 <div className="flex items-center">
@@ -328,6 +337,9 @@ const UserManagement = () => {
                                     </select>
                                     <span className="text-sm text-gray-700 ml-2">
                                         entries
+                                    </span>
+                                    <span className="text-sm text-gray-700 ml-4">
+                                        Total: {allUser.length} records
                                     </span>
                                 </div>
                                 <div className="flex items-center space-x-2">
