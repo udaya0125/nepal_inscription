@@ -328,6 +328,7 @@ const InscriptionPage = ({ inscription }) => {
                                         controls
                                         className="w-full h-[400px] object-cover bg-gray-900"
                                         onPlay={handleVideoPlay}
+                                         poster={`${imgurl}/${inscription?.video_banner}`}
                                         onPause={handleVideoPause}
                                         preload="metadata"
                                     >

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\Inscription;
-use App\Models\InscriptionImage; // 👈 Added
+use App\Models\InscriptionImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -25,6 +25,11 @@ class InscriptionController extends Controller
             $query = Inscription::with('images')->latest();
 
             $paginated = $query->paginate($perPage, ['*'], 'page', $page);
+
+            // Append storage URLs to each inscription
+            foreach ($paginated->items() as $inscription) {
+                $this->appendStorageUrls($inscription);
+            }
 
             return response()->json([
                 'success' => true,
@@ -60,6 +65,9 @@ class InscriptionController extends Controller
                 }])
                 ->firstOrFail();
 
+            // Append storage URLs
+            $this->appendStorageUrls($inscription);
+
             return response()->json([
                 'success' => true,
                 'data' => $inscription,
@@ -87,6 +95,9 @@ class InscriptionController extends Controller
             }])
             ->firstOrFail();
 
+        // Append storage URLs for the Inertia frontend
+        $this->appendStorageUrls($inscription);
+
         return Inertia::render('MainPages/InscriptionPage', [
             'inscription' => $inscription,
         ]);
@@ -100,10 +111,11 @@ class InscriptionController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'inscription_number' => 'required|string|unique:inscriptions,inscription_number',
-            // 'banner_image' => 'nullable|image|max:512000', // 500MB
-            'banner_image' => 'nullable|image|max:153600', // 150MB
-            // 'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv,webm,mpg,mpeg|max:512000', // 500MB
-            'video' => 'nullable|string|max:255',
+            // 'banner_image' => 'nullable|image|max:512000', // 500MB - Original commented out
+            'banner_image' => 'nullable|image|max:153600', // 150MB - Modified
+            // 'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv,webm,mpg,mpeg|max:512000', // 500MB - Original commented out
+            'video' => 'nullable|string|max:255', // Modified to accept string URL/path
+            'video_banner' => 'nullable|image|max:153600', // 150MB - VIDEO BANNER IS AN IMAGE, NOT A VIDEO
             'description' => 'required|string',
             'background' => 'nullable|string',
             'text' => 'nullable|string',
@@ -111,29 +123,33 @@ class InscriptionController extends Controller
             'references' => 'nullable|string',
             'glossary' => 'nullable|string',
             'status' => 'nullable|in:draft,published',
-            // 'images.*' => 'nullable|image|max:512000', // 500MB
-            'images.*' => 'nullable|image|max:153600', // 150MB
+            // 'images.*' => 'nullable|image|max:512000', // 500MB - Original commented out
+            'images.*' => 'nullable|image|max:153600', // 150MB - Modified
         ]);
 
         DB::beginTransaction();
 
         try {
-            // Banner image
+            // Banner image - store in 'inscriptions/banners' directory
             $bannerPath = $request->file('banner_image')
                 ? $request->file('banner_image')->store('inscriptions/banners', 'public')
                 : null;
 
-            // Video
-            // $videoPath = $request->file('video')
-            //     ? $request->file('video')->store('inscriptions/videos', 'public')
-            //     : null;
+            // Video - Modified to accept string URL/path instead of file upload
             $videoPath = $request->video;
+
+            // Video banner image - store in 'inscriptions/video_banners' directory
+            // NOTE: This is an image, not a video file
+            $videoBannerPath = $request->file('video_banner')
+                ? $request->file('video_banner')->store('inscriptions/video_banners', 'public')
+                : null;
 
             $inscription = Inscription::create([
                 'title' => $request->title,
                 'inscription_number' => $request->inscription_number,
                 'banner_image' => $bannerPath,
-                'video' => $videoPath,
+                'video' => $videoPath, // This is a string URL/path
+                'video_banner' => $videoBannerPath, // This is an image path
                 'description' => $request->description,
                 'background' => $request->background,
                 'text' => $request->text,
@@ -143,7 +159,7 @@ class InscriptionController extends Controller
                 'status' => $request->status ?? 'draft',
             ]);
 
-            // Multiple images
+            // Multiple images - store in 'inscriptions/images' directory
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $index => $image) {
                     $path = $image->store('inscriptions/images', 'public');
@@ -166,10 +182,14 @@ class InscriptionController extends Controller
 
             DB::commit();
 
+            // Load inscription with storage URLs
+            $inscription->load('images');
+            $this->appendStorageUrls($inscription);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Inscription created successfully',
-                'data' => $inscription->load('images'),
+                'data' => $inscription,
             ], 201);
 
         } catch (\Exception $e) {
@@ -189,46 +209,95 @@ class InscriptionController extends Controller
     {
         $inscription = Inscription::with('images')->findOrFail($id);
 
+        // 🔍 LOG ALL UPLOADED FILES FOR DEBUGGING/AUDITING
+        Log::info('Inscription update: File upload details', [
+            'inscription_id' => $id,
+            'user_id' => $request->user()?->id,
+            'banner_image' => $request->hasFile('banner_image')
+                ? [
+                    'name' => $request->file('banner_image')->getClientOriginalName(),
+                    'size_kb' => round($request->file('banner_image')->getSize() / 1024, 2),
+                    'mime' => $request->file('banner_image')->getMimeType(),
+                ]
+                : null,
+
+            'video_banner' => $request->hasFile('video_banner')
+                ? [
+                    'name' => $request->file('video_banner')->getClientOriginalName(),
+                    'size_kb' => round($request->file('video_banner')->getSize() / 1024, 2),
+                    'mime' => $request->file('video_banner')->getMimeType(),
+                ]
+                : null,
+
+            'images' => $request->hasFile('images')
+                ? collect($request->file('images'))->map(function ($file) {
+                    return [
+                        'name' => $file->getClientOriginalName(),
+                        'size_kb' => round($file->getSize() / 1024, 2),
+                        'mime' => $file->getMimeType(),
+                    ];
+                })->toArray()
+                : [],
+
+            'video_url_or_path' => $request->filled('video') ? $request->video : null,
+        ]);
+
         $request->validate([
             'title' => 'sometimes|string|max:255',
             'inscription_number' => 'sometimes|string|unique:inscriptions,inscription_number,'.$id,
-            // 'banner_image' => 'nullable|image|max:512000', // 500MB
-            'banner_image' => 'nullable|image|max:153600', // 150MB
-            // 'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv,webm,mpg,mpeg|max:512000', // 500MB
-            'video' => 'nullable|string|max:255',
+            // 'banner_image' => 'nullable|image|max:512000', // 500MB - Original commented out
+            'banner_image' => 'nullable|image|max:153600', // 150MB - Modified
+            // 'video' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,mkv,webm,mpg,mpeg|max:512000', // 500MB - Original commented out
+            'video' => 'nullable|string|max:255', // Modified to accept string URL/path
             'description' => 'sometimes|string',
             'background' => 'nullable|string',
             'text' => 'nullable|string',
             'translation' => 'nullable|string',
             'references' => 'nullable|string',
+            'video_banner' => 'nullable|image|max:153600', // 150MB - VIDEO BANNER IS AN IMAGE, NOT A VIDEO
             'glossary' => 'nullable|string',
             'status' => 'nullable|in:draft,published',
             'removed_image_ids' => 'nullable|array',
             'removed_image_ids.*' => 'exists:inscription_images,id',
-            // 'images.*' => 'nullable|image|max:512000', // 500MB
-            'images.*' => 'nullable|image|max:153600', // 150MB
+            // 'images.*' => 'nullable|image|max:512000', // 500MB - Original commented out
+            'images.*' => 'nullable|image|max:153600', // 150MB - Modified
         ]);
 
         DB::beginTransaction();
 
         try {
+            // Update banner image
             if ($request->hasFile('banner_image')) {
-                Storage::disk('public')->delete($inscription->banner_image);
+                // Delete old banner image if exists
+                if ($inscription->banner_image) {
+                    Storage::disk('public')->delete($inscription->banner_image);
+                }
                 $inscription->banner_image = $request->file('banner_image')
                     ->store('inscriptions/banners', 'public');
             }
 
-            // if ($request->hasFile('video')) {
-            //     Storage::disk('public')->delete($inscription->video);
-            //     $inscription->video = $request->file('video')
-            //         ->store('inscriptions/videos', 'public');
-            // }
-
+            // Update video (string URL/path) - Modified to accept string
             if ($request->filled('video')) {
                 $inscription->video = $request->video; // string URL/path
             }
 
-            $inscription->update($request->only([
+            // Update video banner image - store in the correct path
+            // NOTE: This is an image, not a video file
+            if ($request->hasFile('video_banner')) {
+                // Delete old video banner if exists
+                if ($inscription->video_banner) {
+                    Storage::disk('public')->delete($inscription->video_banner);
+                }
+                
+                // Store new video banner in the correct path
+                $inscription->video_banner = $request->file('video_banner')
+                    ->store('inscriptions/video_banners', 'public');
+            }
+
+            // Update other fields
+            // Note: video_banner should NOT be included in the only() array because
+            // it's already handled separately above when a file is uploaded
+            $updateData = $request->only([
                 'title',
                 'inscription_number',
                 'description',
@@ -238,8 +307,14 @@ class InscriptionController extends Controller
                 'references',
                 'glossary',
                 'status',
-                'video',
-            ]));
+            ]);
+            
+            // Handle video field separately if it's filled (not a file upload)
+            if ($request->filled('video')) {
+                $updateData['video'] = $request->video;
+            }
+            
+            $inscription->update($updateData);
 
             // Update sort_order for existing images
             if ($request->filled('existing_image_sort')) {
@@ -300,12 +375,16 @@ class InscriptionController extends Controller
 
             DB::commit();
 
+            // Load inscription with storage URLs
+            $inscription->load(['images' => function ($query) {
+                $query->orderBy('sort_order');
+            }]);
+            $this->appendStorageUrls($inscription);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Inscription updated successfully',
-                'data' => $inscription->load(['images' => function ($query) {
-                    $query->orderBy('sort_order');
-                }]),
+                'data' => $inscription,
             ]);
 
         } catch (\Exception $e) {
@@ -337,12 +416,6 @@ class InscriptionController extends Controller
             $inscription->save();
 
             // 🔔 LOG ACTIVITY: Status Update
-            // ActivityLog::create([
-            //     'name' => $request->user() ? $request->user()->name : 'Unknown',
-            //     'ip_address' => $request->ip(),
-            //     'title' => $inscription->title.' ('.$inscription->inscription_number.')',
-            //     'details' => "Status changed from {$oldStatus} to {$request->status}",
-            // ]);
             ActivityLog::create([
                 'name' => $request->user() ? $request->user()->name : 'Unknown',
                 'ip_address' => $request->ip(),
@@ -370,7 +443,7 @@ class InscriptionController extends Controller
     /**
      * Delete an inscription.
      */
-    public function destroy($id, Request $request) // 👈 Added Request $request
+    public function destroy($id, Request $request)
     {
         Log::info('Deleting inscription ID: '.$id);
 
@@ -385,10 +458,10 @@ class InscriptionController extends Controller
                 Log::info('Deleted banner image: '.$inscription->banner_image);
             }
 
-            // Delete video
-            if ($inscription->video) {
-                Storage::disk('public')->delete($inscription->video);
-                Log::info('Deleted video: '.$inscription->video);
+            // Delete video banner (this is an image)
+            if ($inscription->video_banner) {
+                Storage::disk('public')->delete($inscription->video_banner);
+                Log::info('Deleted video banner image: '.$inscription->video_banner);
             }
 
             // Delete related images
@@ -517,5 +590,32 @@ class InscriptionController extends Controller
         }
 
         return $value;
+    }
+
+    /**
+     * Append storage URLs to inscription and its images.
+     */
+    private function appendStorageUrls(Inscription $inscription)
+    {
+        // Append full URL for banner image
+        if ($inscription->banner_image) {
+            $inscription->banner_image_url = Storage::disk('public')->url($inscription->banner_image);
+        }
+
+        // Append full URL for video banner (this is an image)
+        if ($inscription->video_banner) {
+            $inscription->video_banner_url = Storage::disk('public')->url($inscription->video_banner);
+        }
+
+        // Append full URLs for gallery images
+        if ($inscription->images) {
+            foreach ($inscription->images as $image) {
+                if ($image->image_path) {
+                    $image->image_url = Storage::disk('public')->url($image->image_path);
+                }
+            }
+        }
+
+        return $inscription;
     }
 }

@@ -11,6 +11,7 @@ class Inscription extends Model
         'title',
         'banner_image',
         'video',
+        'video_banner',
         'description',
         'background',
         'text',
