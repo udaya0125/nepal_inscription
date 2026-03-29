@@ -123,4 +123,6 @@ Route::patch('/inscriptions/{id}/status', [InscriptionController::class, 'update
     Route::get('/dashboard/realtime-data', [DashboardController::class, 'getRealtimeData']);
     Route::get('/dashboard/top-pages', [DashboardController::class, 'getTopPages']);
 
+    Route::get('/dashboard/debug', [DashboardController::class, 'debug']);
+
 require __DIR__.'/auth.php';

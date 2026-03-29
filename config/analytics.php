@@ -21,6 +21,11 @@ return [
     'cache_lifetime_in_minutes' => 60 * 24,
 
     /*
+     * The amount of seconds the Google API responses will be cached in memory.
+     */
+    'cache_in_memory_for' => 5,
+
+    /*
      * Here you may configure the "store" that the underlying Google_Client will
      * use to store it's data.  You may also add extra parameters that will
      * be passed on setCacheConfig (see docs for google-api-php-client).

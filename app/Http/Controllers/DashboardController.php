@@ -8,7 +8,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
-class DashboardController extends Controller
+class DashboardController extends Controller 
 {
     protected $analyticsService;
 
@@ -37,83 +37,69 @@ class DashboardController extends Controller
             // Calculate totals for 7 days
             $totalVisitors = 0;
             $totalPageviews = 0;
-
+            
             foreach ($visitorsData as $day) {
                 $totalVisitors += $day['visitors'] ?? 0;
                 $totalPageviews += $day['pageViews'] ?? 0;
             }
 
-            // Fetch most visited pages (last 30 days)
+            // Fetch most visited pages
             $mostVisitedPages = $this->analyticsService->getMostVisitedPages(30);
             Log::info('Fetched most visited pages', ['pages_count' => count($mostVisitedPages)]);
 
-            // Format pie chart data (top 6 pages)
-            // Use fullPageUrl as the name since all pages share the same pageTitle
-            $pieData = collect($mostVisitedPages)
-                ->filter(fn($page) => ($page['screenPageViews'] ?? 0) > 0)
-                ->take(6)
-                ->map(function ($page) {
-                    $url = $page['fullPageUrl'] ?? '';
-                    // Strip domain — keep just the path for a clean label
-                    $path = preg_replace('/^[^\/]+/', '', $url); // remove "domain.com" prefix
-                    $label = $path ?: '/';
-                    return [
-                        'name'  => $this->truncatePageTitle($label, 35),
-                        'url'   => $url,
-                        'value' => $page['screenPageViews'] ?? 0,
-                    ];
-                })
-                ->values()
-                ->all();
+            // Format pie chart data
+            $pieData = collect($mostVisitedPages)->take(6)->map(function ($page) {
+                return [
+                    'name' => $this->truncatePageTitle($page['pageTitle'] ?? 'Unknown'),
+                    'url' => $page['fullPageUrl'] ?? '',
+                    'value' => $page['screenPageViews'] ?? 0
+                ];
+            })->filter(fn($item) => $item['value'] > 0)->values()->all();
 
-            // Format bar chart data
+            // Format data for bar chart
             $barData = $this->formatBarChartData($visitorsData);
 
             // Get real-time active users
             $realtimeActiveUsers = $this->analyticsService->getRealtimeActiveUsers();
 
-            // Get summary statistics (last 30 days)
+            // Get summary statistics
             $summaryStats = $this->analyticsService->getSummaryStats(30);
 
             Log::info('Data prepared successfully');
 
         } catch (\Exception $e) {
-            Log::error('Analytics error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
+            Log::error('Analytics error: ' . $e->getMessage());
 
             // Fallback to empty data
-            $totalVisitors       = 0;
-            $totalPageviews      = 0;
+            $totalVisitors = 0;
+            $totalPageviews = 0;
             $realtimeActiveUsers = 0;
-            $pieData             = [];
-            $barData             = [];
-            $analyticsError      = $e->getMessage();
-            $summaryStats        = [
-                'pageViews'          => 0,
-                'sessions'           => 0,
-                'totalUsers'         => 0,
-                'newUsers'           => 0,
+            $pieData = [];
+            $barData = [];
+            $summaryStats = [
+                'pageViews' => 0,
+                'sessions' => 0,
+                'totalUsers' => 0,
+                'newUsers' => 0,
                 'avgSessionDuration' => 0,
-                'bounceRate'         => 0,
+                'bounceRate' => 0,
             ];
         }
 
         return Inertia::render('AdminPages/Dashboard', [
             'visitors' => [
-                'visitors'    => $totalVisitors,
-                'pageviews'   => $totalPageviews,
+                'visitors' => $totalVisitors,
+                'pageviews' => $totalPageviews,
                 'activeUsers' => $realtimeActiveUsers,
-                'summary'     => $summaryStats,
+                'summary' => $summaryStats
             ],
-            'pieData'        => $pieData,
-            'barData'        => $barData,
-            'analyticsError' => $analyticsError ?? null,
+            'pieData' => $pieData,
+            'barData' => $barData,
         ]);
     }
 
     /**
-     * Format the visitors data for bar chart (last 7 days)
+     * Format the visitors data for bar chart
      */
     private function formatBarChartData($visitorsData): array
     {
@@ -121,29 +107,31 @@ class DashboardController extends Controller
             return [];
         }
 
-        $startDate = Carbon::now()->subDays(6);
         $formattedData = [];
 
-        // Map existing data by date
+        // Ensure we have exactly 7 days of data (last 7 days)
+        $startDate = Carbon::now()->subDays(6);
+        
+        // Create a map of existing data by date
         $dataByDate = [];
         foreach ($visitorsData as $dayData) {
             $date = Carbon::parse($dayData['date']);
             $dataByDate[$date->format('Y-m-d')] = [
-                'visitors'  => $dayData['visitors'] ?? 0,
-                'pageViews' => $dayData['pageViews'] ?? 0,
+                'visitors' => $dayData['visitors'] ?? 0,
+                'pageViews' => $dayData['pageViews'] ?? 0
             ];
         }
 
-        // Generate 7 days of entries
+        // Generate data for last 7 days
         for ($i = 0; $i < 7; $i++) {
-            $date       = $startDate->copy()->addDays($i);
+            $date = $startDate->copy()->addDays($i);
             $dateString = $date->format('Y-m-d');
-
+            
             $formattedData[] = [
-                'name'      => $date->format('D'),
-                'fullDate'  => $dateString,
-                'visitors'  => $dataByDate[$dateString]['visitors'] ?? 0,
-                'pageviews' => $dataByDate[$dateString]['pageViews'] ?? 0,
+                'name' => $date->format('D'),
+                'fullDate' => $dateString,
+                'visitors' => $dataByDate[$dateString]['visitors'] ?? 0,
+                'pageviews' => $dataByDate[$dateString]['pageViews'] ?? 0
             ];
         }
 
@@ -153,12 +141,12 @@ class DashboardController extends Controller
     /**
      * Truncate page title if too long
      */
-    private function truncatePageTitle($title, $length = 40): string
+    private function truncatePageTitle($title, $length = 40)
     {
         if (strlen($title) <= $length) {
             return $title;
         }
-
+        
         return substr($title, 0, $length) . '...';
     }
 
@@ -168,26 +156,30 @@ class DashboardController extends Controller
     public function getChartData(Request $request)
     {
         $period = $request->input('period', '7days');
-
+        
         try {
-            $days = match ($period) {
-                '30days' => 30,
-                '90days' => 90,
-                default  => 7,
-            };
+            $days = 7;
+            
+            switch ($period) {
+                case '30days':
+                    $days = 30;
+                    break;
+                case '90days':
+                    $days = 90;
+                    break;
+            }
 
             $visitorsData = $this->analyticsService->getTotalVisitorsAndPageViews($days);
-            $barData      = $this->formatBarChartData($visitorsData);
+            $barData = $this->formatBarChartData($visitorsData);
 
             return response()->json([
                 'success' => true,
                 'barData' => $barData,
-                'period'  => $period,
+                'period' => $period,
             ]);
 
         } catch (\Exception $e) {
             Log::error('Chart data error: ' . $e->getMessage());
-
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch chart data',
@@ -197,26 +189,25 @@ class DashboardController extends Controller
     }
 
     /**
-     * Get real-time active users
+     * Get real-time data
      */
     public function getRealtimeData(Request $request)
     {
         try {
             $activeUsers = $this->analyticsService->getRealtimeActiveUsers();
-
+            
             return response()->json([
-                'success'     => true,
+                'success' => true,
                 'activeUsers' => $activeUsers,
-                'timestamp'   => now()->toIso8601String(),
+                'timestamp' => now()->toIso8601String()
             ]);
 
         } catch (\Exception $e) {
             Log::error('Realtime data error: ' . $e->getMessage());
-
             return response()->json([
-                'success'     => false,
-                'message'     => 'Failed to fetch real-time data',
-                'activeUsers' => 0,
+                'success' => false,
+                'message' => 'Failed to fetch real-time data',
+                'activeUsers' => 0
             ], 500);
         }
     }
@@ -228,37 +219,30 @@ class DashboardController extends Controller
     {
         try {
             $limit = $request->input('limit', 10);
-            $days  = $request->input('days', 30);
-
+            $days = $request->input('days', 30);
+            
             $pages = $this->analyticsService->getMostVisitedPages($days, $limit);
-
-            $formattedPages = collect($pages)
-                ->filter(fn($page) => ($page['screenPageViews'] ?? 0) > 0)
-                ->map(function ($page) {
-                    $url  = $page['fullPageUrl'] ?? '';
-                    $path = preg_replace('/^[^\/]+/', '', $url) ?: '/';
-                    return [
-                        'name'  => $this->truncatePageTitle($path, 35),
-                        'url'   => $url,
-                        'value' => $page['screenPageViews'] ?? 0,
-                    ];
-                })
-                ->values()
-                ->all();
+            
+            $formattedPages = collect($pages)->map(function ($page) {
+                return [
+                    'name' => $this->truncatePageTitle($page['pageTitle'] ?? 'Unknown'),
+                    'url' => $page['fullPageUrl'] ?? '',
+                    'value' => $page['screenPageViews'] ?? 0
+                ];
+            })->filter(fn($item) => $item['value'] > 0)->values()->all();
 
             return response()->json([
                 'success' => true,
-                'pages'   => $formattedPages,
-                'total'   => count($formattedPages),
+                'pages' => $formattedPages,
+                'total' => count($formattedPages)
             ]);
 
         } catch (\Exception $e) {
             Log::error('Top pages error: ' . $e->getMessage());
-
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch top pages',
-                'pages'   => [],
+                'pages' => []
             ], 500);
         }
     }
@@ -270,14 +254,14 @@ class DashboardController extends Controller
     {
         try {
             $result = $this->analyticsService->testConnection();
-
+            
             return response()->json($result);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to test GA4 connection',
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage()
             ], 500);
         }
     }
