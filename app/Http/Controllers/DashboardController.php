@@ -48,13 +48,23 @@ class DashboardController extends Controller
             Log::info('Fetched most visited pages', ['pages_count' => count($mostVisitedPages)]);
 
             // Format pie chart data (top 6 pages)
-            $pieData = collect($mostVisitedPages)->take(6)->map(function ($page) {
-                return [
-                    'name'  => $this->truncatePageTitle($page['pageTitle'] ?? 'Unknown'),
-                    'url'   => $page['fullPageUrl'] ?? '',
-                    'value' => $page['screenPageViews'] ?? 0,
-                ];
-            })->filter(fn($item) => $item['value'] > 0)->values()->all();
+            // Use fullPageUrl as the name since all pages share the same pageTitle
+            $pieData = collect($mostVisitedPages)
+                ->filter(fn($page) => ($page['screenPageViews'] ?? 0) > 0)
+                ->take(6)
+                ->map(function ($page) {
+                    $url = $page['fullPageUrl'] ?? '';
+                    // Strip domain — keep just the path for a clean label
+                    $path = preg_replace('/^[^\/]+/', '', $url); // remove "domain.com" prefix
+                    $label = $path ?: '/';
+                    return [
+                        'name'  => $this->truncatePageTitle($label, 35),
+                        'url'   => $url,
+                        'value' => $page['screenPageViews'] ?? 0,
+                    ];
+                })
+                ->values()
+                ->all();
 
             // Format bar chart data
             $barData = $this->formatBarChartData($visitorsData);
@@ -68,7 +78,9 @@ class DashboardController extends Controller
             Log::info('Data prepared successfully');
 
         } catch (\Exception $e) {
-            Log::error('Analytics error: ' . $e->getMessage());
+            Log::error('Analytics error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
 
             // Fallback to empty data
             $totalVisitors       = 0;
@@ -76,6 +88,7 @@ class DashboardController extends Controller
             $realtimeActiveUsers = 0;
             $pieData             = [];
             $barData             = [];
+            $analyticsError      = $e->getMessage();
             $summaryStats        = [
                 'pageViews'          => 0,
                 'sessions'           => 0,
@@ -93,8 +106,9 @@ class DashboardController extends Controller
                 'activeUsers' => $realtimeActiveUsers,
                 'summary'     => $summaryStats,
             ],
-            'pieData' => $pieData,
-            'barData' => $barData,
+            'pieData'        => $pieData,
+            'barData'        => $barData,
+            'analyticsError' => $analyticsError ?? null,
         ]);
     }
 
@@ -218,13 +232,19 @@ class DashboardController extends Controller
 
             $pages = $this->analyticsService->getMostVisitedPages($days, $limit);
 
-            $formattedPages = collect($pages)->map(function ($page) {
-                return [
-                    'name'  => $this->truncatePageTitle($page['pageTitle'] ?? 'Unknown'),
-                    'url'   => $page['fullPageUrl'] ?? '',
-                    'value' => $page['screenPageViews'] ?? 0,
-                ];
-            })->filter(fn($item) => $item['value'] > 0)->values()->all();
+            $formattedPages = collect($pages)
+                ->filter(fn($page) => ($page['screenPageViews'] ?? 0) > 0)
+                ->map(function ($page) {
+                    $url  = $page['fullPageUrl'] ?? '';
+                    $path = preg_replace('/^[^\/]+/', '', $url) ?: '/';
+                    return [
+                        'name'  => $this->truncatePageTitle($path, 35),
+                        'url'   => $url,
+                        'value' => $page['screenPageViews'] ?? 0,
+                    ];
+                })
+                ->values()
+                ->all();
 
             return response()->json([
                 'success' => true,

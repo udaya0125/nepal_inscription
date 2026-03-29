@@ -17,6 +17,7 @@ export default function Dashboard({
     pieData = [],
     barData = [],
     visitors = { visitors: 0, pageviews: 0, activeUsers: 0, summary: {} },
+    analyticsError = null,
 }) {
     const COLORS = [
         '#3b82f6',
@@ -135,8 +136,6 @@ export default function Dashboard({
         return null;
     };
 
-    console.log('Dashboard data:', { pieData, barData, visitors });
-
     return (
         <AdminWrapper>
             <div className="sm:px-6 lg:px-8 py-6 lg:py-8">
@@ -159,6 +158,19 @@ export default function Dashboard({
                         </div>
                     </div>
                 </div>
+
+                {/* Analytics Error Banner — only shown when GA4 fails */}
+                {analyticsError && (
+                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                        <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <p className="text-sm font-semibold text-red-800">Analytics Error</p>
+                            <p className="text-xs text-red-600 mt-1 font-mono">{analyticsError}</p>
+                        </div>
+                    </div>
+                )}
 
                 {/* Stats Cards — 4 columns */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
