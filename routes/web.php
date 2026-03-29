@@ -6,6 +6,9 @@ use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\DashboardController;
+use Spatie\Analytics\Facades\Analytics;
+use Spatie\Analytics\Period;
 
 // Route::get('/', function () {
 //     return Inertia::render('Welcome', [
@@ -105,5 +108,19 @@ Route::get('/inscriptions/video-chunk', [InscriptionController::class, 'uploadVi
 
 Route::patch('/inscriptions/{id}/status', [InscriptionController::class, 'updateStatus'])->name("ourinscription.updateStatus");
 
+
+
+
+    Route::get('/test', function () {
+        $data = Analytics::fetchMostVisitedPages(Period::days(30));
+        return response()->json($data);
+    });
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/chart-data', [DashboardController::class, 'getChartData']);
+    Route::get('/dashboard/realtime-data', [DashboardController::class, 'getRealtimeData']);
+    Route::get('/dashboard/top-pages', [DashboardController::class, 'getTopPages']);
 
 require __DIR__.'/auth.php';
