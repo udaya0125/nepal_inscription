@@ -13,42 +13,39 @@ class DashboardController extends Controller
         try {
             $period = Period::days(30);
 
-            // Fetch visitors and page views
-            $visitorsAndPageViews = Analytics::fetchVisitorsAndPageViews($period);
+            // ── Fetch totals directly (most accurate) ──────────────────────
+            $totals = Analytics::fetchTotalVisitorsAndPageViews($period);
 
-            $totalVisitors = 0;
+            $totalVisitors  = 0;
             $totalPageViews = 0;
-            $formattedData = [];
 
-            if ($visitorsAndPageViews) {
-                foreach ($visitorsAndPageViews as $item) {
-                    $visitors  = (int) ($item['visitors']  ?? 0);
-                    $pageViews = (int) ($item['pageViews'] ?? 0);
-                    $date      = $item['date'] ?? null;
-
-                    $totalVisitors  += $visitors;
-                    $totalPageViews += $pageViews;
-
-                    $formattedData[] = [
-                        'date'      => $date,
-                        'visitors'  => $visitors,
-                        'pageViews' => $pageViews,
-                    ];
-                }
+            foreach ($totals as $item) {
+                $totalVisitors  += (int) ($item['visitors']  ?? 0);
+                $totalPageViews += (int) ($item['pageViews'] ?? 0);
             }
 
-            // Fetch most visited pages
+            // ── Fetch daily breakdown for the chart ────────────────────────
+            $visitorsAndPageViews = Analytics::fetchVisitorsAndPageViews($period);
+
+            $formattedData = [];
+            foreach ($visitorsAndPageViews as $item) {
+                $formattedData[] = [
+                    'date'      => $item['date']      ?? null,
+                    'visitors'  => (int) ($item['visitors']  ?? 0),
+                    'pageViews' => (int) ($item['pageViews'] ?? 0),
+                ];
+            }
+
+            // ── Fetch most visited pages ───────────────────────────────────
             $mostVisitedPages = Analytics::fetchMostVisitedPages($period, 20);
 
             $formattedPages = [];
-            if ($mostVisitedPages) {
-                foreach ($mostVisitedPages as $page) {
-                    $formattedPages[] = [
-                        'pageTitle'       => $page['pageTitle']       ?? 'Unknown',
-                        'fullPageUrl'     => $page['fullPageUrl']     ?? '',
-                        'screenPageViews' => (int) ($page['screenPageViews'] ?? 0),
-                    ];
-                }
+            foreach ($mostVisitedPages as $page) {
+                $formattedPages[] = [
+                    'pageTitle'       => $page['pageTitle']             ?? 'Unknown',
+                    'fullPageUrl'     => $page['fullPageUrl']           ?? '',
+                    'screenPageViews' => (int) ($page['screenPageViews'] ?? 0),
+                ];
             }
 
             return response()->json([
