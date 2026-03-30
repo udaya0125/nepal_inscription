@@ -1,59 +1,246 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Nepal Inscription CMS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+<p align="left">
+  <img src="public/images/logo3.png" alt="Nepal Inscription Logo" width="96" />
 </p>
 
-## About Laravel
+[![Laravel 12](https://img.shields.io/badge/Laravel-12.x-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
+[![React 18](https://img.shields.io/badge/React-18-20232A?logo=react&logoColor=61DAFB)](https://react.dev)
+[![Inertia.js](https://img.shields.io/badge/Inertia.js-2.x-9553E9)](https://inertiajs.com)
+[![Vite](https://img.shields.io/badge/Vite-7.x-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Nepal Inscription CMS is a full-stack web application for managing, publishing, and exploring historical inscription records.  
+It includes an authenticated admin panel for content operations and analytics, plus public-facing detail views for each inscription.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Overview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+This project provides:
 
-## Learning Laravel
+- Inscription lifecycle management (create, edit, update status, delete)
+- Rich content sections (description, background, text, translation, references, glossary)
+- Media handling for banner images, gallery images, video URLs, and video thumbnails
+- User management for admin access
+- Activity logging for administrative actions
+- GA4-powered dashboard insights (visitors, page views, top pages)
+- Public detail pages by SEO-friendly slug
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Core Features
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Auth-protected admin routes for dashboard and content operations
+- Slug generation from `inscription_number`
+- Paginated inscription listing with status controls (`draft`, `published`)
+- Rich text content editing via React Quill
+- Multiple image upload and sort ordering per inscription
+- JSON API for inscription list and inscription detail
+- Activity log tracking for user and inscription actions
+- Analytics integration using `spatie/laravel-analytics` and Google Analytics 4
 
-## Laravel Sponsors
+## Tech Stack
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Backend
 
-### Premium Partners
+- PHP 8.2+
+- Laravel 12
+- Inertia Laravel 2
+- Laravel Sanctum
+- Spatie Laravel Analytics
+- Google API Client
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Frontend
 
-## Contributing
+- React 18
+- Inertia React 2
+- Vite 7
+- Tailwind CSS
+- Recharts
+- React Hook Form
+- React Quill
+- React Table
+- Lucide React
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Application Modules
 
-## Code of Conduct
+- **Dashboard**: GA4-based metrics and page-performance charts.
+- **Inscriptions**: CRUD for inscription records and attached media.
+- **User Management**: Admin user create, update, and delete.
+- **Activity Logs**: Historical records of admin actions with IP information.
+- **Public Details View**: Inscription detail page rendered by slug.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Project Structure
 
-## Security Vulnerabilities
+```text
+app/
+  Http/Controllers/        # API + Inertia controllers
+  Models/                  # Eloquent models (Inscription, User, ActivityLog, InscriptionImage)
+database/
+  migrations/              # Schema for users, inscriptions, images, activity logs
+resources/
+  js/
+    Pages/AdminPages/      # Admin UI pages
+    Pages/MainPages/       # Public inscription page
+    AddFormComponents/     # Create forms
+    EditFormComponents/    # Edit forms
+routes/
+  web.php                  # Web + admin + internal JSON routes
+  api.php                  # Public inscription API routes
+config/
+  analytics.php            # GA4 analytics configuration
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Requirements
+
+- PHP `^8.2`
+- Composer
+- Node.js `18+` (recommended `20+`) and npm
+- SQLite / MySQL / compatible database
+
+## Quick Start
+
+### 1) Install dependencies and bootstrap
+
+```bash
+composer run setup
+php artisan storage:link
+```
+
+`composer run setup` will:
+
+- install PHP dependencies
+- create `.env` (if missing)
+- generate `APP_KEY`
+- run migrations
+- install npm dependencies
+- build frontend assets
+
+### 2) Configure environment
+
+Copy `.env.example` to `.env` if needed and update values:
+
+```bash
+cp .env.example .env
+```
+
+Important variables:
+
+| Variable | Description |
+|---|---|
+| `APP_URL` | Base app URL (for links and generated URLs) |
+| `DB_CONNECTION`, `DB_*` | Database connection settings |
+| `FILESYSTEM_DISK` | Use `public` for media URL resolution |
+| `VITE_IMAGE_PATH` | Public base URL for image/video rendering |
+| `ANALYTICS_PROPERTY_ID` | Google Analytics 4 property ID |
+
+### 3) Run in development
+
+```bash
+composer run dev
+```
+
+This starts:
+
+- Laravel local server
+- queue listener
+- log stream (`pail`)
+- Vite dev server
+
+### 4) (Optional) Seed a test user
+
+```bash
+php artisan db:seed
+```
+
+Default seeded account:
+
+- Email: `test@example.com`
+- Password: `password`
+
+## Analytics Setup (GA4)
+
+The dashboard endpoints depend on GA4 credentials.
+
+1. Create a Google service account with GA4 read access.
+2. Place the credential JSON file at:
+   - `storage/app/analytics/nepalinscription.json`
+3. Set `ANALYTICS_PROPERTY_ID` in `.env`.
+4. Ensure the service account has access to the target GA4 property.
+
+If analytics is not configured correctly, dashboard responses may return error payloads.
+
+## Routes and API
+
+### Admin / Web Pages
+
+- `GET /` -> Admin dashboard page (auth required)
+- `GET /inscriptions` -> Inscription management page (auth required)
+- `GET /user-management` -> User management page (auth required)
+- `GET /activity-log` -> Activity log page (auth required)
+- `GET /inscription-details/{slug}` -> Public inscription detail page
+
+### JSON Endpoints
+
+- `GET /ourinscription` -> Paginated inscription list
+- `POST /ourinscription` -> Create inscription
+- `PUT /ourinscription/{id}` -> Update inscription
+- `PATCH /inscriptions/{id}/status` -> Update inscription status
+- `DELETE /ourinscription/{id}` -> Delete inscription
+- `DELETE /ourinscription/image/{id}` -> Delete single gallery image
+- `GET /ouruser` -> List users
+- `POST /ouruser` -> Create user
+- `PUT /ouruser/{id}` -> Update user
+- `DELETE /ouruser/{id}` -> Delete user
+- `GET /ourlogs.index` -> List activity logs
+- `GET /dashboard` -> Dashboard analytics JSON
+
+### Public API
+
+- `GET /api/inscriptions` -> Public inscriptions list
+- `GET /api/{slug}/details` -> Public inscription details by slug
+
+## Media and Upload Notes
+
+- Image validation allows up to `153600 KB` (`~150 MB`) per file.
+- Inscriptions support:
+  - `banner_image` (image upload)
+  - `video` (string URL/path)
+  - `video_banner` (image upload)
+  - `images[]` (multiple gallery images)
+- Ensure `php.ini` and web server limits support your intended upload sizes.
+- Use `/test-upload-limits` to inspect runtime upload-related settings.
+
+## Authentication Notes
+
+- Standard auth routes are available (`/login`, password reset, email verification, logout).
+- Public registration routes are currently disabled in `routes/auth.php`.
+- New users are intended to be managed from the admin module or via seeding.
+
+## Testing
+
+Run automated tests:
+
+```bash
+composer run test
+```
+
+Or:
+
+```bash
+php artisan test
+```
+
+## Build for Production
+
+```bash
+npm run build
+```
+
+Recommended production steps:
+
+- Set `APP_ENV=production` and `APP_DEBUG=false`
+- Run `php artisan migrate --force`
+- Cache configuration/routes/views as needed
+- Run queue workers via process manager
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is licensed under the MIT License.
