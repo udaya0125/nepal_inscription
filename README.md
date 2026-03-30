@@ -8,7 +8,7 @@
 [![React 18](https://img.shields.io/badge/React-18-20232A?logo=react&logoColor=61DAFB)](https://react.dev)
 [![Inertia.js](https://img.shields.io/badge/Inertia.js-2.x-9553E9)](https://inertiajs.com)
 [![Vite](https://img.shields.io/badge/Vite-7.x-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Nepal Inscription CMS is a full-stack web application for managing, publishing, and exploring historical inscription records.  
 It includes an authenticated admin panel for content operations and analytics, plus public-facing detail views for each inscription.
