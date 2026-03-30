@@ -116,13 +116,17 @@ Route::patch('/inscriptions/{id}/status', [InscriptionController::class, 'update
         return response()->json($data);
     });
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('ourdashboard.index');
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/chart-data', [DashboardController::class, 'getChartData']);
-    Route::get('/dashboard/realtime-data', [DashboardController::class, 'getRealtimeData']);
-    Route::get('/dashboard/top-pages', [DashboardController::class, 'getTopPages']);
+//     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/dashboard/debug', [DashboardController::class, 'debug']);
+//     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+//     Route::get('/dashboard/chart-data', [DashboardController::class, 'getChartData']);
+//     Route::get('/dashboard/realtime-data', [DashboardController::class, 'getRealtimeData']);
+//     Route::get('/dashboard/top-pages', [DashboardController::class, 'getTopPages']);
+
+//     Route::get('/dashboard/debug', [DashboardController::class, 'debug']);
+//     // In web.php
+// Route::get('/test-ga4', [DashboardController::class, 'testGA4Connection']);
 
 require __DIR__.'/auth.php';
