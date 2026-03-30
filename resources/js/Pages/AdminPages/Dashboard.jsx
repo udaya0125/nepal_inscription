@@ -1,3 +1,4 @@
+import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {
@@ -238,6 +239,21 @@ function PageViewsTable({ data }) {
     );
 }
 
+// ─── Loading Component ────────────────────────────────────────────────────────
+const DashboardLoading = () => (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+            <div className="relative w-12 h-12">
+                <div className="absolute inset-0 rounded-full border-4 border-indigo-100" />
+                <div className="absolute inset-0 rounded-full border-4 border-t-indigo-500 animate-spin" />
+            </div>
+            <p className="text-sm text-gray-500 font-medium">
+                Loading analytics data...
+            </p>
+        </div>
+    </div>
+);
+
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 const Dashboard = () => {
     const [raw, setRaw] = useState({
@@ -252,64 +268,6 @@ const Dashboard = () => {
     useEffect(() => {
         fetchDashboardData();
     }, []);
-
-    //   const fetchDashboardData = async () => {
-    //     try {
-    //       setLoading(true);
-    //       setError(null);
-
-    //       const res = await axios.get(route("ourdashboard.index"));
-    //       console.log("Dashboard API Response:", res.data);
-
-    //       // Safely process visitors and page views data
-    //       let visitorsAndPageViews = [];
-    //       if (res.data.visitorsAndPageViews && Array.isArray(res.data.visitorsAndPageViews)) {
-    //         visitorsAndPageViews = res.data.visitorsAndPageViews.map((item) => {
-    //           // Handle different date formats
-    //           let formattedDate = "Unknown";
-    //           if (item.date) {
-    //             try {
-    //               const dateObj = new Date(item.date);
-    //               if (!isNaN(dateObj.getTime())) {
-    //                 formattedDate = dateObj.toLocaleDateString("en-US", {
-    //                   month: "short",
-    //                   day: "numeric",
-    //                 });
-    //               } else {
-    //                 formattedDate = String(item.date);
-    //               }
-    //             } catch (e) {
-    //               formattedDate = String(item.date);
-    //             }
-    //           }
-
-    //           return {
-    //             date: formattedDate,
-    //             visitors: parseInt(item.visitors) || 0,
-    //             pageViews: parseInt(item.pageViews) || 0,
-    //           };
-    //         });
-    //       }
-
-    //       // Process most visited pages
-    //       let mostVisitedPages = [];
-    //       if (res.data.mostVisitedPages && Array.isArray(res.data.mostVisitedPages)) {
-    //         mostVisitedPages = res.data.mostVisitedPages;
-    //       }
-
-    //       setRaw({
-    //         totalVisitors: parseInt(res.data.totalVisitors) || 0,
-    //         totalPageViews: parseInt(res.data.totalPageViews) || 0,
-    //         mostVisitedPages: mostVisitedPages,
-    //         visitorsAndPageViews: visitorsAndPageViews,
-    //       });
-    //     } catch (err) {
-    //       console.error("Error fetching dashboard data:", err);
-    //       setError(err.response?.data?.message || "Failed to load analytics data. Please try again later.");
-    //     } finally {
-    //       setLoading(false);
-    //     }
-    //   };
 
     const fetchDashboardData = async () => {
         try {
@@ -422,323 +380,319 @@ const Dashboard = () => {
     // ─── Loading / Error States ──────────────────────────────────────────────
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="relative w-12 h-12">
-                        <div className="absolute inset-0 rounded-full border-4 border-indigo-100" />
-                        <div className="absolute inset-0 rounded-full border-4 border-t-indigo-500 animate-spin" />
-                    </div>
-                    <p className="text-sm text-gray-500 font-medium">
-                        Loading analytics data...
-                    </p>
-                </div>
-            </div>
+            <AdminWrapper>
+                <DashboardLoading />
+            </AdminWrapper>
         );
     }
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gray-50 p-8">
-                <div className="max-w-2xl mx-auto">
-                    <div className="bg-red-50 border border-red-200 rounded-2xl px-6 py-8 text-center">
-                        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg
-                                className="w-8 h-8 text-red-600"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+            <AdminWrapper>
+                <div className="min-h-screen bg-gray-50 p-8">
+                    <div className="max-w-2xl mx-auto">
+                        <div className="bg-red-50 border border-red-200 rounded-2xl px-6 py-8 text-center">
+                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg
+                                    className="w-8 h-8 text-red-600"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                </svg>
+                            </div>
+                            <h3 className="text-lg font-bold text-red-800 mb-2">
+                                Unable to Load Dashboard
+                            </h3>
+                            <p className="text-red-600 mb-4">{error}</p>
+                            <button
+                                onClick={fetchDashboardData}
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                            </svg>
+                                Try Again
+                            </button>
                         </div>
-                        <h3 className="text-lg font-bold text-red-800 mb-2">
-                            Unable to Load Dashboard
-                        </h3>
-                        <p className="text-red-600 mb-4">{error}</p>
-                        <button
-                            onClick={fetchDashboardData}
-                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                        >
-                            Try Again
-                        </button>
                     </div>
                 </div>
-            </div>
+            </AdminWrapper>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
-                {/* ── Header ── */}
-                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-                    <div>
-                        <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-1.5">
-                            Analytics · Last 30 Days
-                        </p>
-                        <h1 className="text-2xl font-black text-gray-900 leading-tight">
-                            Website Dashboard
-                        </h1>
-                    </div>
-                    <div className="flex items-center gap-2 self-start sm:self-auto">
-                        {peakDay && peakDay.visitors > 0 && (
-                            <div className="px-3 py-1.5 bg-amber-50 text-amber-700 text-xs font-semibold rounded-full border border-amber-100">
-                                Peak: {peakDay.date} ·{" "}
-                                {peakDay.visitors.toLocaleString()} visitors
-                            </div>
-                        )}
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full border border-indigo-100">
-                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                            Live
-                        </div>
-                    </div>
-                </div>
-
-                {/* ── Stat Cards ── */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <StatCard
-                        label="Total Visitors"
-                        value={fmt(raw.totalVisitors)}
-                        icon={<IconUsers />}
-                        accent="#6366f1"
-                        trend={visitorsTrend}
-                    />
-                    <StatCard
-                        label="Total Page Views"
-                        value={fmt(raw.totalPageViews)}
-                        icon={<IconEye />}
-                        accent="#8b5cf6"
-                        trend={pageViewsTrend}
-                    />
-                    <StatCard
-                        label="Avg Visitors / Day"
-                        value={fmt(avgVis)}
-                        icon={<IconTrend />}
-                        accent="#10b981"
-                    />
-                    <StatCard
-                        label="Avg Page Views / Day"
-                        value={fmt(avgPV)}
-                        icon={<IconBar />}
-                        accent="#f59e0b"
-                    />
-                </div>
-
-                {/* ── Pie Chart + Top Pages ── */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Pie Chart Section */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                        <div className="mb-5">
-                            <h2 className="text-sm font-bold text-gray-900">
-                                Page Views Distribution
-                            </h2>
-                            <p className="text-xs text-gray-400 mt-0.5">
-                                Top {pieData.length} pages by screen page views
+        <AdminWrapper>
+            <div className="">
+                <div className=" space-y-6">
+                    {/* ── Header ── */}
+                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                        <div>
+                            <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-1.5">
+                                Analytics · Last 30 Days
                             </p>
+                            <h1 className="text-2xl font-black text-gray-900 leading-tight">
+                                Dashboard
+                            </h1>
                         </div>
-                        {pieData.length > 0 ? (
-                            <div className="flex flex-col sm:flex-row items-center gap-6">
-                                <div className="flex-shrink-0">
-                                    <ResponsiveContainer
-                                        width={200}
-                                        height={200}
-                                    >
-                                        <PieChart>
-                                            <Pie
-                                                data={pieData}
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={80}
-                                                paddingAngle={2}
-                                                dataKey="value"
-                                            >
-                                                {pieData.map((entry, index) => (
-                                                    <Cell
-                                                        key={`cell-${index}`}
-                                                        fill={
-                                                            COLORS[
-                                                                index %
-                                                                    COLORS.length
-                                                            ]
-                                                        }
-                                                    />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip />
-                                        </PieChart>
-                                    </ResponsiveContainer>
+                        <div className="flex items-center gap-2 self-start sm:self-auto">
+                            {/* {peakDay && peakDay.visitors > 0 && (
+                                <div className="px-3 py-1.5 bg-amber-50 text-amber-700 text-xs font-semibold rounded-full border border-amber-100">
+                                    Peak: {peakDay.date} ·{" "}
+                                    {peakDay.visitors.toLocaleString()} visitors
                                 </div>
-                                <div className="flex-1 w-full space-y-2.5 min-w-0">
-                                    {pieData.map((d, i) => {
-                                        const pct = totalFiltered
-                                            ? (
-                                                  (d.value / totalFiltered) *
-                                                  100
-                                              ).toFixed(1)
-                                            : "0";
-                                        return (
-                                            <div
-                                                key={i}
-                                                className="flex items-center justify-between gap-2 hover:bg-gray-50 p-1 rounded-lg transition-colors"
-                                            >
-                                                <div className="flex items-center gap-2 min-w-0 flex-1">
-                                                    <span
-                                                        className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
-                                                        style={{
-                                                            backgroundColor:
+                            )} */}
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full border border-indigo-100">
+                                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                                Live
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ── Stat Cards ── */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <StatCard
+                            label="Total Visitors"
+                            value={fmt(raw.totalVisitors)}
+                            icon={<IconUsers />}
+                            accent="#6366f1"
+                            trend={visitorsTrend}
+                        />
+                        <StatCard
+                            label="Total Page Views"
+                            value={fmt(raw.totalPageViews)}
+                            icon={<IconEye />}
+                            accent="#8b5cf6"
+                            trend={pageViewsTrend}
+                        />
+                        <StatCard
+                            label="Avg Visitors / Day"
+                            value={fmt(avgVis)}
+                            icon={<IconTrend />}
+                            accent="#10b981"
+                        />
+                        <StatCard
+                            label="Avg Page Views / Day"
+                            value={fmt(avgPV)}
+                            icon={<IconBar />}
+                            accent="#f59e0b"
+                        />
+                    </div>
+
+                    {/* ── Pie Chart + Top Pages ── */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Pie Chart Section */}
+                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                            <div className="mb-5">
+                                <h2 className="text-sm font-bold text-gray-900">
+                                    Page Views Distribution
+                                </h2>
+                                <p className="text-xs text-gray-400 mt-0.5">
+                                    Top {pieData.length} pages by screen page views
+                                </p>
+                            </div>
+                            {pieData.length > 0 ? (
+                                <div className="flex flex-col sm:flex-row items-center gap-6">
+                                    <div className="flex-shrink-0">
+                                        <ResponsiveContainer
+                                            width={200}
+                                            height={200}
+                                        >
+                                            <PieChart>
+                                                <Pie
+                                                    data={pieData}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    innerRadius={60}
+                                                    outerRadius={80}
+                                                    paddingAngle={2}
+                                                    dataKey="value"
+                                                >
+                                                    {pieData.map((entry, index) => (
+                                                        <Cell
+                                                            key={`cell-${index}`}
+                                                            fill={
                                                                 COLORS[
+                                                                    index %
+                                                                        COLORS.length
+                                                                ]
+                                                            }
+                                                        />
+                                                    ))}
+                                                </Pie>
+                                                <Tooltip />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                    <div className="flex-1 w-full space-y-2.5 min-w-0">
+                                        {pieData.map((d, i) => {
+                                            const pct = totalFiltered
+                                                ? (
+                                                      (d.value / totalFiltered) *
+                                                      100
+                                                  ).toFixed(1)
+                                                : "0";
+                                            return (
+                                                <div
+                                                    key={i}
+                                                    className="flex items-center justify-between gap-2 hover:bg-gray-50 p-1 rounded-lg transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                        <span
+                                                            className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                                                            style={{
+                                                                backgroundColor:
+                                                                    COLORS[
+                                                                        i %
+                                                                            COLORS.length
+                                                                    ],
+                                                            }}
+                                                        />
+                                                        <span
+                                                            className="text-xs text-gray-600 truncate font-mono"
+                                                            title={d.url}
+                                                        >
+                                                            {d.name}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                                        <span className="text-xs font-black text-gray-900 tabular-nums">
+                                                            {d.value.toLocaleString()}
+                                                        </span>
+                                                        <span
+                                                            className="text-[10px] font-bold tabular-nums w-9 text-right"
+                                                            style={{
+                                                                color: COLORS[
                                                                     i %
                                                                         COLORS.length
                                                                 ],
-                                                        }}
-                                                    />
-                                                    <span
-                                                        className="text-xs text-gray-600 truncate font-mono"
-                                                        title={d.url}
-                                                    >
-                                                        {d.name}
-                                                    </span>
+                                                            }}
+                                                        >
+                                                            {pct}%
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center gap-2 flex-shrink-0">
-                                                    <span className="text-xs font-black text-gray-900 tabular-nums">
-                                                        {d.value.toLocaleString()}
-                                                    </span>
-                                                    <span
-                                                        className="text-[10px] font-bold tabular-nums w-9 text-right"
-                                                        style={{
-                                                            color: COLORS[
-                                                                i %
-                                                                    COLORS.length
-                                                            ],
-                                                        }}
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ) : (
+                                <EmptyState message="No page view data available" />
+                            )}
+                        </div>
+
+                        {/* Top 5 Pages */}
+                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                            <div className="mb-5">
+                                <h2 className="text-sm font-bold text-gray-900">
+                                    Top 5 Pages
+                                </h2>
+                                <p className="text-xs text-gray-400 mt-0.5">
+                                    Highest traffic pages this period
+                                </p>
+                            </div>
+                            {filtered.length > 0 ? (
+                                <div className="space-y-3">
+                                    {filtered.slice(0, 5).map((p, i) => {
+                                        const pct = totalFiltered
+                                            ? (
+                                                  (p.value / totalFiltered) *
+                                                  100
+                                              ).toFixed(1)
+                                            : "0";
+                                        const color = COLORS[i % COLORS.length];
+                                        return (
+                                            <div
+                                                key={i}
+                                                className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/70 hover:bg-indigo-50/40 transition-all"
+                                            >
+                                                <div
+                                                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-black flex-shrink-0"
+                                                    style={{
+                                                        backgroundColor: color,
+                                                    }}
+                                                >
+                                                    {i + 1}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p
+                                                        className="text-xs font-bold text-gray-800 truncate"
+                                                        title={p.url}
                                                     >
+                                                        {p.name}
+                                                    </p>
+                                                    <div className="mt-1 h-1 rounded-full bg-gray-200 overflow-hidden">
+                                                        <div
+                                                            className="h-full rounded-full transition-all duration-500"
+                                                            style={{
+                                                                width: `${Math.min(100, parseFloat(pct))}%`,
+                                                                backgroundColor:
+                                                                    color,
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="text-right flex-shrink-0">
+                                                    <p
+                                                        className="text-sm font-black tabular-nums"
+                                                        style={{ color }}
+                                                    >
+                                                        {p.value.toLocaleString()}
+                                                    </p>
+                                                    <p className="text-[10px] text-gray-400 tabular-nums">
                                                         {pct}%
-                                                    </span>
+                                                    </p>
                                                 </div>
                                             </div>
                                         );
                                     })}
                                 </div>
-                            </div>
-                        ) : (
-                            <EmptyState message="No page view data available" />
-                        )}
+                            ) : (
+                                <EmptyState message="No page data available" />
+                            )}
+                        </div>
                     </div>
 
-                    {/* Top 5 Pages */}
+                    {/* ── Full Page Views Table ── */}
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                         <div className="mb-5">
                             <h2 className="text-sm font-bold text-gray-900">
-                                Top 5 Pages
+                                All Pages
                             </h2>
                             <p className="text-xs text-gray-400 mt-0.5">
-                                Highest traffic pages this period
+                                Complete list of tracked pages with view counts
                             </p>
                         </div>
                         {filtered.length > 0 ? (
-                            <div className="space-y-3">
-                                {filtered.slice(0, 5).map((p, i) => {
-                                    const pct = totalFiltered
-                                        ? (
-                                              (p.value / totalFiltered) *
-                                              100
-                                          ).toFixed(1)
-                                        : "0";
-                                    const color = COLORS[i % COLORS.length];
-                                    return (
-                                        <div
-                                            key={i}
-                                            className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/70 hover:bg-indigo-50/40 transition-all"
-                                        >
-                                            <div
-                                                className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-black flex-shrink-0"
-                                                style={{
-                                                    backgroundColor: color,
-                                                }}
-                                            >
-                                                {i + 1}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p
-                                                    className="text-xs font-bold text-gray-800 truncate"
-                                                    title={p.url}
-                                                >
-                                                    {p.name}
-                                                </p>
-                                                <div className="mt-1 h-1 rounded-full bg-gray-200 overflow-hidden">
-                                                    <div
-                                                        className="h-full rounded-full transition-all duration-500"
-                                                        style={{
-                                                            width: `${Math.min(100, parseFloat(pct))}%`,
-                                                            backgroundColor:
-                                                                color,
-                                                        }}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="text-right flex-shrink-0">
-                                                <p
-                                                    className="text-sm font-black tabular-nums"
-                                                    style={{ color }}
-                                                >
-                                                    {p.value.toLocaleString()}
-                                                </p>
-                                                <p className="text-[10px] text-gray-400 tabular-nums">
-                                                    {pct}%
-                                                </p>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                            <PageViewsTable data={filtered} />
                         ) : (
                             <EmptyState message="No page data available" />
                         )}
                     </div>
-                </div>
 
-                {/* ── Full Page Views Table ── */}
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                    <div className="mb-5">
-                        <h2 className="text-sm font-bold text-gray-900">
-                            All Pages
-                        </h2>
-                        <p className="text-xs text-gray-400 mt-0.5">
-                            Complete list of tracked pages with view counts
+                    {/* ── Footer ── */}
+                    <div className="flex justify-between items-center text-xs text-gray-400 pt-4">
+                        <p>
+                            Updated{" "}
+                            {new Date().toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            })}
                         </p>
+                        <p>Powered by Google Analytics · 30-day window</p>
+                        <button
+                            onClick={fetchDashboardData}
+                            className="text-indigo-500 hover:text-indigo-600 font-medium"
+                        >
+                            Refresh
+                        </button>
                     </div>
-                    {filtered.length > 0 ? (
-                        <PageViewsTable data={filtered} />
-                    ) : (
-                        <EmptyState message="No page data available" />
-                    )}
-                </div>
-
-                {/* ── Footer ── */}
-                <div className="flex justify-between items-center text-xs text-gray-400 pt-4">
-                    <p>
-                        Updated{" "}
-                        {new Date().toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        })}
-                    </p>
-                    <p>Powered by Google Analytics · 30-day window</p>
-                    <button
-                        onClick={fetchDashboardData}
-                        className="text-indigo-500 hover:text-indigo-600 font-medium"
-                    >
-                        Refresh
-                    </button>
                 </div>
             </div>
-        </div>
+        </AdminWrapper>
     );
 };
 
