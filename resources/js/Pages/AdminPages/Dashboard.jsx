@@ -674,21 +674,21 @@ const Dashboard = () => {
                     </div>
 
                     {/* ── Footer ── */}
-                    <div className="flex justify-between items-center text-xs text-gray-400 pt-4">
+                    <div className="flex justify-center items-center text-xs text-gray-500 pt-4">
                         <p>
-                            Updated{" "}
+                            Data updates in real-time • Last updated: {" "}
                             {new Date().toLocaleTimeString([], {
                                 hour: "2-digit",
                                 minute: "2-digit",
                             })}
                         </p>
-                        <p>Powered by Google Analytics · 30-day window</p>
-                        <button
+                      
+                        {/* <button
                             onClick={fetchDashboardData}
                             className="text-indigo-500 hover:text-indigo-600 font-medium"
                         >
                             Refresh
-                        </button>
+                        </button> */}
                     </div>
                 </div>
             </div>
