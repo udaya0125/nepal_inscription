@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Spatie\Analytics\Period;
+use Illuminate\Support\Facades\Log;
 use Spatie\Analytics\Facades\Analytics;
+use Spatie\Analytics\Period;
 
 class DashboardController extends Controller
 {
@@ -13,16 +13,18 @@ class DashboardController extends Controller
         try {
             $period = Period::days(30);
 
-            // ── Fetch totals directly (most accurate) ──────────────────────
+            // ── Fetch totals ───────────────────────────────────────────────
             $totals = Analytics::fetchTotalVisitorsAndPageViews($period);
 
             $totalVisitors  = 0;
             $totalPageViews = 0;
 
             foreach ($totals as $item) {
-                $totalVisitors  += (int) ($item['visitors']  ?? 0);
-                $totalPageViews += (int) ($item['pageViews'] ?? 0);
+                $totalVisitors  += (int) ($item['activeUsers']      ?? 0);
+                $totalPageViews += (int) ($item['screenPageViews']  ?? 0);
             }
+
+            Log::info('Log info', $totals->toArray());
 
             // ── Fetch daily breakdown for the chart ────────────────────────
             $visitorsAndPageViews = Analytics::fetchVisitorsAndPageViews($period);
@@ -30,9 +32,9 @@ class DashboardController extends Controller
             $formattedData = [];
             foreach ($visitorsAndPageViews as $item) {
                 $formattedData[] = [
-                    'date'      => $item['date']      ?? null,
-                    'visitors'  => (int) ($item['visitors']  ?? 0),
-                    'pageViews' => (int) ($item['pageViews'] ?? 0),
+                    'date'      => $item['date']             ?? null,
+                    'visitors'  => (int) ($item['activeUsers']      ?? 0),
+                    'pageViews' => (int) ($item['screenPageViews']  ?? 0),
                 ];
             }
 
@@ -42,8 +44,8 @@ class DashboardController extends Controller
             $formattedPages = [];
             foreach ($mostVisitedPages as $page) {
                 $formattedPages[] = [
-                    'pageTitle'       => $page['pageTitle']             ?? 'Unknown',
-                    'fullPageUrl'     => $page['fullPageUrl']           ?? '',
+                    'pageTitle'       => $page['pageTitle']       ?? 'Unknown',
+                    'fullPageUrl'     => $page['fullPageUrl']      ?? '',
                     'screenPageViews' => (int) ($page['screenPageViews'] ?? 0),
                 ];
             }
@@ -56,7 +58,7 @@ class DashboardController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Dashboard Error: ' . $e->getMessage());
+            Log::error('Dashboard Error: ' . $e->getMessage());
 
             return response()->json([
                 'totalVisitors'        => 0,
