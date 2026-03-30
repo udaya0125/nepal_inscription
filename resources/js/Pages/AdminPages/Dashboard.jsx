@@ -481,6 +481,9 @@ const Dashboard = () => {
       </div>
     );
 
+
+    console.log("Raw data:", raw);
+
   return (
     <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
 
@@ -493,9 +496,6 @@ const Dashboard = () => {
           <h1 className="text-2xl font-black text-gray-900 leading-tight">
             Website Dashboard
           </h1>
-          <p className="text-sm text-gray-400 mt-1 font-medium">
-            nepalinscription.com
-          </p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
           {peakDay && (
@@ -549,33 +549,6 @@ const Dashboard = () => {
           sub="Over 30 days"
         />
       </div>
-
-      {/* ── Traffic Timeline ── */}
-      {timeData.length > 1 && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-sm font-bold text-gray-900">
-                Traffic Over Time
-              </h2>
-              <p className="text-xs text-gray-400 mt-0.5">
-                Daily visitors &amp; page views · 30-day window
-              </p>
-            </div>
-            <div className="flex items-center gap-5 text-xs text-gray-400">
-              <span className="flex items-center gap-1.5">
-                <span className="inline-block w-4 h-0.5 rounded-full bg-indigo-500" />
-                Visitors
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="inline-block w-4 h-0.5 rounded-full bg-purple-500" />
-                Page Views
-              </span>
-            </div>
-          </div>
-          <TimelineChart data={timeData} />
-        </div>
-      )}
 
       {/* ── Donut + Top Pages Legend ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -699,35 +672,6 @@ const Dashboard = () => {
             <EmptyState />
           )}
         </div>
-      </div>
-
-      {/* ── Full Page Views Table ── */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-bold text-gray-900">
-              All Pages · Page View Details
-            </h2>
-            <p className="text-xs text-gray-400 mt-0.5">
-              Complete breakdown of every tracked page
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full border border-indigo-100">
-              {filtered.length} pages
-            </span>
-            <span className="px-2.5 py-1 bg-gray-50 text-gray-500 text-xs font-bold rounded-full border border-gray-100">
-              {fmt(totalFiltered)} total views
-            </span>
-          </div>
-        </div>
-        {filtered.length > 0 ? (
-          <PageViewsTable data={filtered} />
-        ) : (
-          <div className="p-8">
-            <EmptyState />
-          </div>
-        )}
       </div>
 
       {/* ── Footer ── */}

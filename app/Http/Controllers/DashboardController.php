@@ -2,50 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
+use Illuminate\Http\Request;
 use Spatie\Analytics\Period;
 use Spatie\Analytics\Facades\Analytics;
-use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        try {
-            $period30 = Period::days(30);
-            $period7  = Period::days(7);
+        $period = Period::days(30);
 
-            // Daily visitors + page views (for sparkline / timeline)
-            $visitorsAndPageViews = Analytics::fetchVisitorsAndPageViews($period30);
+        $visitorsAndPageViews = Analytics::fetchVisitorsAndPageViews($period);
+        $totalVisitors = $visitorsAndPageViews->sum('visitors');
+        $totalPageViews = $visitorsAndPageViews->sum('pageViews');
 
-            // Totals
-            $totalVisitors  = $visitorsAndPageViews->sum('visitors');
-            $totalPageViews = $visitorsAndPageViews->sum('pageViews');
+        $mostVisitedPages = Analytics::fetchMostVisitedPages($period, 20);
 
-            // Daily array for charts
-            $timelineData = $visitorsAndPageViews->map(fn($row) => [
-                'date'      => $row['date']->format('Y-m-d'),
-                'visitors'  => (int) $row['visitors'],
-                'pageViews' => (int) $row['pageViews'],
-            ])->values()->toArray();
-
-            // Most visited pages (top 20)
-            $mostVisitedPages = Analytics::fetchMostVisitedPages($period30, 20);
-
-        } catch (\Exception $e) {
-            Log::error('Analytics error: ' . $e->getMessage());
-
-            $totalVisitors    = 0;
-            $totalPageViews   = 0;
-            $timelineData     = [];
-            $mostVisitedPages = collect();
-        }
-
-        return Inertia::render('AdminPages/Dashboard', [
+        return response()->json([
             'totalVisitors'        => $totalVisitors,
             'totalPageViews'       => $totalPageViews,
-            'visitorsAndPageViews' => $timelineData,
-            'mostVisitedPages'     => $mostVisitedPages->toArray(),
+            'visitorsAndPageViews' => $visitorsAndPageViews,
+            'mostVisitedPages'     => $mostVisitedPages,
         ]);
     }
 }
