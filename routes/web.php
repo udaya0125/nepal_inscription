@@ -94,20 +94,20 @@ Route::delete('/ourinscription/image/{id}', [InscriptionController::class, 'dest
 // Test Upload Limits Route
 // -----------------------------------------
 
-// Route::get('/test-upload-limits', function () {
-//     return response()->json([
-//         'success' => true,
-//         'limits' => [
-//             'upload_max_filesize' => ini_get('upload_max_filesize'),
-//             'post_max_size' => ini_get('post_max_size'),
-//             'max_execution_time' => ini_get('max_execution_time'),
-//             'max_input_time' => ini_get('max_input_time'),
-//             'memory_limit' => ini_get('memory_limit'),
-//         ],
-//         'request_method' => request()->method(),
-//         'middleware_applied' => true,
-//     ]);
-// });
+Route::get('/test-upload-limits', function () {
+    return response()->json([
+        'success' => true,
+        'limits' => [
+            'upload_max_filesize' => ini_get('upload_max_filesize'),
+            'post_max_size' => ini_get('post_max_size'),
+            'max_execution_time' => ini_get('max_execution_time'),
+            'max_input_time' => ini_get('max_input_time'),
+            'memory_limit' => ini_get('memory_limit'),
+        ],
+        'request_method' => request()->method(),
+        'middleware_applied' => true,
+    ]);
+});
 
 Route::get('/ourinscription', [InscriptionController::class, 'index'])->name('ourinscription.index');
 
