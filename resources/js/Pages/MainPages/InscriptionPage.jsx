@@ -506,8 +506,18 @@ const InscriptionPage = ({ inscription }) => {
     const [visibleThumbnails, setVisibleThumbnails] = useState(5);
     const [bannerError, setBannerError] = useState(false);
     const [mainImageError, setMainImageError] = useState(false);
-    const [language, setLanguage] = useState("romanized"); // "romanized" or "devanagari"
-    const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+    
+    // Language state for each tab individually
+    const [tabLanguages, setTabLanguages] = useState({
+        Description: "romanized",
+        Background: "romanized",
+        Text: "romanized",
+        Translation: "romanized",
+        References: "romanized",
+        Glossary: "romanized"
+    });
+    
+    const [openDropdown, setOpenDropdown] = useState(null);
     
     const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
@@ -599,13 +609,13 @@ const InscriptionPage = ({ inscription }) => {
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (isLanguageDropdownOpen && !event.target.closest('.language-dropdown')) {
-                setIsLanguageDropdownOpen(false);
+            if (openDropdown && !event.target.closest('.language-dropdown')) {
+                setOpenDropdown(null);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isLanguageDropdownOpen]);
+    }, [openDropdown]);
 
     // Calculate thumbnail width percentage based on visible thumbnails
     const thumbnailWidth = 100 / visibleThumbnails;
@@ -624,75 +634,62 @@ const InscriptionPage = ({ inscription }) => {
         return `/storage/${path}`;
     };
 
-    // Helper function to get content based on selected language
-    const getContent = (romanizedContent, devanagariContent, defaultText = "No content available.") => {
-        if (language === "devanagari") {
-            return devanagariContent || romanizedContent || defaultText;
-        }
-        return romanizedContent || devanagariContent || defaultText;
+    // Get language for current tab
+    const getCurrentLanguage = () => {
+        return tabLanguages[activeTab] || "romanized";
     };
 
-    // Helper function to safely parse HTML content
-    const renderHtmlContent = (htmlString, defaultText = "No content available.") => {
-        if (!htmlString || htmlString.trim() === '') {
-            return <p className="text-gray-500 italic">{defaultText}</p>;
-        }
-        
-        try {
-            return parse(htmlString);
-        } catch (error) {
-            console.error('Error parsing HTML:', error);
-            return <p className="text-red-500">Error displaying content. Please check the format.</p>;
-        }
+    // Set language for a specific tab
+    const setTabLanguage = (tab, language) => {
+        setTabLanguages(prev => ({
+            ...prev,
+            [tab]: language
+        }));
     };
 
-    // Get the appropriate content based on active tab and language
+    // Get content based on tab and language
     const getTabContent = () => {
+        const language = getCurrentLanguage();
+        
         switch (activeTab) {
             case "Description":
-                return getContent(
-                    inscription.description,
-                    inscription.dev_description,
-                    "No description available."
-                );
+                if (language === "devanagari") {
+                    return inscription.dev_description || inscription.description || "No description available.";
+                }
+                return inscription.description || inscription.dev_description || "No description available.";
             case "Background":
-                return getContent(
-                    inscription.background,
-                    inscription.dev_background,
-                    "No background information available."
-                );
+                if (language === "devanagari") {
+                    return inscription.dev_background || inscription.background || "No background information available.";
+                }
+                return inscription.background || inscription.dev_background || "No background information available.";
             case "Text":
-                return getContent(
-                    inscription.text,
-                    inscription.dev_text,
-                    "No text available."
-                );
+                if (language === "devanagari") {
+                    return inscription.dev_text || inscription.text || "No text available.";
+                }
+                return inscription.text || inscription.dev_text || "No text available.";
             case "Translation":
-                return getContent(
-                    inscription.translation,
-                    inscription.dev_translation,
-                    "No translation available."
-                );
+                if (language === "devanagari") {
+                    return inscription.dev_translation || inscription.translation || "No translation available.";
+                }
+                return inscription.translation || inscription.dev_translation || "No translation available.";
             case "References":
-                return getContent(
-                    inscription.references,
-                    inscription.dev_references,
-                    "No references available."
-                );
+                if (language === "devanagari") {
+                    return inscription.dev_references || inscription.references || "No references available.";
+                }
+                return inscription.references || inscription.dev_references || "No references available.";
             case "Glossary":
-                return getContent(
-                    inscription.glossary,
-                    inscription.dev_glossary,
-                    "No glossary available."
-                );
+                if (language === "devanagari") {
+                    return inscription.dev_glossary || inscription.glossary || "No glossary available.";
+                }
+                return inscription.glossary || inscription.dev_glossary || "No glossary available.";
             default:
                 return "No content available.";
         }
     };
 
-    // Check if Devanagari content exists for the current tab
-    const hasDevanagariContent = () => {
-        switch (activeTab) {
+    // Check if Devanagari content exists for a specific tab
+    const hasDevanagariContent = (tab) => {
+        switch (tab) {
             case "Description":
                 return !!inscription.dev_description;
             case "Background":
@@ -710,9 +707,9 @@ const InscriptionPage = ({ inscription }) => {
         }
     };
 
-    // Check if Romanized content exists for the current tab
-    const hasRomanizedContent = () => {
-        switch (activeTab) {
+    // Check if Romanized content exists for a specific tab
+    const hasRomanizedContent = (tab) => {
+        switch (tab) {
             case "Description":
                 return !!inscription.description;
             case "Background":
@@ -727,6 +724,29 @@ const InscriptionPage = ({ inscription }) => {
                 return !!inscription.glossary;
             default:
                 return false;
+        }
+    };
+
+    // Helper function to safely parse HTML content
+    const renderHtmlContent = (htmlString) => {
+        if (!htmlString || htmlString.trim() === '') {
+            return <p className="text-gray-500 italic">No content available.</p>;
+        }
+        
+        try {
+            return parse(htmlString);
+        } catch (error) {
+            console.error('Error parsing HTML:', error);
+            return <p className="text-red-500">Error displaying content. Please check the format.</p>;
+        }
+    };
+
+    // Toggle dropdown for a specific tab
+    const toggleDropdown = (tab) => {
+        if (openDropdown === tab) {
+            setOpenDropdown(null);
+        } else {
+            setOpenDropdown(tab);
         }
     };
 
@@ -1022,95 +1042,89 @@ const InscriptionPage = ({ inscription }) => {
 
                 {/* Tabs and Content */}
                 <div className="max-w-5xl mx-auto mb-4 py-4">
-                    {/* Tab Navigation with Language Selector */}
-                    <div className="flex flex-wrap justify-between items-center border-b">
-                        <div className="flex flex-wrap gap-8">
-                            {tabs.map((tab) => (
-                                <button
-                                    key={tab}
-                                    onClick={() => setActiveTab(tab)}
-                                    className={`text-md font-bold transition px-4 py-2 rounded ${
-                                        activeTab === tab
-                                            ? "bg-black text-white"
-                                            : "text-black hover:text-black"
-                                    }`}
-                                >
-                                    {tab}
-                                </button>
-                            ))}
-                        </div>
-                        
-                        {/* Language Selector Dropdown */}
-                        <div className="relative language-dropdown">
-                            <button
-                                onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-                                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <span className="text-sm font-medium text-gray-700">
-                                    {language === "romanized" ? "Romanized" : "Devanagari"}
-                                </span>
-                                <ChevronDown 
-                                    size={16} 
-                                    className={`text-gray-500 transition-transform duration-200 ${isLanguageDropdownOpen ? 'rotate-180' : ''}`}
-                                />
-                            </button>
+                    {/* Tab Navigation with Individual Language Selectors */}
+                    <div className="flex flex-wrap border-b">
+                        {tabs.map((tab) => {
+                            const currentLang = tabLanguages[tab] || "romanized";
+                            const hasDev = hasDevanagariContent(tab);
+                            const hasRom = hasRomanizedContent(tab);
                             
-                            {isLanguageDropdownOpen && (
-                                <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 z-10 overflow-hidden">
+                            return (
+                                <div key={tab} className="relative">
                                     <button
-                                        onClick={() => {
-                                            setLanguage("romanized");
-                                            setIsLanguageDropdownOpen(false);
-                                        }}
-                                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                                            language === "romanized" ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700"
+                                        onClick={() => setActiveTab(tab)}
+                                        className={`flex items-center gap-2 text-md font-bold transition px-4 py-2 rounded-t-lg ${
+                                            activeTab === tab
+                                                ? "bg-black text-white"
+                                                : "text-black hover:text-black hover:bg-gray-100"
                                         }`}
                                     >
-                                        Romanized
+                                        {tab}
                                     </button>
-                                    <button
-                                        onClick={() => {
-                                            setLanguage("devanagari");
-                                            setIsLanguageDropdownOpen(false);
-                                        }}
-                                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                                            language === "devanagari" ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700"
-                                        }`}
-                                        disabled={!hasDevanagariContent()}
-                                        style={{
-                                            opacity: !hasDevanagariContent() ? 0.5 : 1,
-                                            cursor: !hasDevanagariContent() ? 'not-allowed' : 'pointer'
-                                        }}
-                                        title={!hasDevanagariContent() ? "No Devanagari content available for this tab" : ""}
-                                    >
-                                        Devanagari
-                                        {!hasDevanagariContent() && (
-                                            <span className="text-xs text-gray-400 ml-2">(unavailable)</span>
+                                    
+                                    {/* Language selector for this tab */}
+                                    <div className="language-dropdown absolute right-0 top-full mt-1 z-10">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleDropdown(tab);
+                                            }}
+                                            className={`flex items-center gap-1 px-2 py-1 text-xs rounded border ${
+                                                activeTab === tab
+                                                    ? "bg-white text-black border-gray-300"
+                                                    : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"
+                                            }`}
+                                        >
+                                            <span>{currentLang === "romanized" ? "Romanized" : "Devanagari"}</span>
+                                            <ChevronDown size={12} />
+                                        </button>
+                                        
+                                        {openDropdown === tab && (
+                                            <div className="absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-20">
+                                                <button
+                                                    onClick={() => {
+                                                        if (hasRom) {
+                                                            setTabLanguage(tab, "romanized");
+                                                            setOpenDropdown(null);
+                                                        }
+                                                    }}
+                                                    disabled={!hasRom}
+                                                    className={`w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 ${
+                                                        currentLang === "romanized" 
+                                                            ? "bg-blue-50 text-blue-600 font-medium" 
+                                                            : "text-gray-700"
+                                                    } ${!hasRom ? "opacity-50 cursor-not-allowed" : ""}`}
+                                                >
+                                                    Romanized
+                                                    {!hasRom && <span className="text-gray-400 ml-1">(unavailable)</span>}
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        if (hasDev) {
+                                                            setTabLanguage(tab, "devanagari");
+                                                            setOpenDropdown(null);
+                                                        }
+                                                    }}
+                                                    disabled={!hasDev}
+                                                    className={`w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 ${
+                                                        currentLang === "devanagari" 
+                                                            ? "bg-blue-50 text-blue-600 font-medium" 
+                                                            : "text-gray-700"
+                                                    } ${!hasDev ? "opacity-50 cursor-not-allowed" : ""}`}
+                                                >
+                                                    Devanagari
+                                                    {!hasDev && <span className="text-gray-400 ml-1">(unavailable)</span>}
+                                                </button>
+                                            </div>
                                         )}
-                                    </button>
+                                    </div>
                                 </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Language Indicator */}
-                    <div className="mt-2 flex justify-end">
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                            language === "romanized" 
-                                ? "bg-blue-100 text-blue-700" 
-                                : "bg-orange-100 text-orange-700"
-                        }`}>
-                            Showing: {language === "romanized" ? "Romanized Text" : "Devanagari Script"}
-                            {language === "devanagari" && !hasDevanagariContent() && (
-                                <span className="ml-1 text-gray-500">(Falling back to Romanized)</span>
-                            )}
-                        </span>
+                            );
+                        })}
                     </div>
 
                     {/* Tab Content */}
-                    <div className={`py-6 text-black font-medium leading-relaxed text-md sm:text-lg prose prose-lg max-w-none ${
-                        language === "devanagari" ? "devanagari-text" : ""
-                    }`}>
+                    <div className="py-6 text-black font-medium leading-relaxed text-md sm:text-lg prose prose-lg max-w-none">
                         {renderHtmlContent(getTabContent())}
                         {activeTab === "Description" && inscription.inscription_number && (
                             <p className="mt-4"><strong>Inscription ID:</strong> {inscription.inscription_number}</p>
