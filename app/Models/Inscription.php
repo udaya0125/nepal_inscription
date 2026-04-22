@@ -20,6 +20,12 @@ class Inscription extends Model
         'status',
         'inscription_number',
         'glossary',
+        'dev_description',
+        'dev_background',
+        'dev_text',
+        'dev_translation',
+        'dev_references',
+        'dev_glossary',
         'slug',
     ];
 
