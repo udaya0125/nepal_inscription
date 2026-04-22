@@ -2970,17 +2970,17 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
     // Quill placeholder configurations
     const quillPlaceholders = {
-        description: "Enter the description in English...",
+        description: "Enter the description in Romanized...",
         dev_description: "Enter the description in Devanagari...",
-        background: "Enter the background information in English...",
+        background: "Enter the background information in Romanized...",
         dev_background: "Enter the background information in Devanagari ...",
-        text: "Enter the original text in English...",
+        text: "Enter the original text in Romanized...",
         dev_text: "Enter the original text in Devanagari ...",
-        translation: "Enter the translation in English...",
+        translation: "Enter the translation in Romanized...",
         dev_translation: "Enter the translation in Devanagari...",
-        references: "Enter references in English...",
+        references: "Enter references in Romanized...",
         dev_references: "Enter references in Devanagari...",
-        glossary: "Enter glossary terms in English...",
+        glossary: "Enter glossary terms in Romanized...",
         dev_glossary: "Enter glossary terms in Devanagari...",
     };
 
@@ -3345,9 +3345,9 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                 </div>
                             </div>
 
-                            {/* Description - English */}
+                            {/* Description - Romanized */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">Description (English) *</label>
+                                <label className="block mb-2 font-medium text-lg">Description (Romanized) *</label>
                                 <Controller name="description" control={control} rules={{ required: "Description is required" }} render={({ field }) => (
                                     <div className={`rounded overflow-hidden ${errors.description ? "border-2 border-red-500" : ""}`}>
                                         <ReactQuill ref={quillRefs.description} theme="snow" value={field.value || ""} onChange={field.onChange} onBlur={field.onBlur} modules={quillModules} formats={quillFormats} style={quillStyle} className="rounded h-auto quill-custom" placeholder={quillPlaceholders.description} />
@@ -3366,9 +3366,9 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                 )} />
                             </div>
 
-                            {/* Background - English */}
+                            {/* Background - Romanized */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">Background (English)</label>
+                                <label className="block mb-2 font-medium text-lg">Background (Romanized)</label>
                                 <Controller name="background" control={control} render={({ field }) => (
                                     <div className="rounded overflow-hidden">
                                         <ReactQuill ref={quillRefs.background} theme="snow" value={field.value || ""} onChange={field.onChange} onBlur={field.onBlur} modules={quillModules} formats={quillFormats} style={quillStyle} className="rounded h-auto quill-custom" placeholder={quillPlaceholders.background} />
@@ -3386,9 +3386,9 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                 )} />
                             </div>
 
-                            {/* Text - English */}
+                            {/* Text - Romanized */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">Text (English)</label>
+                                <label className="block mb-2 font-medium text-lg">Text (Romanized)</label>
                                 <Controller name="text" control={control} render={({ field }) => (
                                     <div className="rounded overflow-hidden">
                                         <ReactQuill ref={quillRefs.text} theme="snow" value={field.value || ""} onChange={field.onChange} onBlur={field.onBlur} modules={quillModules} formats={quillFormats} style={quillStyle} className="rounded h-auto quill-custom" placeholder={quillPlaceholders.text} />
@@ -3406,9 +3406,9 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                 )} />
                             </div>
 
-                            {/* Translation - English */}
+                            {/* Translation - Romanized */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">Translation (English)</label>
+                                <label className="block mb-2 font-medium text-lg">Translation (Romanized)</label>
                                 <Controller name="translation" control={control} render={({ field }) => (
                                     <div className="rounded overflow-hidden">
                                         <ReactQuill ref={quillRefs.translation} theme="snow" value={field.value || ""} onChange={field.onChange} onBlur={field.onBlur} modules={quillModules} formats={quillFormats} style={quillStyle} className="rounded h-auto quill-custom" placeholder={quillPlaceholders.translation} />
@@ -3426,9 +3426,9 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                 )} />
                             </div>
 
-                            {/* References - English */}
+                            {/* References - Romanized */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">References (English)</label>
+                                <label className="block mb-2 font-medium text-lg">References (Romanized)</label>
                                 <Controller name="references" control={control} render={({ field }) => (
                                     <div className="rounded overflow-hidden">
                                         <ReactQuill ref={quillRefs.references} theme="snow" value={field.value || ""} onChange={field.onChange} onBlur={field.onBlur} modules={quillModules} formats={quillFormats} style={quillStyle} className="rounded h-auto quill-custom" placeholder={quillPlaceholders.references} />
@@ -3446,9 +3446,9 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                 )} />
                             </div>
 
-                            {/* Glossary - English */}
+                            {/* Glossary - Romanized */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">Glossary (English)</label>
+                                <label className="block mb-2 font-medium text-lg">Glossary (Romanized)</label>
                                 <Controller name="glossary" control={control} render={({ field }) => (
                                     <div className="rounded overflow-hidden">
                                         <ReactQuill ref={quillRefs.glossary} theme="snow" value={field.value || ""} onChange={field.onChange} onBlur={field.onBlur} modules={quillModules} formats={quillFormats} style={quillStyle} className="rounded h-auto quill-custom" placeholder={quillPlaceholders.glossary} />
