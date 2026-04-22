@@ -1040,7 +1040,7 @@ const InscriptionPage = ({ inscription }) => {
                     </div>
                 </div>
 
-                {/* Tabs and Content with Dropdown next to each tab */}
+                {/* Tabs and Content with Dropdown next to each tab - Dropdown inside black bg when active */}
                 <div className="max-w-5xl mx-auto mb-4 py-4">
                     {/* Tab Navigation with inline language selectors */}
                     <div className="flex flex-wrap items-center gap-4 border-b border-gray-200">
@@ -1048,36 +1048,40 @@ const InscriptionPage = ({ inscription }) => {
                             const currentLang = tabLanguages[tab] || "romanized";
                             const hasDev = hasDevanagariContent(tab);
                             const hasRom = hasRomanizedContent(tab);
+                            const isActive = activeTab === tab;
                             
                             return (
-                                <div key={tab} className="relative language-dropdown flex items-center">
-                                    {/* Tab Button */}
-                                    <button
-                                        onClick={() => setActiveTab(tab)}
-                                        className={`text-md font-bold transition px-4 py-2 rounded ${
-                                            activeTab === tab
-                                                ? "bg-black text-white"
-                                                : "text-black hover:text-black hover:bg-gray-100"
-                                        }`}
-                                    >
-                                        {tab}
-                                    </button>
-                                    
-                                    {/* Language Dropdown Button - Small chevron next to tab */}
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            toggleDropdown(tab);
-                                        }}
-                                        className={`ml-0 flex items-center justify-center w-6 h-6 rounded transition-colors ${
-                                            activeTab === tab
-                                                ? "text-white hover:text-gray-200"
-                                                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                                        }`}
-                                        aria-label="Select language"
-                                    >
-                                        <ChevronDown size={14} />
-                                    </button>
+                                <div key={tab} className="relative language-dropdown">
+                                    {/* Combined Tab and Dropdown Button */}
+                                    <div className="flex items-center">
+                                        {/* Tab Button */}
+                                        <button
+                                            onClick={() => setActiveTab(tab)}
+                                            className={`text-md font-bold transition px-4 py-2 rounded-l ${
+                                                isActive
+                                                    ? "bg-black text-white"
+                                                    : "text-black hover:text-black hover:bg-gray-100"
+                                            }`}
+                                        >
+                                            {tab}
+                                        </button>
+                                        
+                                        {/* Language Dropdown Button - Inside black bg when active */}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleDropdown(tab);
+                                            }}
+                                            className={`flex items-center justify-center w-8 h-10 rounded-r transition-colors ${
+                                                isActive
+                                                    ? "bg-black text-white hover:bg-gray-800"
+                                                    : "bg-white text-gray-500 hover:text-gray-700 hover:bg-gray-100  "
+                                            }`}
+                                            aria-label="Select language"
+                                        >
+                                            <ChevronDown size={14} />
+                                        </button>
+                                    </div>
                                     
                                     {/* Dropdown Menu */}
                                     {openDropdown === tab && (
