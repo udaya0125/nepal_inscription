@@ -728,9 +728,9 @@ const InscriptionPage = ({ inscription }) => {
     };
 
     // Helper function to safely parse HTML content
-    const renderHtmlContent = (htmlString) => {
+    const renderHtmlContent = (htmlString, defaultText = "No content available.") => {
         if (!htmlString || htmlString.trim() === '') {
-            return <p className="text-gray-500 italic">No content available.</p>;
+            return <p className="text-gray-500 italic">{defaultText}</p>;
         }
         
         try {
@@ -1040,10 +1040,10 @@ const InscriptionPage = ({ inscription }) => {
                     </div>
                 </div>
 
-                {/* Tabs and Content - Updated with dropdown next to each tab label */}
+                {/* Tabs and Content with Dropdown next to each tab */}
                 <div className="max-w-5xl mx-auto mb-4 py-4">
                     {/* Tab Navigation with inline language selectors */}
-                    <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 mb-6">
+                    <div className="flex flex-wrap items-center gap-4 border-b border-gray-200">
                         {tabs.map((tab) => {
                             const currentLang = tabLanguages[tab] || "romanized";
                             const hasDev = hasDevanagariContent(tab);
@@ -1054,34 +1054,34 @@ const InscriptionPage = ({ inscription }) => {
                                     {/* Tab Button */}
                                     <button
                                         onClick={() => setActiveTab(tab)}
-                                        className={`px-4 py-2 text-sm font-medium transition-colors ${
+                                        className={`text-md font-bold transition px-4 py-2 rounded ${
                                             activeTab === tab
-                                                ? "text-blue-600 border-b-2 border-blue-600"
-                                                : "text-gray-500 hover:text-gray-700"
+                                                ? "bg-black text-white"
+                                                : "text-black hover:text-black hover:bg-gray-100"
                                         }`}
                                     >
                                         {tab}
                                     </button>
                                     
-                                    {/* Language Dropdown Button - Small, next to tab label */}
+                                    {/* Language Dropdown Button - Small chevron next to tab */}
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             toggleDropdown(tab);
                                         }}
-                                        className={`ml-1 flex items-center gap-0.5 px-1.5 py-1 text-xs rounded transition-colors ${
+                                        className={`ml-0 flex items-center justify-center w-6 h-6 rounded transition-colors ${
                                             activeTab === tab
-                                                ? "text-blue-500 hover:text-blue-700"
-                                                : "text-gray-400 hover:text-gray-600"
+                                                ? "text-white hover:text-gray-200"
+                                                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                                         }`}
                                         aria-label="Select language"
                                     >
-                                        <ChevronDown size={12} />
+                                        <ChevronDown size={14} />
                                     </button>
                                     
                                     {/* Dropdown Menu */}
                                     {openDropdown === tab && (
-                                        <div className="absolute left-0 top-full mt-1 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-20">
+                                        <div className="absolute left-0 top-full mt-1 w-36 bg-white rounded-md shadow-lg border border-gray-200 z-20">
                                             <button
                                                 onClick={() => {
                                                     if (hasRom) {
@@ -1091,14 +1091,14 @@ const InscriptionPage = ({ inscription }) => {
                                                     }
                                                 }}
                                                 disabled={!hasRom}
-                                                className={`w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 ${
+                                                className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
                                                     currentLang === "romanized" 
                                                         ? "bg-blue-50 text-blue-600 font-medium" 
                                                         : "text-gray-700"
                                                 } ${!hasRom ? "opacity-50 cursor-not-allowed" : ""}`}
                                             >
                                                 Romanized
-                                                {!hasRom && <span className="text-gray-400 ml-1 text-xs">(unavailable)</span>}
+                                                {!hasRom && <span className="text-gray-400 text-xs ml-2">(unavailable)</span>}
                                             </button>
                                             <button
                                                 onClick={() => {
@@ -1109,14 +1109,14 @@ const InscriptionPage = ({ inscription }) => {
                                                     }
                                                 }}
                                                 disabled={!hasDev}
-                                                className={`w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 ${
+                                                className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
                                                     currentLang === "devanagari" 
                                                         ? "bg-blue-50 text-blue-600 font-medium" 
                                                         : "text-gray-700"
                                                 } ${!hasDev ? "opacity-50 cursor-not-allowed" : ""}`}
                                             >
                                                 Devanagari
-                                                {!hasDev && <span className="text-gray-400 ml-1 text-xs">(unavailable)</span>}
+                                                {!hasDev && <span className="text-gray-400 text-xs ml-2">(unavailable)</span>}
                                             </button>
                                         </div>
                                     )}
@@ -1126,15 +1126,11 @@ const InscriptionPage = ({ inscription }) => {
                     </div>
 
                     {/* Tab Content */}
-                    <div className="bg-white rounded-lg shadow-sm p-6">
-                        <div className="text-gray-700 font-medium leading-relaxed text-md sm:text-lg prose prose-lg max-w-none">
-                            {renderHtmlContent(getTabContent())}
-                            {activeTab === "Description" && inscription.inscription_number && (
-                                <p className="mt-4 pt-4 border-t border-gray-100">
-                                    <strong>Inscription ID:</strong> {inscription.inscription_number}
-                                </p>
-                            )}
-                        </div>
+                    <div className="py-6 text-black font-medium leading-relaxed text-md sm:text-lg prose prose-lg max-w-none">
+                        {renderHtmlContent(getTabContent())}
+                        {activeTab === "Description" && inscription.inscription_number && (
+                            <p className="mt-4"><strong>Inscription ID:</strong> {inscription.inscription_number}</p>
+                        )}
                     </div>
                 </div>
             </div>
