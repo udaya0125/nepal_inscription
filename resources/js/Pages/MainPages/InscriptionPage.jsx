@@ -1040,91 +1040,93 @@ const InscriptionPage = ({ inscription }) => {
                     </div>
                 </div>
 
-                {/* Tabs and Content */}
+                {/* Tabs and Content - Updated with dropdown next to each tab label */}
                 <div className="max-w-5xl mx-auto mb-4 py-4">
-                    {/* Tab Navigation */}
-                    <div className="flex flex-wrap border-b border-gray-200 mb-4">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={`px-4 py-2 text-sm font-medium transition-colors ${
-                                    activeTab === tab
-                                        ? "text-blue-600 border-b-2 border-blue-600"
-                                        : "text-gray-500 hover:text-gray-700"
-                                }`}
-                            >
-                                {tab}
-                            </button>
-                        ))}
+                    {/* Tab Navigation with inline language selectors */}
+                    <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 mb-6">
+                        {tabs.map((tab) => {
+                            const currentLang = tabLanguages[tab] || "romanized";
+                            const hasDev = hasDevanagariContent(tab);
+                            const hasRom = hasRomanizedContent(tab);
+                            
+                            return (
+                                <div key={tab} className="relative language-dropdown flex items-center">
+                                    {/* Tab Button */}
+                                    <button
+                                        onClick={() => setActiveTab(tab)}
+                                        className={`px-4 py-2 text-sm font-medium transition-colors ${
+                                            activeTab === tab
+                                                ? "text-blue-600 border-b-2 border-blue-600"
+                                                : "text-gray-500 hover:text-gray-700"
+                                        }`}
+                                    >
+                                        {tab}
+                                    </button>
+                                    
+                                    {/* Language Dropdown Button - Small, next to tab label */}
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleDropdown(tab);
+                                        }}
+                                        className={`ml-1 flex items-center gap-0.5 px-1.5 py-1 text-xs rounded transition-colors ${
+                                            activeTab === tab
+                                                ? "text-blue-500 hover:text-blue-700"
+                                                : "text-gray-400 hover:text-gray-600"
+                                        }`}
+                                        aria-label="Select language"
+                                    >
+                                        <ChevronDown size={12} />
+                                    </button>
+                                    
+                                    {/* Dropdown Menu */}
+                                    {openDropdown === tab && (
+                                        <div className="absolute left-0 top-full mt-1 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-20">
+                                            <button
+                                                onClick={() => {
+                                                    if (hasRom) {
+                                                        setTabLanguage(tab, "romanized");
+                                                        setOpenDropdown(null);
+                                                        if (activeTab !== tab) setActiveTab(tab);
+                                                    }
+                                                }}
+                                                disabled={!hasRom}
+                                                className={`w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 ${
+                                                    currentLang === "romanized" 
+                                                        ? "bg-blue-50 text-blue-600 font-medium" 
+                                                        : "text-gray-700"
+                                                } ${!hasRom ? "opacity-50 cursor-not-allowed" : ""}`}
+                                            >
+                                                Romanized
+                                                {!hasRom && <span className="text-gray-400 ml-1 text-xs">(unavailable)</span>}
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    if (hasDev) {
+                                                        setTabLanguage(tab, "devanagari");
+                                                        setOpenDropdown(null);
+                                                        if (activeTab !== tab) setActiveTab(tab);
+                                                    }
+                                                }}
+                                                disabled={!hasDev}
+                                                className={`w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 ${
+                                                    currentLang === "devanagari" 
+                                                        ? "bg-blue-50 text-blue-600 font-medium" 
+                                                        : "text-gray-700"
+                                                } ${!hasDev ? "opacity-50 cursor-not-allowed" : ""}`}
+                                            >
+                                                Devanagari
+                                                {!hasDev && <span className="text-gray-400 ml-1 text-xs">(unavailable)</span>}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
                     </div>
 
-                    {/* Tab Content with Side-by-Side Dropdown */}
+                    {/* Tab Content */}
                     <div className="bg-white rounded-lg shadow-sm p-6">
-                        {/* Header with language selector */}
-                        <div className="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
-                            <h3 className="text-xl font-semibold text-gray-800">
-                                {activeTab}
-                            </h3>
-                            
-                            {/* Language dropdown placed next to the content header */}
-                            <div className="language-dropdown relative">
-                                <button
-                                    onClick={() => toggleDropdown(activeTab)}
-                                    className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-md transition-colors"
-                                >
-                                    <span className="text-gray-700">
-                                        {getCurrentLanguage() === "romanized" ? "Romanized" : "Devanagari"}
-                                    </span>
-                                    <ChevronDown size={14} className="text-gray-500" />
-                                </button>
-                                
-                                {openDropdown === activeTab && (
-                                    <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg border border-gray-200 z-20">
-                                        <button
-                                            onClick={() => {
-                                                if (hasRomanizedContent(activeTab)) {
-                                                    setTabLanguage(activeTab, "romanized");
-                                                    setOpenDropdown(null);
-                                                }
-                                            }}
-                                            disabled={!hasRomanizedContent(activeTab)}
-                                            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
-                                                getCurrentLanguage() === "romanized" 
-                                                    ? "bg-blue-50 text-blue-600 font-medium" 
-                                                    : "text-gray-700"
-                                            } ${!hasRomanizedContent(activeTab) ? "opacity-50 cursor-not-allowed" : ""}`}
-                                        >
-                                            Romanized
-                                            {!hasRomanizedContent(activeTab) && (
-                                                <span className="text-gray-400 text-xs ml-2">(unavailable)</span>
-                                            )}
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                if (hasDevanagariContent(activeTab)) {
-                                                    setTabLanguage(activeTab, "devanagari");
-                                                    setOpenDropdown(null);
-                                                }
-                                            }}
-                                            disabled={!hasDevanagariContent(activeTab)}
-                                            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
-                                                getCurrentLanguage() === "devanagari" 
-                                                    ? "bg-blue-50 text-blue-600 font-medium" 
-                                                    : "text-gray-700"
-                                            } ${!hasDevanagariContent(activeTab) ? "opacity-50 cursor-not-allowed" : ""}`}
-                                        >
-                                            Devanagari
-                                            {!hasDevanagariContent(activeTab) && (
-                                                <span className="text-gray-400 text-xs ml-2">(unavailable)</span>
-                                            )}
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                        
-                        {/* Content area */}
                         <div className="text-gray-700 font-medium leading-relaxed text-md sm:text-lg prose prose-lg max-w-none">
                             {renderHtmlContent(getTabContent())}
                             {activeTab === "Description" && inscription.inscription_number && (
