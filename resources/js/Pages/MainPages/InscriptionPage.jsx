@@ -647,6 +647,12 @@ const InscriptionPage = ({ inscription }) => {
         }));
     };
 
+    // Handle tab change with dropdown closing
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);
+        setOpenDropdown(null); // Close dropdown when switching tabs
+    };
+
     // Get content based on tab and language
     const getTabContent = () => {
         const language = getCurrentLanguage();
@@ -1056,7 +1062,7 @@ const InscriptionPage = ({ inscription }) => {
                                     <div className="flex items-center">
                                         {/* Tab Button */}
                                         <button
-                                            onClick={() => setActiveTab(tab)}
+                                            onClick={() => handleTabChange(tab)}
                                             className={`text-md font-bold transition px-4 py-2 rounded-l ${
                                                 isActive
                                                     ? "bg-black text-white"
@@ -1091,7 +1097,7 @@ const InscriptionPage = ({ inscription }) => {
                                                     if (hasRom) {
                                                         setTabLanguage(tab, "romanized");
                                                         setOpenDropdown(null);
-                                                        if (activeTab !== tab) setActiveTab(tab);
+                                                        if (activeTab !== tab) handleTabChange(tab);
                                                     }
                                                 }}
                                                 disabled={!hasRom}
@@ -1109,7 +1115,7 @@ const InscriptionPage = ({ inscription }) => {
                                                     if (hasDev) {
                                                         setTabLanguage(tab, "devanagari");
                                                         setOpenDropdown(null);
-                                                        if (activeTab !== tab) setActiveTab(tab);
+                                                        if (activeTab !== tab) handleTabChange(tab);
                                                     }
                                                 }}
                                                 disabled={!hasDev}
