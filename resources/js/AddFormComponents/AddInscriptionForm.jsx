@@ -2971,17 +2971,17 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
     // Quill placeholder configurations
     const quillPlaceholders = {
         description: "Enter the description in English...",
-        dev_description: "Enter the description in Devanagari (हिंदी/संस्कृत)...",
+        dev_description: "Enter the description in Devanagari...",
         background: "Enter the background information in English...",
-        dev_background: "Enter the background information in Devanagari (हिंदी/संस्कृत)...",
+        dev_background: "Enter the background information in Devanagari ...",
         text: "Enter the original text in English...",
-        dev_text: "Enter the original text in Devanagari (हिंदी/संस्कृत)...",
+        dev_text: "Enter the original text in Devanagari ...",
         translation: "Enter the translation in English...",
-        dev_translation: "Enter the translation in Devanagari (हिंदी/संस्कृत)...",
+        dev_translation: "Enter the translation in Devanagari...",
         references: "Enter references in English...",
-        dev_references: "Enter references in Devanagari (हिंदी/संस्कृत)...",
+        dev_references: "Enter references in Devanagari...",
         glossary: "Enter glossary terms in English...",
-        dev_glossary: "Enter glossary terms in Devanagari (हिंदी/संस्कृत)...",
+        dev_glossary: "Enter glossary terms in Devanagari...",
     };
 
     // Refs to track Quill editor heights
@@ -3358,7 +3358,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Description - Devanagari */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">Description (Devanagari) <span className="text-gray-500 text-sm">(हिंदी/संस्कृत)</span></label>
+                                <label className="block mb-2 font-medium text-lg">Description (Devanagari)</label>
                                 <Controller name="dev_description" control={control} render={({ field }) => (
                                     <div className="rounded overflow-hidden">
                                         <ReactQuill ref={quillRefs.dev_description} theme="snow" value={field.value || ""} onChange={field.onChange} onBlur={field.onBlur} modules={quillModules} formats={quillFormats} style={quillStyle} className="rounded h-auto quill-custom" placeholder={quillPlaceholders.dev_description} />
@@ -3378,7 +3378,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Background - Devanagari */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">Background (Devanagari) <span className="text-gray-500 text-sm">(हिंदी/संस्कृत)</span></label>
+                                <label className="block mb-2 font-medium text-lg">Background (Devanagari)</label>
                                 <Controller name="dev_background" control={control} render={({ field }) => (
                                     <div className="rounded overflow-hidden">
                                         <ReactQuill ref={quillRefs.dev_background} theme="snow" value={field.value || ""} onChange={field.onChange} onBlur={field.onBlur} modules={quillModules} formats={quillFormats} style={quillStyle} className="rounded h-auto quill-custom" placeholder={quillPlaceholders.dev_background} />
@@ -3398,7 +3398,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Text - Devanagari */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">Text (Devanagari) <span className="text-gray-500 text-sm">(हिंदी/संस्कृत)</span></label>
+                                <label className="block mb-2 font-medium text-lg">Text (Devanagari)</label>
                                 <Controller name="dev_text" control={control} render={({ field }) => (
                                     <div className="rounded overflow-hidden">
                                         <ReactQuill ref={quillRefs.dev_text} theme="snow" value={field.value || ""} onChange={field.onChange} onBlur={field.onBlur} modules={quillModules} formats={quillFormats} style={quillStyle} className="rounded h-auto quill-custom" placeholder={quillPlaceholders.dev_text} />
