@@ -654,7 +654,7 @@ const Inscriptions = () => {
                                                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                                                     />
                                                                 </div>
-                                                                <button
+                                                                {/* <button
                                                                     onClick={() =>
                                                                         handleDeleteImage(
                                                                             image.id,
@@ -677,7 +677,7 @@ const Inscriptions = () => {
                                                                             }
                                                                         />
                                                                     )}
-                                                                </button>
+                                                                </button> */}
                                                             </div>
                                                         ),
                                                     )}
