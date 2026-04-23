@@ -125,12 +125,7 @@ class InscriptionController extends Controller
             'status' => 'nullable|in:draft,published',
             // 'images.*' => 'nullable|image|max:512000', // 500MB - Original commented out
             'images.*' => 'nullable|image|max:153600', // 150MB - Modified
-            'dev_description' => 'nullable|string',
-            'dev_background' => 'nullable|string',
             'dev_text' => 'nullable|string',
-            'dev_translation' => 'nullable|string',
-            'dev_references' => 'nullable|string',
-            'dev_glossary' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
@@ -162,12 +157,7 @@ class InscriptionController extends Controller
                 'translation' => $request->translation,
                 'references' => $request->references,
                 'glossary' => $request->glossary,
-                'dev_description' => $request->dev_description,
-                'dev_background' => $request->dev_background,
                 'dev_text' => $request->dev_text,
-                'dev_translation' => $request->dev_translation,
-                'dev_references' => $request->dev_references,
-                'dev_glossary' => $request->dev_glossary,
                 'status' => $request->status ?? 'draft',
             ]);
 
@@ -273,12 +263,7 @@ class InscriptionController extends Controller
             'removed_image_ids.*' => 'exists:inscription_images,id',
             // 'images.*' => 'nullable|image|max:512000', // 500MB - Original commented out
             'images.*' => 'nullable|image|max:153600', // 150MB - Modified
-            'dev_description' => 'nullable|string',
-            'dev_background' => 'nullable|string',
             'dev_text' => 'nullable|string',
-            'dev_translation' => 'nullable|string',
-            'dev_references' => 'nullable|string',
-            'dev_glossary' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
@@ -306,7 +291,7 @@ class InscriptionController extends Controller
                 if ($inscription->video_banner) {
                     Storage::disk('public')->delete($inscription->video_banner);
                 }
-                
+
                 // Store new video banner in the correct path
                 $inscription->video_banner = $request->file('video_banner')
                     ->store('inscriptions/video_banners', 'public');
@@ -325,19 +310,14 @@ class InscriptionController extends Controller
                 'references',
                 'glossary',
                 'status',
-                'dev_description',
-                'dev_background',
                 'dev_text',
-                'dev_translation',
-                'dev_references',
-                'dev_glossary',
             ]);
-            
+
             // Handle video field separately if it's filled (not a file upload)
             if ($request->filled('video')) {
                 $updateData['video'] = $request->video;
             }
-            
+
             $inscription->update($updateData);
 
             // Update sort_order for existing images
