@@ -59,7 +59,8 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
         text: "Enter the original text in numbered format (1. First line, 2. Second line, 3. Third line)...",
 
-        dev_text: "Enter the Devnagari text in numbered format (1. First line, 2. Second line, 3. Third line)...",
+        dev_text:
+            "Enter the Devnagari text in numbered format (1. First line, 2. Second line, 3. Third line)...",
 
         translation:
             "Enter the translation in list format (• Line 1 meaning, • Line 2 meaning)...",
@@ -135,7 +136,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
         }, 100);
 
         return () => clearTimeout(timeoutId);
-    }, [Object.values(quillRefs).map(ref => ref.current)]);
+    }, [Object.values(quillRefs).map((ref) => ref.current)]);
 
     // Handle banner image change
     const handleBannerChange = (e) => {
@@ -563,7 +564,8 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                         <div className="space-y-4">
                                             <Upload className="mx-auto h-12 w-12 text-gray-400" />
                                             <p className="text-lg text-gray-700">
-                                                Click to upload video banner/thumbnail
+                                                Click to upload video
+                                                banner/thumbnail
                                             </p>
                                             <p className="text-sm text-gray-500">
                                                 Used as video thumbnail | Max:
@@ -692,9 +694,13 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                 <Controller
                                     name="description"
                                     control={control}
-                                    rules={{ required: "Description is required" }}
+                                    rules={{
+                                        required: "Description is required",
+                                    }}
                                     render={({ field }) => (
-                                        <div className={`rounded overflow-hidden ${errors.description ? "border-2 border-red-500" : ""}`}>
+                                        <div
+                                            className={`rounded overflow-hidden ${errors.description ? "border-2 border-red-500" : ""}`}
+                                        >
                                             <ReactQuill
                                                 ref={quillRefs.description}
                                                 theme="snow"
@@ -703,9 +709,13 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                                 onBlur={field.onBlur}
                                                 modules={quillModules}
                                                 formats={quillFormats}
-                                                style={quillStyle("description")}
+                                                style={quillStyle(
+                                                    "description",
+                                                )}
                                                 className="rounded h-auto quill-custom"
-                                                placeholder={quillPlaceholders.description}
+                                                placeholder={
+                                                    quillPlaceholders.description
+                                                }
                                             />
                                         </div>
                                     )}
@@ -737,7 +747,9 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                                 formats={quillFormats}
                                                 style={quillStyle("background")}
                                                 className="rounded h-auto quill-custom"
-                                                placeholder={quillPlaceholders.background}
+                                                placeholder={
+                                                    quillPlaceholders.background
+                                                }
                                             />
                                         </div>
                                     )}
@@ -764,7 +776,9 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                                 formats={quillFormats}
                                                 style={quillStyle("text")}
                                                 className="rounded h-auto quill-custom"
-                                                placeholder={quillPlaceholders.text}
+                                                placeholder={
+                                                    quillPlaceholders.text
+                                                }
                                             />
                                         </div>
                                     )}
@@ -791,7 +805,9 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                                 formats={quillFormats}
                                                 style={quillStyle("dev_text")}
                                                 className="rounded h-auto quill-custom"
-                                                placeholder={quillPlaceholders.dev_text}
+                                                placeholder={
+                                                    quillPlaceholders.dev_text
+                                                }
                                             />
                                         </div>
                                     )}
@@ -816,9 +832,13 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                                 onBlur={field.onBlur}
                                                 modules={quillModules}
                                                 formats={quillFormats}
-                                                style={quillStyle("translation")}
+                                                style={quillStyle(
+                                                    "translation",
+                                                )}
                                                 className="rounded h-auto quill-custom"
-                                                placeholder={quillPlaceholders.translation}
+                                                placeholder={
+                                                    quillPlaceholders.translation
+                                                }
                                             />
                                         </div>
                                     )}
@@ -845,7 +865,9 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                                 formats={quillFormats}
                                                 style={quillStyle("references")}
                                                 className="rounded h-auto quill-custom"
-                                                placeholder={quillPlaceholders.references}
+                                                placeholder={
+                                                    quillPlaceholders.references
+                                                }
                                             />
                                         </div>
                                     )}
@@ -872,7 +894,9 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                                 formats={quillFormats}
                                                 style={quillStyle("glossary")}
                                                 className="rounded h-auto quill-custom"
-                                                placeholder={quillPlaceholders.glossary}
+                                                placeholder={
+                                                    quillPlaceholders.glossary
+                                                }
                                             />
                                         </div>
                                     )}
@@ -900,9 +924,6 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 };
 
 export default AddInscriptionForm;
-
-
-
 
 // import { X, Camera, Upload, Video, Image } from "lucide-react";
 // import React, { useState } from "react";
@@ -2947,7 +2968,6 @@ export default AddInscriptionForm;
 
 // export default AddInscriptionForm;
 
-
 //// Important ///////
 
 // import { X, Camera, Upload, Video, Image, Link, Film } from "lucide-react";
@@ -3822,6 +3842,3 @@ export default AddInscriptionForm;
 // };
 
 // export default AddInscriptionForm;
-
-
-
