@@ -13,12 +13,7 @@ return new class extends Migration
     {
         Schema::table('inscriptions', function (Blueprint $table) {
             //
-            $table->longText('dev_description')->nullable()->after('description');
-            $table->longText('dev_background')->nullable()->after('background');
             $table->longText('dev_text')->nullable()->after('text');
-            $table->longText('dev_translation')->nullable()->after('translation');
-            $table->longText('dev_references')->nullable()->after('references');
-            $table->longText('dev_glossary')->nullable()->after('glossary');
         });
     }
 
@@ -29,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('inscriptions', function (Blueprint $table) {
             //
+            $table->dropColumn('dev_text');
         });
     }
 };
