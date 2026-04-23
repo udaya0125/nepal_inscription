@@ -1319,35 +1319,20 @@ const InscriptionPage = ({ inscription }) => {
         
         switch (activeTab) {
             case "Description":
-                if (language === "devanagari") {
-                    return inscription.dev_description || inscription.description || "No description available.";
-                }
-                return inscription.description || inscription.dev_description || "No description available.";
+                return inscription.description || "No description available.";
             case "Background":
-                if (language === "devanagari") {
-                    return inscription.dev_background || inscription.background || "No background information available.";
-                }
-                return inscription.background || inscription.dev_background || "No background information available.";
+                return inscription.background || "No background information available.";
             case "Text":
                 if (language === "devanagari") {
                     return inscription.dev_text || inscription.text || "No text available.";
                 }
                 return inscription.text || inscription.dev_text || "No text available.";
             case "Translation":
-                if (language === "devanagari") {
-                    return inscription.dev_translation || inscription.translation || "No translation available.";
-                }
-                return inscription.translation || inscription.dev_translation || "No translation available.";
+                return inscription.translation || "No translation available.";
             case "References":
-                if (language === "devanagari") {
-                    return inscription.dev_references || inscription.references || "No references available.";
-                }
-                return inscription.references || inscription.dev_references || "No references available.";
+                return inscription.references || "No references available.";
             case "Glossary":
-                if (language === "devanagari") {
-                    return inscription.dev_glossary || inscription.glossary || "No glossary available.";
-                }
-                return inscription.glossary || inscription.dev_glossary || "No glossary available.";
+                return inscription.glossary || "No glossary available.";
             default:
                 return "No content available.";
         }
@@ -1355,22 +1340,10 @@ const InscriptionPage = ({ inscription }) => {
 
     // Check if Devanagari content exists for a specific tab
     const hasDevanagariContent = (tab) => {
-        switch (tab) {
-            case "Description":
-                return !!inscription.dev_description;
-            case "Background":
-                return !!inscription.dev_background;
-            case "Text":
-                return !!inscription.dev_text;
-            case "Translation":
-                return !!inscription.dev_translation;
-            case "References":
-                return !!inscription.dev_references;
-            case "Glossary":
-                return !!inscription.dev_glossary;
-            default:
-                return false;
+        if (tab === "Text") {
+            return !!inscription.dev_text;
         }
+        return false;
     };
 
     // Check if Romanized content exists for a specific tab
@@ -1409,6 +1382,9 @@ const InscriptionPage = ({ inscription }) => {
 
     // Toggle dropdown for a specific tab
     const toggleDropdown = (tab) => {
+        // Only allow dropdown for Text tab
+        if (tab !== "Text") return;
+        
         if (openDropdown === tab) {
             setOpenDropdown(null);
         } else {
@@ -1774,25 +1750,27 @@ const InscriptionPage = ({ inscription }) => {
                                             {tab}
                                         </button>
                                         
-                                        {/* Language Dropdown Button - Inside black bg when active */}
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                toggleDropdown(tab);
-                                            }}
-                                            className={`flex items-center justify-center w-8 h-10 rounded-r transition-colors ${
-                                                isActive
-                                                    ? "bg-black text-white hover:bg-gray-800"
-                                                    : "bg-white text-gray-500 hover:text-gray-700 hover:bg-gray-100  "
-                                            }`}
-                                            aria-label="Select language"
-                                        >
-                                            <ChevronDown size={14} />
-                                        </button>
+                                        {/* Language Dropdown Button - Only show for Text tab */}
+                                        {tab === "Text" && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleDropdown(tab);
+                                                }}
+                                                className={`flex items-center justify-center w-8 h-10 rounded-r transition-colors ${
+                                                    isActive
+                                                        ? "bg-black text-white hover:bg-gray-800"
+                                                        : "bg-white text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                                                }`}
+                                                aria-label="Select language"
+                                            >
+                                                <ChevronDown size={14} />
+                                            </button>
+                                        )}
                                     </div>
                                     
-                                    {/* Dropdown Menu */}
-                                    {openDropdown === tab && (
+                                    {/* Dropdown Menu - Only for Text tab */}
+                                    {openDropdown === tab && tab === "Text" && (
                                         <div className="absolute left-0 top-full mt-1 w-36 bg-white rounded-md shadow-lg border border-gray-200 z-20">
                                             <button
                                                 onClick={() => {
