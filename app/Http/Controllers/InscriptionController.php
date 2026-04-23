@@ -177,9 +177,11 @@ class InscriptionController extends Controller
 
             // 🔔 LOG ACTIVITY: Creation
             ActivityLog::create([
-                'name' => 'inscription_created',
+                // 'name' => 'inscription_created',
+                'name' => $request->user() ? $request->user()->name : 'Unknown',
                 'ip_address' => $request->ip(),
-                'title' => $inscription->title.' ('.$inscription->inscription_number.')',
+                // 'title' => $inscription->title.' ('.$inscription->inscription_number.')',
+                'title' => 'Inscription created: ' . $inscription->title . ' (' . $inscription->inscription_number . ')',
             ]);
 
             DB::commit();
