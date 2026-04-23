@@ -20,7 +20,6 @@ import EditInscriptionForm from "@/EditFormComponents/EditInscriptionForm";
 import { Link } from "@inertiajs/react";
 import MyTable from "@/MyTable/MyTable";
 
-
 const Inscriptions = () => {
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
@@ -247,24 +246,42 @@ const Inscriptions = () => {
                 Header: "Status",
                 accessor: "status",
                 Cell: ({ row }) => {
-                    const status = row.original.status || 'draft';
+                    const status = row.original.status || "draft";
                     const statusOptions = [
-                        { value: 'draft', label: 'Draft', color: 'bg-yellow-100 text-yellow-800' },
-                        { value: 'published', label: 'Published', color: 'bg-green-100 text-green-800' }
+                        {
+                            value: "draft",
+                            label: "Draft",
+                            color: "bg-yellow-100 text-yellow-800",
+                        },
+                        {
+                            value: "published",
+                            label: "Published",
+                            color: "bg-green-100 text-green-800",
+                        },
                     ];
-                    
-                    const currentOption = statusOptions.find(opt => opt.value === status) || statusOptions[0];
-                    
+
+                    const currentOption =
+                        statusOptions.find((opt) => opt.value === status) ||
+                        statusOptions[0];
+
                     return (
                         <div className="relative group">
                             <select
                                 value={status}
-                                onChange={(e) => handleStatusChange(row.original.id, e.target.value)}
+                                onChange={(e) =>
+                                    handleStatusChange(
+                                        row.original.id,
+                                        e.target.value,
+                                    )
+                                }
                                 className={`px-3 py-1 rounded-full text-xs font-medium cursor-pointer appearance-none pr-8 ${currentOption.color} border border-transparent hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                                 disabled={loading}
                             >
                                 {statusOptions.map((option) => (
-                                    <option key={option.value} value={option.value}>
+                                    <option
+                                        key={option.value}
+                                        value={option.value}
+                                    >
                                         {option.label}
                                     </option>
                                 ))}
@@ -359,7 +376,7 @@ const Inscriptions = () => {
                                 </div>
                             ) : (
                                 <MyTable
-                                    columns={columns} 
+                                    columns={columns}
                                     data={allInscriptions}
                                 />
                             )}
