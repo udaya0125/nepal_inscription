@@ -925,11 +925,6 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
 export default AddInscriptionForm;
 
-
-
-
-
-
 //// Important ///////
 
 // import { X, Camera, Upload, Video, Image, Link, Film } from "lucide-react";
