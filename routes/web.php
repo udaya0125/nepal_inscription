@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Spatie\Analytics\Facades\Analytics;
 use Spatie\Analytics\Period;
+use App\Http\Controllers\CategoryController;
 
 // Route::get('/', function () {
 //     return Inertia::render('Welcome', [
@@ -148,5 +149,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/ourinscription', [InscriptionController::class, 'index'])->name('ourinscription.index');
 
-    
+    Route::get('/ourcategories', [CategoryController::class, 'index'])->name('ourcategories.index');
+    Route::post('/ourcategories', [CategoryController::class, 'store'])->name('ourcategories.store');
+    Route::put('/ourcategories/{id}', [CategoryController::class, 'update'])->name('ourcategories.update');
+    Route::delete('/ourcategories/{id}', [CategoryController::class, 'destroy'])->name('ourcategories.destroy');
+
+
 require __DIR__.'/auth.php';
