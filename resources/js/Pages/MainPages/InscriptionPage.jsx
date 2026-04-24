@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { router } from '@inertiajs/react';
 import parse from 'html-react-parser';
