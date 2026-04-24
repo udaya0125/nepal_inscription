@@ -10,4 +10,8 @@ class Category extends Model
     protected $fillable = [
         'name', 'has_sub_category'
     ];
+
+    protected $casts = [
+    'has_sub_category' => 'boolean',
+];
 }

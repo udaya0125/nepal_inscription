@@ -154,5 +154,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/ourcategories/{id}', [CategoryController::class, 'update'])->name('ourcategories.update');
     Route::delete('/ourcategories/{id}', [CategoryController::class, 'destroy'])->name('ourcategories.destroy');
 
+     Route::get('/category', function () {
+        return Inertia::render('AdminPages/Category');
+    });
 
 require __DIR__.'/auth.php';
