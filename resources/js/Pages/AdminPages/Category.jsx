@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import axios from "axios";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import AddCategoryForm from "@/AddFormComponents/AddCategoryForm";
 import AdminWrapper from "@/AdminWrapper/AdminWrapper";
+import MyTable from "@/MyTable/MyTable";
+
 
 const Category = () => {
     const [allCategories, setAllCategories] = useState([]);
@@ -56,6 +58,67 @@ const Category = () => {
         }
     };
 
+    // Define table columns
+    const columns = useMemo(
+        () => [
+            {
+                Header: "#",
+                accessor: "serialNumber",
+                Cell: ({ row }) => <span>{row.index + 1}</span>,
+                width: 60,
+            },
+            {
+                Header: "Name",
+                accessor: "name",
+                Cell: ({ value }) => (
+                    <span className="font-medium text-gray-800">{value}</span>
+                ),
+            },
+            {
+                Header: "Has Sub Category",
+                accessor: "has_sub_category",
+                Cell: ({ value }) => (
+                    <span
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                            value
+                                ? "bg-green-100 text-green-700"
+                                : "bg-gray-100 text-gray-600"
+                        }`}
+                    >
+                        {value ? "Yes" : "No"}
+                    </span>
+                ),
+            },
+            {
+                Header: "Actions",
+                accessor: "actions",
+                Cell: ({ row }) => (
+                    <div className="flex justify-start gap-2">
+                        <button
+                            onClick={() => handleEdit(row.original)}
+                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                            title="Edit"
+                        >
+                            <Pencil size={16} />
+                        </button>
+                        <button
+                            onClick={() => handleDelete(row.original.id)}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                            title="Delete"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    </div>
+                ),
+                width: 100,
+            },
+        ],
+        [] // Empty dependency array since handleEdit and handleDelete are stable
+    );
+
+    // Prepare data for the table
+    const tableData = useMemo(() => allCategories, [allCategories]);
+
     return (
         <>
             <AdminWrapper>
@@ -80,89 +143,7 @@ const Category = () => {
                     </div>
 
                     {/* Table */}
-                    <div className="bg-white rounded-xl shadow overflow-hidden">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        #
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Name
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Has Sub Category
-                                    </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {allCategories.length === 0 ? (
-                                    <tr>
-                                        <td
-                                            colSpan={4}
-                                            className="px-6 py-10 text-center text-gray-400"
-                                        >
-                                            No categories found.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    allCategories.map((category, index) => (
-                                        <tr
-                                            key={category.id}
-                                            className="hover:bg-gray-50 transition"
-                                        >
-                                            <td className="px-6 py-4 text-sm text-gray-500">
-                                                {index + 1}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                                                {category.name}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm">
-                                                <span
-                                                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                                        category.has_sub_category
-                                                            ? "bg-green-100 text-green-700"
-                                                            : "bg-gray-100 text-gray-600"
-                                                    }`}
-                                                >
-                                                    {category.has_sub_category
-                                                        ? "Yes"
-                                                        : "No"}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <button
-                                                        onClick={() =>
-                                                            handleEdit(category)
-                                                        }
-                                                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
-                                                        title="Edit"
-                                                    >
-                                                        <Pencil size={16} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                category.id,
-                                                            )
-                                                        }
-                                                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                    <MyTable columns={columns} data={tableData} />
 
                     {/* Modal Form */}
                     <AddCategoryForm
@@ -180,6 +161,7 @@ const Category = () => {
 };
 
 export default Category;
+
 
 // import AddCategoryForm from "@/AddFormComponents/AddCategoryForm";
 // import React from "react";
@@ -259,7 +241,7 @@ export default Category;
 //                     <span>Create</span>
 //                 </button>
 //             </div>
-//             <AddCategoryForm
+//             <AddCategoryForm 
 //                 showForm={showForm}
 //                 setShowForm={setShowForm}
 //                 handleCreate={handleCreate}
