@@ -31,11 +31,9 @@ const AddCategoryForm = ({
         }
     }, [editingCategory]);
 
-    // Create new category
-    const handleCreate = async (formData) => {
-        await axios.post(route("ourcategories.store"), formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-        });
+    // Create new category — send JSON so booleans stay as true/false
+    const handleCreate = async (payload) => {
+        await axios.post(route("ourcategories.store"), payload);
         setReloadTrigger((prev) => !prev);
     };
 
@@ -43,21 +41,19 @@ const AddCategoryForm = ({
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const formData = new FormData();
-        formData.append("name", categoryForm.name);
-        // Laravel expects 1/0 for booleans via FormData
-        formData.append(
-            "has_sub_category",
-            categoryForm.has_sub_category ? 1 : 0
-        );
+        // Plain object — booleans stay as true/false, no FormData coercion needed
+        const payload = {
+            name: categoryForm.name,
+            has_sub_category: Boolean(categoryForm.has_sub_category),
+        };
 
         try {
             setSubmitting(true);
 
             if (editingCategory) {
-                await handleUpdate(formData, editingCategory.id);
+                await handleUpdate(payload, editingCategory.id);
             } else {
-                await handleCreate(formData);
+                await handleCreate(payload);
             }
 
             // Reset and close

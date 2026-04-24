@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import AddCategoryForm from "@/AddFormComponents/AddCategoryForm";
+import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 
 const Category = () => {
     const [allCategories, setAllCategories] = useState([]);
@@ -41,13 +42,11 @@ const Category = () => {
     };
 
     // Update category (called from AddCategoryForm)
-    const handleUpdate = async (formData, id) => {
+    const handleUpdate = async (payload, id) => {
         try {
-            formData.append("_method", "PUT");
-            const response = await axios.post(
+            const response = await axios.put(
                 route("ourcategories.update", { id }),
-                formData,
-                { headers: { "Content-Type": "multipart/form-data" } }
+                payload, // plain JSON object — booleans stay as true/false
             );
             setReloadTrigger((prev) => !prev);
             return response.data;
@@ -58,116 +57,129 @@ const Category = () => {
     };
 
     return (
-        <div className="py-4">
-            {/* Header */}
-            <div className="mb-8 flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">
-                        Category Management
-                    </h1>
-                </div>
-                <button
-                    onClick={() => {
-                        setEditingCategory(null);
-                        setShowForm(true);
-                    }}
-                    className="px-4 py-2 flex items-center gap-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition"
-                >
-                    <Plus size={18} />
-                    <span>Create</span>
-                </button>
-            </div>
+        <>
+            <AdminWrapper>
+                <div className="py-4">
+                    {/* Header */}
+                    <div className="mb-8 flex justify-between items-center">
+                        <div>
+                            <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">
+                                Category Management
+                            </h1>
+                        </div>
+                        <button
+                            onClick={() => {
+                                setEditingCategory(null);
+                                setShowForm(true);
+                            }}
+                            className="px-4 py-2 flex items-center gap-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition"
+                        >
+                            <Plus size={18} />
+                            <span>Create</span>
+                        </button>
+                    </div>
 
-            {/* Table */}
-            <div className="bg-white rounded-xl shadow overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                #
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Name
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Has Sub Category
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {allCategories.length === 0 ? (
-                            <tr>
-                                <td
-                                    colSpan={4}
-                                    className="px-6 py-10 text-center text-gray-400"
-                                >
-                                    No categories found.
-                                </td>
-                            </tr>
-                        ) : (
-                            allCategories.map((category, index) => (
-                                <tr key={category.id} className="hover:bg-gray-50 transition">
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {index + 1}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                                        {category.name}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm">
-                                        <span
-                                            className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                                category.has_sub_category
-                                                    ? "bg-green-100 text-green-700"
-                                                    : "bg-gray-100 text-gray-600"
-                                            }`}
-                                        >
-                                            {category.has_sub_category ? "Yes" : "No"}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <button
-                                                onClick={() => handleEdit(category)}
-                                                className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
-                                                title="Edit"
-                                            >
-                                                <Pencil size={16} />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(category.id)}
-                                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
-                                                title="Delete"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </td>
+                    {/* Table */}
+                    <div className="bg-white rounded-xl shadow overflow-hidden">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        #
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Name
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Has Sub Category
+                                    </th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions
+                                    </th>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {allCategories.length === 0 ? (
+                                    <tr>
+                                        <td
+                                            colSpan={4}
+                                            className="px-6 py-10 text-center text-gray-400"
+                                        >
+                                            No categories found.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    allCategories.map((category, index) => (
+                                        <tr
+                                            key={category.id}
+                                            className="hover:bg-gray-50 transition"
+                                        >
+                                            <td className="px-6 py-4 text-sm text-gray-500">
+                                                {index + 1}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                                                {category.name}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm">
+                                                <span
+                                                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                                        category.has_sub_category
+                                                            ? "bg-green-100 text-green-700"
+                                                            : "bg-gray-100 text-gray-600"
+                                                    }`}
+                                                >
+                                                    {category.has_sub_category
+                                                        ? "Yes"
+                                                        : "No"}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() =>
+                                                            handleEdit(category)
+                                                        }
+                                                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                                                        title="Edit"
+                                                    >
+                                                        <Pencil size={16} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                category.id,
+                                                            )
+                                                        }
+                                                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
 
-            {/* Modal Form */}
-            <AddCategoryForm
-                showForm={showForm}
-                setShowForm={setShowForm}
-                handleUpdate={handleUpdate}
-                editingCategory={editingCategory}
-                setEditingCategory={setEditingCategory}
-                setReloadTrigger={setReloadTrigger}
-            />
-        </div>
+                    {/* Modal Form */}
+                    <AddCategoryForm
+                        showForm={showForm}
+                        setShowForm={setShowForm}
+                        handleUpdate={handleUpdate}
+                        editingCategory={editingCategory}
+                        setEditingCategory={setEditingCategory}
+                        setReloadTrigger={setReloadTrigger}
+                    />
+                </div>
+            </AdminWrapper>
+        </>
     );
 };
 
 export default Category;
-
-
 
 // import AddCategoryForm from "@/AddFormComponents/AddCategoryForm";
 // import React from "react";
@@ -247,7 +259,7 @@ export default Category;
 //                     <span>Create</span>
 //                 </button>
 //             </div>
-//             <AddCategoryForm 
+//             <AddCategoryForm
 //                 showForm={showForm}
 //                 setShowForm={setShowForm}
 //                 handleCreate={handleCreate}
