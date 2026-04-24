@@ -41,21 +41,41 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('AdminPages/Dashboard');
     });
 
+    // -----------------------------------------
+    // User Management  Routes
+    // -----------------------------------------
+
     Route::get('/user-management', function () {
         return Inertia::render('AdminPages/UserManagement');
     });
+
+    // -----------------------------------------
+    // Activity Log Route
+    // -----------------------------------------
 
     Route::get('/activity-log', function () {
         return Inertia::render('AdminPages/ActivityLog');
     });
 
+    // -----------------------------------------
+    // Inscription Details Route for Admin Pages
+    // -----------------------------------------
+
     // Route::get('/inscription-details', function(){
     //     return Inertia::render('AdminPages/InscriptionPage');
     // });
 
+    // -----------------------------------------
+    // Inscription Details Route for Main Pages
+    // -----------------------------------------
+
     Route::get('/inscription-details', function () {
         return Inertia::render('MainPages/InscriptionPage');
     });
+
+    // -----------------------------------------
+    // Test Analytics Route
+    // -----------------------------------------
 
     Route::get('/test', function () {
         $data = Analytics::fetchMostVisitedPages(Period::days(30));
@@ -63,38 +83,33 @@ Route::middleware('auth')->group(function () {
         return response()->json($data);
     });
 
+    // -----------------------------------------
+    // Dashboard Route with Analytics Data
+    // -----------------------------------------
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('ourdashboard.index');
 
-});
+    // ----------------------------------------------------------
+    // Activity Log Route for indexing logs in the admin panel
+    // ----------------------------------------------------------
 
-// Route::get('/loginpage', function () {
-//     return Inertia::render('MainPages/Login');
-// });
+    Route::get('/ourlogs.index', [ActivityLogController::class, 'index'])->name('ourlogs.index');
 
-Route::get('/ourlogs.index', [ActivityLogController::class, 'index'])->name('ourlogs.index');
+    // -----------------------------------------
+    // User Management CRUD Routes
+    // -----------------------------------------
 
-Route::get('/ouruser', [UserController::class, 'index'])->name('ouruser.index');
-Route::post('/ouruser', [UserController::class, 'store'])->name('ouruser.store');
-Route::put('/ouruser/{id}', [UserController::class, 'update'])->name('ouruser.update');
-Route::delete('/ouruser/{id}', [UserController::class, 'destroy'])->name('ouruser.destroy');
+    Route::get('/ouruser', [UserController::class, 'index'])->name('ouruser.index');
+    Route::post('/ouruser', [UserController::class, 'store'])->name('ouruser.store');
+    Route::put('/ouruser/{id}', [UserController::class, 'update'])->name('ouruser.update');
+    Route::delete('/ouruser/{id}', [UserController::class, 'destroy'])->name('ouruser.destroy');
 
-// routes/web.php
-Route::get('/inscription-details/{slug}', [InscriptionController::class, 'showDetails'])->name('inscription.showDetails');
 
-// -----------------------------------------
-// Our Inscription CRUD Routes
-// -----------------------------------------
+    // -----------------------------------------
+    // Test Upload Limits Route
+    // -----------------------------------------
 
-Route::post('/ourinscription', [InscriptionController::class, 'store'])->name('ourinscription.store');
-Route::put('/ourinscription/{id}', [InscriptionController::class, 'update'])->name('ourinscription.update');
-Route::delete('/ourinscription/{id}', [InscriptionController::class, 'destroy'])->name('ourinscription.destroy');
-Route::delete('/ourinscription/image/{id}', [InscriptionController::class, 'destroyImage'])->name('ourinscription.destroyImage');
-
-// -----------------------------------------
-// Test Upload Limits Route
-// -----------------------------------------
-
-Route::get('/test-upload-limits', function () {
+    Route::get('/test-upload-limits', function () {
     return response()->json([
         'success' => true,
         'limits' => [
@@ -107,12 +122,29 @@ Route::get('/test-upload-limits', function () {
         'request_method' => request()->method(),
         'middleware_applied' => true,
     ]);
+    });
+
 });
 
-Route::get('/ourinscription', [InscriptionController::class, 'index'])->name('ourinscription.index');
+    // --------------------------------------------------------------
+    // Inscription Details Route for Main Pages with Dynamic Slug
+    // --------------------------------------------------------------
 
-Route::get('/inscriptions/video-chunk', [InscriptionController::class, 'uploadVideoChunk']);
+    Route::get('/inscription-details/{slug}', [InscriptionController::class, 'showDetails'])->name('inscription.showDetails');
 
-Route::patch('/inscriptions/{id}/status', [InscriptionController::class, 'updateStatus'])->name('ourinscription.updateStatus');
+    // -----------------------------------------
+    // Our Inscription CRUD Routes
+    // -----------------------------------------
 
+    Route::post('/ourinscription', [InscriptionController::class, 'store'])->name('ourinscription.store');
+    Route::put('/ourinscription/{id}', [InscriptionController::class, 'update'])->name('ourinscription.update');
+    Route::delete('/ourinscription/{id}', [InscriptionController::class, 'destroy'])->name('ourinscription.destroy');
+    Route::delete('/ourinscription/image/{id}', [InscriptionController::class, 'destroyImage'])->name('ourinscription.destroyImage');
+    Route::patch('/inscriptions/{id}/status', [InscriptionController::class, 'updateStatus'])->name('ourinscription.updateStatus');
+
+    // ---------------------------------------------
+    // Our Inscription Index Route for Main Pages
+    // ---------------------------------------------
+
+    Route::get('/ourinscription', [InscriptionController::class, 'index'])->name('ourinscription.index');
 require __DIR__.'/auth.php';
