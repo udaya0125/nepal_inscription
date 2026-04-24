@@ -147,4 +147,6 @@ Route::middleware('auth')->group(function () {
     // ---------------------------------------------
 
     Route::get('/ourinscription', [InscriptionController::class, 'index'])->name('ourinscription.index');
+
+    
 require __DIR__.'/auth.php';
