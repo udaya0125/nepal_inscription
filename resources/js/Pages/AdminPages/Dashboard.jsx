@@ -137,7 +137,7 @@ function PageViewsTable({ data }) {
                 <thead>
                     <tr className="bg-gray-50/80 border-b border-gray-200">
                         <th className="px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">
-                            #
+                            S.N.
                         </th>
                         <th className="px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">
                             Page URL

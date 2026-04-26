@@ -1,6 +1,8 @@
 import AddPalaeographicalForm from '@/AddFormComponents/AddPalaeographicalForm';
 import AdminWrapper from '@/AdminWrapper/AdminWrapper'
-import React from 'react'
+import axios from 'axios';
+import { Plus } from 'lucide-react';
+import React, { useEffect, useState } from 'react'
 
 const PalaeographicalDatabase = () => {
     const [allPalaeographical, setAllPalaeographical] = useState([]);
@@ -84,7 +86,7 @@ const PalaeographicalDatabase = () => {
             <AddPalaeographicalForm
                 showForm={showForm}
                 setShowForm={setShowForm}
-                handleCreate={handleCreate}
+                // handleCreate={handleCreate}
                 handleUpdate={handleUpdate}
                 editingPalaeographical={editingPalaeographical}
                 setReloadTrigger={setReloadTrigger}

@@ -1,6 +1,7 @@
-import React from "react";
+import { X } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
-const AddPalaeographicalForm = () => {
+const AddPalaeographicalForm = ({ editingPalaeographical, setShowForm, setReloadTrigger, setEditingPalaeographical ,showForm }) => {
     const [submitting, setSubmitting] = useState(false);
     const [palaeographicalForm, setPalaeographicalForm] = useState({
         fullname: "",
@@ -118,7 +119,6 @@ const AddPalaeographicalForm = () => {
                             <button
                                 onClick={() => {
                                     setShowForm(false);
-                                    setEditingPalaeographical(null);
                                 }}
                                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                             >
