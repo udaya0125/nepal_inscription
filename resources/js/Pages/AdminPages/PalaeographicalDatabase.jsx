@@ -8,7 +8,6 @@ const PalaeographicalDatabase = () => {
     const [allPalaeographical, setAllPalaeographical] = useState([]);
     const [reloadTrigger, setReloadTrigger] = useState(false);
     const [editingPalaeographical, setEditingPalaeographical] = useState(null);
-
     const [showForm, setShowForm] = useState(false);
 
     // For fetching the palaeographical data
