@@ -141,7 +141,7 @@
 // export default AddPalaeographicalForm;
 
 import axios from "axios";
-import { X } from "lucide-react";
+import { X, Upload } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 const AddPalaeographicalForm = ({
@@ -154,6 +154,7 @@ const AddPalaeographicalForm = ({
     const [submitting, setSubmitting] = useState(false);
     const [filteredSubCategories, setFilteredSubCategories] = useState([]);
     const [selectedCategoryHasSub, setSelectedCategoryHasSub] = useState(false);
+    const [imagePreview, setImagePreview] = useState(null);
 
     const fieldOptions = {
         period: ["Malla", "Licchavi", "Shah/Rana"],
@@ -177,7 +178,6 @@ const AddPalaeographicalForm = ({
     };
 
     const [palaeographicalForm, setPalaeographicalForm] = useState(emptyForm);
-    const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
         if (editingPalaeographical) {
@@ -307,6 +307,7 @@ const AddPalaeographicalForm = ({
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-800">
@@ -364,46 +365,39 @@ const AddPalaeographicalForm = ({
                         )}
                     </div>
 
-                    {/* Image — improved upload UI */}
-                    <div>
+                    {/* Image — dashed upload box */}
+                    <div className="space-y-2">
                         <label className={labelClass}>Image</label>
-                        <div className="flex items-center gap-4">
-                            {/* Preview */}
-                            <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50 shrink-0">
-                                {imagePreview ? (
+                        <div className="border-2 border-dashed border-gray-400 rounded-xl p-6 text-center hover:border-indigo-400 transition-all duration-300 relative bg-white">
+                            {imagePreview ? (
+                                <div className="space-y-2">
                                     <img
                                         src={imagePreview}
-                                        alt="preview"
-                                        className="w-full h-full object-cover"
+                                        alt="Preview"
+                                        className="mx-auto h-40 w-full object-cover rounded-lg shadow-lg"
                                     />
-                                ) : (
-                                    <div className="text-center text-gray-400 text-xs px-1">
-                                        <div className="text-2xl mb-0.5">🖼️</div>
-                                        No image
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Upload button */}
-                            <label className="flex-1 cursor-pointer">
-                                <div className="border border-gray-300 rounded-lg px-4 py-3 text-sm text-gray-500 hover:bg-gray-50 transition-colors flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-indigo-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 0L8 8m4-4l4 4" />
-                                    </svg>
-                                    <span>
-                                        {palaeographicalForm.image
-                                            ? palaeographicalForm.image.name
-                                            : "Click to upload JPG / PNG"}
-                                    </span>
+                                    <p className="text-sm text-gray-500">
+                                        Click to change image
+                                    </p>
                                 </div>
-                                <input
-                                    type="file"
-                                    name="image"
-                                    accept="image/jpg,image/jpeg,image/png"
-                                    onChange={handleChange}
-                                    className="hidden"
-                                />
-                            </label>
+                            ) : (
+                                <div className="space-y-3">
+                                    <Upload className="mx-auto h-10 w-10 text-gray-400" />
+                                    <p className="text-sm text-gray-700">
+                                        Click to upload image
+                                    </p>
+                                    <p className="text-xs text-gray-400">
+                                        JPG, JPEG, PNG supported
+                                    </p>
+                                </div>
+                            )}
+                            <input
+                                type="file"
+                                name="image"
+                                accept="image/jpg,image/jpeg,image/png"
+                                onChange={handleChange}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            />
                         </div>
                     </div>
 
