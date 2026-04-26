@@ -589,6 +589,88 @@ const AdminSideBar = ({
                             </div>
                         )}
                     </div>
+
+                    {/* Categories Link */}
+                    <Link
+                        href="/categories"
+                        className={`
+                            flex items-center rounded-lg transition-colors duration-200 group relative
+                            ${isCollapsed ? "p-3 justify-center" : "p-3"}
+                            ${isActive("/categories") ? "bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
+                        `}
+                        title={isCollapsed ? "Categories" : ""}
+                    >
+                        <LayoutDashboard
+                            className={`w-5 h-5 ${isActive("/categories") ? "text-blue-600" : "text-gray-500 group-hover:text-blue-600"}`}
+                        />
+
+                        {!isCollapsed && (
+                            <span className="ml-3 font-medium whitespace-nowrap">
+                                Categories
+                            </span>
+                        )}
+
+                        {isCollapsed && (
+                            <div className="absolute left-full ml-2 px-2 py-1 text-sm bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                                Categories
+                            </div>
+                        )}
+                    </Link>
+
+                    {/* Sub category Link */}
+                    <Link
+                        href="/sub-categories"
+                        className={`
+                            flex items-center rounded-lg transition-colors duration-200 group relative
+                            ${isCollapsed ? "p-3 justify-center" : "p-3"}
+                            ${isActive("/sub-categories") ? "bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
+                        `}
+                        title={isCollapsed ? "Sub-categories" : ""}
+                    >
+                        <LayoutDashboard
+                            className={`w-5 h-5 ${isActive("/sub-categories") ? "text-blue-600" : "text-gray-500 group-hover:text-blue-600"}`}
+                        />
+
+                        {!isCollapsed && (
+                            <span className="ml-3 font-medium whitespace-nowrap">
+                                Sub Categories
+                            </span>
+                        )}
+
+                        {isCollapsed && (
+                            <div className="absolute left-full ml-2 px-2 py-1 text-sm bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                                Sub Categories
+                            </div>
+                        )}
+                    </Link>
+
+
+                    {/* PALAEOGRAPHICAL Link */}
+                    <Link
+                        href="/palaeographical-database"
+                        className={`
+                            flex items-center rounded-lg transition-colors duration-200 group relative
+                            ${isCollapsed ? "p-3 justify-center" : "p-3"}
+                            ${isActive("/palaeographical-database") ? "bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
+                        `}
+                        title={isCollapsed ? "Palaeographical" : ""}
+                    >
+                        <LayoutDashboard
+                            className={`w-5 h-5 ${isActive("/palaeographical-database") ? "text-blue-600" : "text-gray-500 group-hover:text-blue-600"}`}
+                        />
+
+                        {!isCollapsed && (
+                            <span className="ml-3 font-medium whitespace-nowrap">
+                                Palaeographical
+                            </span>
+                        )}
+
+                        {isCollapsed && (
+                            <div className="absolute left-full ml-2 px-2 py-1 text-sm bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                                Palaeographical
+                            </div>
+                        )}
+                    </Link>
                 </div>
             </div>
         </>

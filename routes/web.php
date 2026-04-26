@@ -10,6 +10,7 @@ use Inertia\Inertia;
 use Spatie\Analytics\Facades\Analytics;
 use Spatie\Analytics\Period;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SubCategoryController;
 
 // Route::get('/', function () {
 //     return Inertia::render('Welcome', [
@@ -154,8 +155,24 @@ Route::middleware('auth')->group(function () {
     Route::put('/ourcategories/{id}', [CategoryController::class, 'update'])->name('ourcategories.update');
     Route::delete('/ourcategories/{id}', [CategoryController::class, 'destroy'])->name('ourcategories.destroy');
 
-     Route::get('/category', function () {
+     Route::get('/categories', function () {
         return Inertia::render('AdminPages/Category');
+    });
+
+
+    Route::get('/oursubcategories', [SubCategoryController::class, 'index'])->name('oursubcategories.index');
+    Route::post('/oursubcategories', [SubCategoryController::class, 'store'])->name('oursubcategories.store');
+    Route::put('/oursubcategories/{id}', [SubCategoryController::class, 'update'])->name('oursubcategories.update');
+    Route::delete('/oursubcategories/{id}', [SubCategoryController::class, 'destroy'])->name('oursubcategories.destroy');
+
+
+    Route::get('/sub-categories', function () {
+        return Inertia::render('AdminPages/SubCategory');
+    });
+
+
+    Route::get('/palaeographical-database', function () {
+        return Inertia::render('AdminPages/PalaeographicalDatabase');
     });
 
 require __DIR__.'/auth.php';
