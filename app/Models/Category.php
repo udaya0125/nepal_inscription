@@ -20,4 +20,9 @@ class Category extends Model
     {
         return $this->hasMany(SubCategory::class);
     }
+
+        public function palaeographicals(): HasMany
+        {
+            return $this->hasMany(Palaeographical::class);
+        }
 }
