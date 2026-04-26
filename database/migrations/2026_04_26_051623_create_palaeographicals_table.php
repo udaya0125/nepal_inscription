@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('palaeographicals', function (Blueprint $table) {
             $table->id();
-            $table->string('category');
-            $table->string('sub_category');
+            $table->foreignId('category_id')->constrained()->onDelete('cascade');
+            $table->foreignId('sub_category_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('image');
             $table->string('image_name');
             $table->string('url')->nullable();

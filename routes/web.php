@@ -176,4 +176,9 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('AdminPages/PalaeographicalDatabase');
     });
 
+    Route::get('/ourpalaeographical', [PalaeographicalController ::class, 'index'])->name('ourpalaeographical.index');
+    Route::post('/ourpalaeographical', [PalaeographicalController ::class, 'store'])->name('ourpalaeographical.store');
+    Route::put('/ourpalaeographical/{id}', [PalaeographicalController ::class, 'update'])->name('ourpalaeographical.update');
+    Route::delete('/ourpalaeographical/{id}', [PalaeographicalController ::class, 'destroy'])->name('ourpalaeographical.destroy');
+
 require __DIR__.'/auth.php';

@@ -4,14 +4,16 @@ import React, { useEffect, useState } from "react";
 const AddPalaeographicalForm = ({ editingPalaeographical, setShowForm, setReloadTrigger, setEditingPalaeographical ,showForm }) => {
     const [submitting, setSubmitting] = useState(false);
     const [palaeographicalForm, setPalaeographicalForm] = useState({
-        fullname: "",
-        email: "",
-        image: "",
-        address: "",
-        role: "",
-        status: "",
-        date: "",
-        auth: "",
+        category: "",
+        sub_category: "",
+        image: null,
+        image_name: "",
+        url: "",
+        period: "",
+        script: "",
+        varna: "",
+        symbols: "",
+        citra: "",
     });
     //  Use Effect
     useEffect(() => {
@@ -23,14 +25,16 @@ const AddPalaeographicalForm = ({ editingPalaeographical, setShowForm, setReload
             setShowForm(true);
         } else {
             setPalaeographicalForm({
-                fullname: "",
-                email: "",
-                image: "",
-                address: "",
-                role: "",
-                status: "",
-                date: "",
-                auth: "",
+                 category: "",
+        sub_category: "",
+        image: null,
+        image_name: "",
+        url: "",
+        period: "",
+        script: "",
+        varna: "",
+        symbols: "",
+        citra: "",
             });
         }
     }, [editingPalaeographical]);
@@ -75,14 +79,16 @@ const AddPalaeographicalForm = ({ editingPalaeographical, setShowForm, setReload
                 await handleCreate(formData);
             }
             setPalaeographicalForm({
-                fullname: "",
-                email: "",
-                address: "",
-                role: "",
-                status: "",
-                date: "",
-                auth: "",
-                image: null,
+                 category: "",
+        sub_category: "",
+        image: null,
+        image_name: "",
+        url: "",
+        period: "",
+        script: "",
+        varna: "",
+        symbols: "",
+        citra: "",
             });
 
             setShowForm(false);
