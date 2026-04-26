@@ -15,9 +15,9 @@ const AddPalaeographicalForm = () => {
     });
     //  Use Effect
     useEffect(() => {
-        if (editingUser) {
+        if (editingPalaeographical) {
             setUserForm({
-                ...editingUser,
+                ...editingPalaeographical,
                 image: null,
             });
             setShowForm(true);
@@ -33,12 +33,12 @@ const AddPalaeographicalForm = () => {
                 auth: "",
             });
         }
-    }, [editingUser]);
+    }, [editingPalaeographical]);
 
-    // Handle Create User
+    // Handle Create Palaeographical
     const handleCreate = async (formData) => {
         try {
-            await axios.post(route("users.store"), formData, {
+            await axios.post(route("palaeographical.store"), formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -64,11 +64,11 @@ const AddPalaeographicalForm = () => {
         try {
             setSubmitting(true);
 
-            if (editingUser) {
-                // Editing existing user
-                await handleUpdate(formData, editingUser.id);
+            if (editingPalaeographical) {
+                // Editing existing palaeographical
+                await handleUpdate(formData, editingPalaeographical.id);
             } else {
-                // Creating new user
+                // Creating new palaeographical
                 await handleCreate(formData);
             }
             setUserForm({
@@ -83,7 +83,7 @@ const AddPalaeographicalForm = () => {
             });
 
             setShowForm(false);
-            setEditingUser(null);
+            setEditingPalaeographical(null);
         } catch (error) {
             console.log("Error saving data", error);
         } finally {
@@ -109,14 +109,14 @@ const AddPalaeographicalForm = () => {
                     {/* Header - Same as AddEmployerForm */}
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-bold text-gray-800">
-                            {editingCustomer
-                                ? "Edit Customer"
-                                : "Add New Customer"}
+                            {editingPalaeographical
+                                ? "Edit Palaeographical"
+                                : "Add New Palaeographical"}
                         </h2>
                         <button
                             onClick={() => {
                                 setShowForm(false);
-                                setEditingCategory(null);
+                                setEditingPalaeographical(null);
                             }}
                             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                         >
