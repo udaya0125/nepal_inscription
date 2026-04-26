@@ -156,6 +156,14 @@ const AddPalaeographicalForm = ({
     const [filteredSubCategories, setFilteredSubCategories] = useState([]);
     const [selectedCategoryHasSub, setSelectedCategoryHasSub] = useState(false);
 
+    const fieldOptions = {
+        period: ["Malla", "Licchavi", "Shah/Rana"],
+        script: ["Licchavi", "Newari", "Rañjanā", "Devanāgarī"],
+        varna: ["Svaravarṇa", "Vyañjanavarṇa", "Saṃyuktavarṇa"],
+        symbols: ["Siddham | Maṅgala", "Visarga", "Virāma", "Avagraha", "Yojakacihna"],
+        citra: ["Licchavi", "Malla", "Shah/Rana"],
+    };
+
     const emptyForm = {
         category_id: "",
         sub_category_id: "",
@@ -171,7 +179,6 @@ const AddPalaeographicalForm = ({
 
     const [palaeographicalForm, setPalaeographicalForm] = useState(emptyForm);
 
-    // Populate form when editing
     useEffect(() => {
         if (editingPalaeographical) {
             setPalaeographicalForm({
@@ -191,60 +198,26 @@ const AddPalaeographicalForm = ({
         }
     }, [editingPalaeographical]);
 
-    // Depends on BOTH category_id AND allCategory
-    // so it re-runs when allCategory finishes loading
-    // useEffect(() => {
-    //     if (!palaeographicalForm.category_id || allCategory.length === 0) {
-    //         setFilteredSubCategories([]);
-    //         setSelectedCategoryHasSub(false);
-    //         return;
-    //     }
-
-    //     const found = allCategory.find(
-    //         (c) => c.id === parseInt(palaeographicalForm.category_id)
-    //     );
-
-    //     if (found && found.has_sub_category) {
-    //         setFilteredSubCategories(found.subCategories || []);
-    //         setSelectedCategoryHasSub(true);
-    //         // Do NOT clear sub_category_id here — preserve it when editing
-    //     } else {
-    //         setFilteredSubCategories([]);
-    //         setSelectedCategoryHasSub(false);
-    //         setPalaeographicalForm((prev) => ({ ...prev, sub_category_id: "" }));
-    //     }
-    // }, [palaeographicalForm.category_id, allCategory]); // allCategory in deps
-
     useEffect(() => {
-    console.log("=== SUBCATEGORY EFFECT TRIGGERED ===");
-    console.log("category_id:", palaeographicalForm.category_id);
-    console.log("allCategory:", allCategory);
-    console.log("allCategory length:", allCategory.length);
+        if (!palaeographicalForm.category_id || allCategory.length === 0) {
+            setFilteredSubCategories([]);
+            setSelectedCategoryHasSub(false);
+            return;
+        }
 
-    if (!palaeographicalForm.category_id || allCategory.length === 0) {
-        console.log("EARLY RETURN - missing category_id or allCategory empty");
-        setFilteredSubCategories([]);
-        setSelectedCategoryHasSub(false);
-        return;
-    }
+        const found = allCategory.find(
+            (c) => c.id === parseInt(palaeographicalForm.category_id)
+        );
 
-    const found = allCategory.find(
-        (c) => c.id === parseInt(palaeographicalForm.category_id)
-    );
-
-    console.log("FOUND CATEGORY:", found);
-    console.log("has_sub_category:", found?.has_sub_category);
-    console.log("subCategories:", found?.subCategories);
-
-    if (found && found.has_sub_category) {
-        setFilteredSubCategories(found.sub_categories || []);
-        setSelectedCategoryHasSub(true);
-    } else {
-        setFilteredSubCategories([]);
-        setSelectedCategoryHasSub(false);
-        setPalaeographicalForm((prev) => ({ ...prev, sub_category_id: "" }));
-    }
-}, [palaeographicalForm.category_id, allCategory]);
+        if (found && found.has_sub_category) {
+            setFilteredSubCategories(found.sub_categories || []);
+            setSelectedCategoryHasSub(true);
+        } else {
+            setFilteredSubCategories([]);
+            setSelectedCategoryHasSub(false);
+            setPalaeographicalForm((prev) => ({ ...prev, sub_category_id: "" }));
+        }
+    }, [palaeographicalForm.category_id, allCategory]);
 
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
@@ -279,7 +252,6 @@ const AddPalaeographicalForm = ({
                     formData.append("image", palaeographicalForm.image);
                 }
             } else if (key === "sub_category_id") {
-                // Send empty string if no subcategory (Laravel will treat as null if nullable)
                 formData.append(
                     "sub_category_id",
                     selectedCategoryHasSub && palaeographicalForm.sub_category_id
@@ -317,6 +289,9 @@ const AddPalaeographicalForm = ({
         setPalaeographicalForm(emptyForm);
     };
 
+    const selectClass =
+        "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500";
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
@@ -346,7 +321,7 @@ const AddPalaeographicalForm = ({
                             value={palaeographicalForm.category_id}
                             onChange={handleChange}
                             required
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className={selectClass}
                         >
                             <option value="">Select Category</option>
                             {allCategory.map((cat) => (
@@ -357,7 +332,7 @@ const AddPalaeographicalForm = ({
                         </select>
                     </div>
 
-                    {/* Sub Category — only shown if category has subcategories */}
+                    {/* Sub Category */}
                     {selectedCategoryHasSub && (
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -367,7 +342,7 @@ const AddPalaeographicalForm = ({
                                 name="sub_category_id"
                                 value={palaeographicalForm.sub_category_id}
                                 onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                className={selectClass}
                             >
                                 <option value="">Select Sub Category</option>
                                 {filteredSubCategories.map((sub) => (
@@ -410,7 +385,7 @@ const AddPalaeographicalForm = ({
                             name="image_name"
                             value={palaeographicalForm.image_name}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className={selectClass}
                         />
                     </div>
 
@@ -424,7 +399,7 @@ const AddPalaeographicalForm = ({
                             name="url"
                             value={palaeographicalForm.url}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className={selectClass}
                         />
                     </div>
 
@@ -433,13 +408,17 @@ const AddPalaeographicalForm = ({
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Period
                         </label>
-                        <input
-                            type="text"
+                        <select
                             name="period"
                             value={palaeographicalForm.period}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
+                            className={selectClass}
+                        >
+                            <option value="">Select Period</option>
+                            {fieldOptions.period.map((opt) => (
+                                <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                        </select>
                     </div>
 
                     {/* Script */}
@@ -447,13 +426,17 @@ const AddPalaeographicalForm = ({
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Script
                         </label>
-                        <input
-                            type="text"
+                        <select
                             name="script"
                             value={palaeographicalForm.script}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
+                            className={selectClass}
+                        >
+                            <option value="">Select Script</option>
+                            {fieldOptions.script.map((opt) => (
+                                <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                        </select>
                     </div>
 
                     {/* Varna */}
@@ -461,13 +444,17 @@ const AddPalaeographicalForm = ({
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Varna
                         </label>
-                        <input
-                            type="text"
+                        <select
                             name="varna"
                             value={palaeographicalForm.varna}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
+                            className={selectClass}
+                        >
+                            <option value="">Select Varna</option>
+                            {fieldOptions.varna.map((opt) => (
+                                <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                        </select>
                     </div>
 
                     {/* Symbols */}
@@ -475,13 +462,17 @@ const AddPalaeographicalForm = ({
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Symbols
                         </label>
-                        <input
-                            type="text"
+                        <select
                             name="symbols"
                             value={palaeographicalForm.symbols}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
+                            className={selectClass}
+                        >
+                            <option value="">Select Symbols</option>
+                            {fieldOptions.symbols.map((opt) => (
+                                <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                        </select>
                     </div>
 
                     {/* Citra */}
@@ -489,13 +480,17 @@ const AddPalaeographicalForm = ({
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Citra
                         </label>
-                        <input
-                            type="text"
+                        <select
                             name="citra"
                             value={palaeographicalForm.citra}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
+                            className={selectClass}
+                        >
+                            <option value="">Select Citra</option>
+                            {fieldOptions.citra.map((opt) => (
+                                <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                        </select>
                     </div>
 
                     {/* Submit */}
