@@ -154,6 +154,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/ourcategories', [CategoryController::class, 'store'])->name('ourcategories.store');
     Route::put('/ourcategories/{id}', [CategoryController::class, 'update'])->name('ourcategories.update');
     Route::delete('/ourcategories/{id}', [CategoryController::class, 'destroy'])->name('ourcategories.destroy');
+    Route::get('categorywithsubcategory',[CategoryController::class,'indexWithSubCategory'])->name('categorywithsubcategory.indexWithSubCategory');
 
      Route::get('/categories', function () {
         return Inertia::render('AdminPages/Category');

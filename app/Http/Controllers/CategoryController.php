@@ -18,6 +18,15 @@ class CategoryController extends Controller
         ]);
     }
 
+    public function indexWithSubCategory()
+    {
+        $categories = Category::with('subCategories')->get();
+        return response()->json([
+            'success' => true,
+            'data' => $categories
+        ]);
+    }
+
     // 📌 Store new category
     public function store(Request $request)
     {
