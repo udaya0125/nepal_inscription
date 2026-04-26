@@ -3,32 +3,31 @@ import AdminWrapper from '@/AdminWrapper/AdminWrapper'
 import React from 'react'
 
 const PalaeographicalDatabase = () => {
-      const [allUser, setAllUser] = useState([]);
+    const [allPalaeographical, setAllPalaeographical] = useState([]);
     const [reloadTrigger, setReloadTrigger] = useState(false);
-    const [editingUser, setEditingUser] = useState(null);
+    const [editingPalaeographical, setEditingPalaeographical] = useState(null);
 
     const [showForm, setShowForm] = useState(false);
 
-
-    // For fetching the user data
+    // For fetching the palaeographical data
     useEffect(() => {
-        const fetchUser = async () => {
+        const fetchPalaeographical = async () => {
             try {
-                const response = await axios.get(route("users.index"));
-                setAllUser(response.data);
+                const response = await axios.get(route("palaeographical.index"));
+                setAllPalaeographical(response.data);
             } catch (error) {
                 console.error("fetching error ", error);
             }
         };
 
-        fetchUser();
+        fetchPalaeographical();
     }, [reloadTrigger]);
 
-    // For delete the user
+    // For delete the palaeographical
     const handleDelete = async (id) => {
         try {
             const response = await axios.delete(
-                route("users.destroy", { id: id })
+                route("palaeographical.destroy", { id: id })
             );
             console.log(response.data);
             setReloadTrigger((prev) => !prev);
@@ -38,8 +37,8 @@ const PalaeographicalDatabase = () => {
     };
 
     // handleedit
-    const handleEdit = (user) => {
-        setEditingUser(user);
+    const handleEdit = (palaeographical) => {
+        setEditingPalaeographical(palaeographical);
     };
 
     // Handlapdate after the  edit
@@ -47,7 +46,7 @@ const PalaeographicalDatabase = () => {
         try {
             formData.append("_method", "PUT");
             const response = await axios.post(
-                route("users.update", { id }),
+                route("palaeographical.update", { id }),
                 formData,
                 {
                     headers: {
@@ -58,7 +57,7 @@ const PalaeographicalDatabase = () => {
             setReloadTrigger((prev) => !prev);
             return response.data;
         } catch (error) {
-            console.log("Error updating user", error);
+            console.log("Error updating palaeographical", error);
             throw error;
         }
     };
@@ -66,12 +65,12 @@ const PalaeographicalDatabase = () => {
   return (
     <>
     <AdminWrapper>
-               <div className="py-4 ">
+            <div className="py-4 ">
             {/* Header with Add Button */}
             <div className="mb-8 flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">
-                        Category Management
+                        Palaeographical Management
                     </h1>
                 </div>
                 <button
@@ -87,7 +86,7 @@ const PalaeographicalDatabase = () => {
                 setShowForm={setShowForm}
                 handleCreate={handleCreate}
                 handleUpdate={handleUpdate}
-                editingCategory={editingCategory}
+                editingPalaeographical={editingPalaeographical}
                 setReloadTrigger={setReloadTrigger}
                 reloadTrigger={reloadTrigger}
             />
