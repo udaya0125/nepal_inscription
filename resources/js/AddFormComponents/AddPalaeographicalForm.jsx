@@ -140,7 +140,6 @@
 
 // export default AddPalaeographicalForm;
 
-
 import axios from "axios";
 import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -178,6 +177,7 @@ const AddPalaeographicalForm = ({
     };
 
     const [palaeographicalForm, setPalaeographicalForm] = useState(emptyForm);
+    const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
         if (editingPalaeographical) {
@@ -193,8 +193,14 @@ const AddPalaeographicalForm = ({
                 symbols: editingPalaeographical.symbols || "",
                 citra: editingPalaeographical.citra || "",
             });
+            setImagePreview(
+                editingPalaeographical.image
+                    ? `/storage/${editingPalaeographical.image}`
+                    : null
+            );
         } else {
             setPalaeographicalForm(emptyForm);
+            setImagePreview(null);
         }
     }, [editingPalaeographical]);
 
@@ -221,10 +227,12 @@ const AddPalaeographicalForm = ({
 
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
-        setPalaeographicalForm((prev) => ({
-            ...prev,
-            [name]: type === "file" ? files[0] : value,
-        }));
+        if (type === "file" && files[0]) {
+            setPalaeographicalForm((prev) => ({ ...prev, [name]: files[0] }));
+            setImagePreview(URL.createObjectURL(files[0]));
+        } else {
+            setPalaeographicalForm((prev) => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleCreate = async (formData) => {
@@ -274,6 +282,7 @@ const AddPalaeographicalForm = ({
                 await handleCreate(formData);
             }
             setPalaeographicalForm(emptyForm);
+            setImagePreview(null);
             setShowForm(false);
             setEditingPalaeographical(null);
         } catch (error) {
@@ -287,10 +296,13 @@ const AddPalaeographicalForm = ({
         setShowForm(false);
         setEditingPalaeographical(null);
         setPalaeographicalForm(emptyForm);
+        setImagePreview(null);
     };
 
     const selectClass =
         "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500";
+
+    const labelClass = "block text-sm font-medium text-gray-700 mb-1";
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -298,9 +310,7 @@ const AddPalaeographicalForm = ({
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-800">
-                        {editingPalaeographical
-                            ? "Edit Palaeographical"
-                            : "Add New Palaeographical"}
+                        {editingPalaeographical ? "Edit Palaeographical" : "Add New Palaeographical"}
                     </h2>
                     <button
                         onClick={handleClose}
@@ -311,175 +321,185 @@ const AddPalaeographicalForm = ({
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Category */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Category <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                            name="category_id"
-                            value={palaeographicalForm.category_id}
-                            onChange={handleChange}
-                            required
-                            className={selectClass}
-                        >
-                            <option value="">Select Category</option>
-                            {allCategory.map((cat) => (
-                                <option key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
 
-                    {/* Sub Category */}
-                    {selectedCategoryHasSub && (
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Sub Category
+                    {/* Category + Sub Category — same row */}
+                    <div className="flex gap-3">
+                        <div className="flex-1">
+                            <label className={labelClass}>
+                                Category <span className="text-red-500">*</span>
                             </label>
                             <select
-                                name="sub_category_id"
-                                value={palaeographicalForm.sub_category_id}
+                                name="category_id"
+                                value={palaeographicalForm.category_id}
                                 onChange={handleChange}
+                                required
                                 className={selectClass}
                             >
-                                <option value="">Select Sub Category</option>
-                                {filteredSubCategories.map((sub) => (
-                                    <option key={sub.id} value={sub.id}>
-                                        {sub.name}
+                                <option value="">Select Category</option>
+                                {allCategory.map((cat) => (
+                                    <option key={cat.id} value={cat.id}>
+                                        {cat.name}
                                     </option>
                                 ))}
                             </select>
                         </div>
-                    )}
 
-                    {/* Image */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Image
-                        </label>
-                        {editingPalaeographical?.image && (
-                            <img
-                                src={`/storage/${editingPalaeographical.image}`}
-                                alt="current"
-                                className="w-16 h-16 object-cover rounded mb-2"
-                            />
+                        {selectedCategoryHasSub && (
+                            <div className="flex-1">
+                                <label className={labelClass}>Sub Category</label>
+                                <select
+                                    name="sub_category_id"
+                                    value={palaeographicalForm.sub_category_id}
+                                    onChange={handleChange}
+                                    className={selectClass}
+                                >
+                                    <option value="">Select Sub Category</option>
+                                    {filteredSubCategories.map((sub) => (
+                                        <option key={sub.id} value={sub.id}>
+                                            {sub.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         )}
-                        <input
-                            type="file"
-                            name="image"
-                            accept="image/jpg,image/jpeg,image/png"
-                            onChange={handleChange}
-                            className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-indigo-50 file:text-indigo-700"
-                        />
                     </div>
 
-                    {/* Image Name */}
+                    {/* Image — improved upload UI */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Image Name
-                        </label>
-                        <input
-                            type="text"
-                            name="image_name"
-                            value={palaeographicalForm.image_name}
-                            onChange={handleChange}
-                            className={selectClass}
-                        />
+                        <label className={labelClass}>Image</label>
+                        <div className="flex items-center gap-4">
+                            {/* Preview */}
+                            <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50 shrink-0">
+                                {imagePreview ? (
+                                    <img
+                                        src={imagePreview}
+                                        alt="preview"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="text-center text-gray-400 text-xs px-1">
+                                        <div className="text-2xl mb-0.5">🖼️</div>
+                                        No image
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Upload button */}
+                            <label className="flex-1 cursor-pointer">
+                                <div className="border border-gray-300 rounded-lg px-4 py-3 text-sm text-gray-500 hover:bg-gray-50 transition-colors flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-indigo-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 0L8 8m4-4l4 4" />
+                                    </svg>
+                                    <span>
+                                        {palaeographicalForm.image
+                                            ? palaeographicalForm.image.name
+                                            : "Click to upload JPG / PNG"}
+                                    </span>
+                                </div>
+                                <input
+                                    type="file"
+                                    name="image"
+                                    accept="image/jpg,image/jpeg,image/png"
+                                    onChange={handleChange}
+                                    className="hidden"
+                                />
+                            </label>
+                        </div>
                     </div>
 
-                    {/* URL */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            URL
-                        </label>
-                        <input
-                            type="text"
-                            name="url"
-                            value={palaeographicalForm.url}
-                            onChange={handleChange}
-                            className={selectClass}
-                        />
+                    {/* Image Name + URL — same row */}
+                    <div className="flex gap-3">
+                        <div className="flex-1">
+                            <label className={labelClass}>Image Name</label>
+                            <input
+                                type="text"
+                                name="image_name"
+                                value={palaeographicalForm.image_name}
+                                onChange={handleChange}
+                                placeholder="Enter image name"
+                                className={selectClass}
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <label className={labelClass}>URL</label>
+                            <input
+                                type="text"
+                                name="url"
+                                value={palaeographicalForm.url}
+                                onChange={handleChange}
+                                placeholder="https://..."
+                                className={selectClass}
+                            />
+                        </div>
                     </div>
 
-                    {/* Period */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Period
-                        </label>
-                        <select
-                            name="period"
-                            value={palaeographicalForm.period}
-                            onChange={handleChange}
-                            className={selectClass}
-                        >
-                            <option value="">Select Period</option>
-                            {fieldOptions.period.map((opt) => (
-                                <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                        </select>
+                    {/* Period + Script — same row */}
+                    <div className="flex gap-3">
+                        <div className="flex-1">
+                            <label className={labelClass}>Period</label>
+                            <select
+                                name="period"
+                                value={palaeographicalForm.period}
+                                onChange={handleChange}
+                                className={selectClass}
+                            >
+                                <option value="">Select Period</option>
+                                {fieldOptions.period.map((opt) => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex-1">
+                            <label className={labelClass}>Script</label>
+                            <select
+                                name="script"
+                                value={palaeographicalForm.script}
+                                onChange={handleChange}
+                                className={selectClass}
+                            >
+                                <option value="">Select Script</option>
+                                {fieldOptions.script.map((opt) => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
-                    {/* Script */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Script
-                        </label>
-                        <select
-                            name="script"
-                            value={palaeographicalForm.script}
-                            onChange={handleChange}
-                            className={selectClass}
-                        >
-                            <option value="">Select Script</option>
-                            {fieldOptions.script.map((opt) => (
-                                <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                        </select>
+                    {/* Varna + Symbols — same row */}
+                    <div className="flex gap-3">
+                        <div className="flex-1">
+                            <label className={labelClass}>Varna</label>
+                            <select
+                                name="varna"
+                                value={palaeographicalForm.varna}
+                                onChange={handleChange}
+                                className={selectClass}
+                            >
+                                <option value="">Select Varna</option>
+                                {fieldOptions.varna.map((opt) => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex-1">
+                            <label className={labelClass}>Symbols</label>
+                            <select
+                                name="symbols"
+                                value={palaeographicalForm.symbols}
+                                onChange={handleChange}
+                                className={selectClass}
+                            >
+                                <option value="">Select Symbols</option>
+                                {fieldOptions.symbols.map((opt) => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
-                    {/* Varna */}
+                    {/* Citra — full width */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Varna
-                        </label>
-                        <select
-                            name="varna"
-                            value={palaeographicalForm.varna}
-                            onChange={handleChange}
-                            className={selectClass}
-                        >
-                            <option value="">Select Varna</option>
-                            {fieldOptions.varna.map((opt) => (
-                                <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Symbols */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Symbols
-                        </label>
-                        <select
-                            name="symbols"
-                            value={palaeographicalForm.symbols}
-                            onChange={handleChange}
-                            className={selectClass}
-                        >
-                            <option value="">Select Symbols</option>
-                            {fieldOptions.symbols.map((opt) => (
-                                <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Citra */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Citra
-                        </label>
+                        <label className={labelClass}>Citra</label>
                         <select
                             name="citra"
                             value={palaeographicalForm.citra}
