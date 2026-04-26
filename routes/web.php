@@ -11,6 +11,7 @@ use Spatie\Analytics\Facades\Analytics;
 use Spatie\Analytics\Period;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubCategoryController;
+use App\Http\Controllers\PalaeographicalController;
 
 // Route::get('/', function () {
 //     return Inertia::render('Welcome', [
