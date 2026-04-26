@@ -193,27 +193,58 @@ const AddPalaeographicalForm = ({
 
     // Depends on BOTH category_id AND allCategory
     // so it re-runs when allCategory finishes loading
+    // useEffect(() => {
+    //     if (!palaeographicalForm.category_id || allCategory.length === 0) {
+    //         setFilteredSubCategories([]);
+    //         setSelectedCategoryHasSub(false);
+    //         return;
+    //     }
+
+    //     const found = allCategory.find(
+    //         (c) => c.id === parseInt(palaeographicalForm.category_id)
+    //     );
+
+    //     if (found && found.has_sub_category) {
+    //         setFilteredSubCategories(found.subCategories || []);
+    //         setSelectedCategoryHasSub(true);
+    //         // Do NOT clear sub_category_id here — preserve it when editing
+    //     } else {
+    //         setFilteredSubCategories([]);
+    //         setSelectedCategoryHasSub(false);
+    //         setPalaeographicalForm((prev) => ({ ...prev, sub_category_id: "" }));
+    //     }
+    // }, [palaeographicalForm.category_id, allCategory]); // allCategory in deps
+
     useEffect(() => {
-        if (!palaeographicalForm.category_id || allCategory.length === 0) {
-            setFilteredSubCategories([]);
-            setSelectedCategoryHasSub(false);
-            return;
-        }
+    console.log("=== SUBCATEGORY EFFECT TRIGGERED ===");
+    console.log("category_id:", palaeographicalForm.category_id);
+    console.log("allCategory:", allCategory);
+    console.log("allCategory length:", allCategory.length);
 
-        const found = allCategory.find(
-            (c) => c.id === parseInt(palaeographicalForm.category_id)
-        );
+    if (!palaeographicalForm.category_id || allCategory.length === 0) {
+        console.log("EARLY RETURN - missing category_id or allCategory empty");
+        setFilteredSubCategories([]);
+        setSelectedCategoryHasSub(false);
+        return;
+    }
 
-        if (found && found.has_sub_category) {
-            setFilteredSubCategories(found.subCategories || []);
-            setSelectedCategoryHasSub(true);
-            // Do NOT clear sub_category_id here — preserve it when editing
-        } else {
-            setFilteredSubCategories([]);
-            setSelectedCategoryHasSub(false);
-            setPalaeographicalForm((prev) => ({ ...prev, sub_category_id: "" }));
-        }
-    }, [palaeographicalForm.category_id, allCategory]); // allCategory in deps
+    const found = allCategory.find(
+        (c) => c.id === parseInt(palaeographicalForm.category_id)
+    );
+
+    console.log("FOUND CATEGORY:", found);
+    console.log("has_sub_category:", found?.has_sub_category);
+    console.log("subCategories:", found?.subCategories);
+
+    if (found && found.has_sub_category) {
+        setFilteredSubCategories(found.sub_categories || []);
+        setSelectedCategoryHasSub(true);
+    } else {
+        setFilteredSubCategories([]);
+        setSelectedCategoryHasSub(false);
+        setPalaeographicalForm((prev) => ({ ...prev, sub_category_id: "" }));
+    }
+}, [palaeographicalForm.category_id, allCategory]);
 
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;

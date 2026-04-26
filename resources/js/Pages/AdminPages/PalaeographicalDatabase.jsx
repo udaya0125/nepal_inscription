@@ -166,6 +166,10 @@ const PalaeographicalDatabase = () => {
         fetchCategory();
     }, [reloadTrigger]);
 
+
+    console.log("All Palaeographical Records:", allPalaeographical); // 👈 add this
+    console.log("All Categories:", allCategory); // 👈 add this
+
     const handleDelete = async (id) => {
         try {
             await axios.delete(route("ourpalaeographical.destroy", { id }));
