@@ -115,13 +115,15 @@
 
 import AddPalaeographicalForm from "@/AddFormComponents/AddPalaeographicalForm";
 import AdminWrapper from "@/AdminWrapper/AdminWrapper";
+import MyTable from "@/MyTable/MyTable";
 import axios from "axios";
 import { Plus } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+
 
 const PalaeographicalDatabase = () => {
     const [allPalaeographical, setAllPalaeographical] = useState([]);
-    const [allCategory, setAllCategory] = useState([]); // ✅ was missing
+    const [allCategory, setAllCategory] = useState([]);
     const [reloadTrigger, setReloadTrigger] = useState(false);
     const [editingPalaeographical, setEditingPalaeographical] = useState(null);
     const [showForm, setShowForm] = useState(false);
@@ -138,23 +140,12 @@ const PalaeographicalDatabase = () => {
             }
         };
 
-        // const fetchCategory = async () => {
-        //     try {
-        //         const response = await axios.get(
-        //             route("categorywithsubcategory.indexWithSubCategory")
-        //         );
-        //         setAllCategory(response.data.data || []);
-        //     } catch (error) {
-        //         console.error("Error fetching category:", error);
-        //         setAllCategory([]);
-        //     }
-        // };
         const fetchCategory = async () => {
             try {
                 const response = await axios.get(
                     route("categorywithsubcategory.indexWithSubCategory"),
                 );
-                console.log("RAW CATEGORY DATA:", response.data); // 👈 add this
+                console.log("RAW CATEGORY DATA:", response.data);
                 setAllCategory(response.data.data || []);
             } catch (error) {
                 console.error("Error fetching category:", error);
@@ -166,9 +157,8 @@ const PalaeographicalDatabase = () => {
         fetchCategory();
     }, [reloadTrigger]);
 
-
-    console.log("All Palaeographical Records:", allPalaeographical); // 👈 add this
-    console.log("All Categories:", allCategory); // 👈 add this
+    console.log("All Palaeographical Records:", allPalaeographical);
+    console.log("All Categories:", allCategory);
 
     const handleDelete = async (id) => {
         try {
@@ -183,6 +173,74 @@ const PalaeographicalDatabase = () => {
         setEditingPalaeographical(palaeographical);
         setShowForm(true);
     };
+
+    // Define columns for the table
+    const columns = useMemo(
+        () => [
+            {
+                Header: "Image",
+                accessor: "image",
+                Cell: ({ row }) => (
+                    <div className="flex items-center">
+                        {row.original.image ? (
+                            <img
+                                src={`/storage/${row.original.image}`}
+                                alt={row.original.image_name || "img"}
+                                className="w-12 h-12 object-cover rounded"
+                            />
+                        ) : (
+                            <span className="text-gray-400">No image</span>
+                        )}
+                    </div>
+                ),
+            },
+            {
+                Header: "Category",
+                accessor: "category",
+                Cell: ({ row }) => (
+                    <span>{row.original.category?.name || "—"}</span>
+                ),
+            },
+            {
+                Header: "Sub Category",
+                accessor: "sub_category",
+                Cell: ({ row }) => (
+                    <span>{row.original.sub_category?.name || "—"}</span>
+                ),
+            },
+            {
+                Header: "Period",
+                accessor: "period",
+                Cell: ({ row }) => <span>{row.original.period || "—"}</span>,
+            },
+            {
+                Header: "Script",
+                accessor: "script",
+                Cell: ({ row }) => <span>{row.original.script || "—"}</span>,
+            },
+            {
+                Header: "Actions",
+                accessor: "actions",
+                Cell: ({ row }) => (
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => handleEdit(row.original)}
+                            className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition"
+                        >
+                            Edit
+                        </button>
+                        <button
+                            onClick={() => handleDelete(row.original.id)}
+                            className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 transition"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                ),
+            },
+        ],
+        []
+    );
 
     return (
         <AdminWrapper>
@@ -203,78 +261,11 @@ const PalaeographicalDatabase = () => {
                     </button>
                 </div>
 
-                {/* Records Table */}
-                <div className="bg-white rounded-xl shadow overflow-x-auto">
-                    <table className="w-full text-sm text-left">
-                        <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
-                            <tr>
-                                <th className="px-4 py-3">Image</th>
-                                <th className="px-4 py-3">Category</th>
-                                <th className="px-4 py-3">Sub Category</th>
-                                <th className="px-4 py-3">Period</th>
-                                <th className="px-4 py-3">Script</th>
-                                <th className="px-4 py-3">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {allPalaeographical.map((item) => (
-                                <tr key={item.id} className="hover:bg-gray-50">
-                                    <td className="px-4 py-3">
-                                        {item.image ? (
-                                            <img
-                                                src={`/storage/${item.image}`}
-                                                alt={item.image_name || "img"}
-                                                className="w-12 h-12 object-cover rounded"
-                                            />
-                                        ) : (
-                                            <span className="text-gray-400">
-                                                No image
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        {item.category?.name || "—"}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        {item.sub_category?.name || "—"}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        {item.period || "—"}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        {item.script || "—"}
-                                    </td>
-                                    <td className="px-4 py-3 flex gap-2">
-                                        <button
-                                            onClick={() => handleEdit(item)}
-                                            className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() =>
-                                                handleDelete(item.id)
-                                            }
-                                            className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200"
-                                        >
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                            {allPalaeographical.length === 0 && (
-                                <tr>
-                                    <td
-                                        colSpan={6}
-                                        className="text-center py-8 text-gray-400"
-                                    >
-                                        No records found.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                {/* MyTable Component */}
+                <MyTable
+                    columns={columns} 
+                    data={allPalaeographical} 
+                />
 
                 {showForm && (
                     <AddPalaeographicalForm
@@ -283,7 +274,7 @@ const PalaeographicalDatabase = () => {
                         editingPalaeographical={editingPalaeographical}
                         setEditingPalaeographical={setEditingPalaeographical}
                         setReloadTrigger={setReloadTrigger}
-                        allCategory={allCategory} // ✅ pass categories down
+                        allCategory={allCategory}
                     />
                 )}
             </div>
