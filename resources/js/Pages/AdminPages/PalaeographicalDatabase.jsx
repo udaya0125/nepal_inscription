@@ -113,7 +113,6 @@
 
 // export default PalaeographicalDatabase;
 
-
 import AddPalaeographicalForm from "@/AddFormComponents/AddPalaeographicalForm";
 import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 import axios from "axios";
@@ -130,18 +129,32 @@ const PalaeographicalDatabase = () => {
     useEffect(() => {
         const fetchPalaeographical = async () => {
             try {
-                const response = await axios.get(route("ourpalaeographical.index"));
+                const response = await axios.get(
+                    route("ourpalaeographical.index"),
+                );
                 setAllPalaeographical(response.data.data || []);
             } catch (error) {
                 console.error("fetching error ", error);
             }
         };
 
+        // const fetchCategory = async () => {
+        //     try {
+        //         const response = await axios.get(
+        //             route("categorywithsubcategory.indexWithSubCategory")
+        //         );
+        //         setAllCategory(response.data.data || []);
+        //     } catch (error) {
+        //         console.error("Error fetching category:", error);
+        //         setAllCategory([]);
+        //     }
+        // };
         const fetchCategory = async () => {
             try {
                 const response = await axios.get(
-                    route("categorywithsubcategory.indexWithSubCategory")
+                    route("categorywithsubcategory.indexWithSubCategory"),
                 );
+                console.log("RAW CATEGORY DATA:", response.data); // 👈 add this
                 setAllCategory(response.data.data || []);
             } catch (error) {
                 console.error("Error fetching category:", error);
@@ -210,13 +223,23 @@ const PalaeographicalDatabase = () => {
                                                 className="w-12 h-12 object-cover rounded"
                                             />
                                         ) : (
-                                            <span className="text-gray-400">No image</span>
+                                            <span className="text-gray-400">
+                                                No image
+                                            </span>
                                         )}
                                     </td>
-                                    <td className="px-4 py-3">{item.category?.name || "—"}</td>
-                                    <td className="px-4 py-3">{item.sub_category?.name || "—"}</td>
-                                    <td className="px-4 py-3">{item.period || "—"}</td>
-                                    <td className="px-4 py-3">{item.script || "—"}</td>
+                                    <td className="px-4 py-3">
+                                        {item.category?.name || "—"}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {item.sub_category?.name || "—"}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {item.period || "—"}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {item.script || "—"}
+                                    </td>
                                     <td className="px-4 py-3 flex gap-2">
                                         <button
                                             onClick={() => handleEdit(item)}
@@ -225,7 +248,9 @@ const PalaeographicalDatabase = () => {
                                             Edit
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(item.id)}
+                                            onClick={() =>
+                                                handleDelete(item.id)
+                                            }
                                             className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200"
                                         >
                                             Delete
@@ -235,7 +260,10 @@ const PalaeographicalDatabase = () => {
                             ))}
                             {allPalaeographical.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="text-center py-8 text-gray-400">
+                                    <td
+                                        colSpan={6}
+                                        className="text-center py-8 text-gray-400"
+                                    >
                                         No records found.
                                     </td>
                                 </tr>
