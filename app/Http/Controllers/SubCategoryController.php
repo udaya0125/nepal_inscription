@@ -48,7 +48,7 @@ class SubCategoryController extends Controller
         ActivityLog::create([
             'name'       => auth()->user()->name ?? 'System',
             'ip_address' => $request->ip(),
-            'title'      => "Created subcategory: {$subCategory->name} under category: {$category->name}",
+            'title'      => "Created subcategory: {$subCategory->name}",
         ]);
 
         return response()->json([
@@ -86,7 +86,7 @@ class SubCategoryController extends Controller
         ActivityLog::create([
             'name'       => auth()->user()->name ?? 'System',
             'ip_address' => $request->ip(),
-            'title'      => "Updated subcategory: {$subCategory->name} under category: {$category->name}",
+            'title'      => "Updated subcategory: {$subCategory->name}",
         ]);
 
         return response()->json([
@@ -111,7 +111,7 @@ class SubCategoryController extends Controller
         ActivityLog::create([
             'name'       => auth()->user()->name ?? 'System',
             'ip_address' => $request->ip(),
-            'title'      => "Deleted subcategory: {$subCategoryName} under category: {$categoryName}",
+            'title'      => "Deleted subcategory: {$subCategoryName}",
         ]);
 
         return response()->json([
