@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Palaeographical;
 use App\Models\Category;
 use App\Models\SubCategory;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
 class PalaeographicalController extends Controller
@@ -28,16 +29,16 @@ class PalaeographicalController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'sub_category_id' => 'nullable|exists:sub_categories,id',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'image_name' => 'nullable|string|max:255',
-            'url' => 'nullable|string',
-            'period' => 'nullable|string',
-            'script' => 'nullable|string',
-            'varna' => 'nullable|string',
-            'symbols' => 'nullable|string',
-            'citra' => 'nullable|string',
+            'category_id'    => 'required|exists:categories,id',
+            'sub_category_id'=> 'nullable|exists:sub_categories,id',
+            'image'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'image_name'     => 'nullable|string|max:255',
+            'url'            => 'nullable|string',
+            'period'         => 'nullable|string',
+            'script'         => 'nullable|string',
+            'varna'          => 'nullable|string',
+            'symbols'        => 'nullable|string',
+            'citra'          => 'nullable|string',
         ]);
 
         // Validate category allows subcategory
@@ -57,16 +58,23 @@ class PalaeographicalController extends Controller
         }
 
         $data = Palaeographical::create([
-            'category_id' => $request->category_id,
-            'sub_category_id' => $request->sub_category_id,
-            'image' => $imagePath,
-            'image_name' => $request->image_name,
-            'url' => $request->url,
-            'period' => $request->period,
-            'script' => $request->script,
-            'varna' => $request->varna,
-            'symbols' => $request->symbols,
-            'citra' => $request->citra,
+            'category_id'    => $request->category_id,
+            'sub_category_id'=> $request->sub_category_id,
+            'image'          => $imagePath,
+            'image_name'     => $request->image_name,
+            'url'            => $request->url,
+            'period'         => $request->period,
+            'script'         => $request->script,
+            'varna'          => $request->varna,
+            'symbols'        => $request->symbols,
+            'citra'          => $request->citra,
+        ]);
+
+        // 📝 Log activity
+        ActivityLog::create([
+            'name'       => auth()->user()->name ?? 'System',
+            'ip_address' => $request->ip(),
+            'title'      => "Created Palaeographical: {$category->name}",
         ]);
 
         return response()->json([
@@ -83,16 +91,16 @@ class PalaeographicalController extends Controller
         $data = Palaeographical::findOrFail($id);
 
         $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'sub_category_id' => 'nullable|exists:sub_categories,id',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'image_name' => 'nullable|string|max:255',
-            'url' => 'nullable|string',
-            'period' => 'nullable|string',
-            'script' => 'nullable|string',
-            'varna' => 'nullable|string',
-            'symbols' => 'nullable|string',
-            'citra' => 'nullable|string',
+            'category_id'    => 'required|exists:categories,id',
+            'sub_category_id'=> 'nullable|exists:sub_categories,id',
+            'image'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'image_name'     => 'nullable|string|max:255',
+            'url'            => 'nullable|string',
+            'period'         => 'nullable|string',
+            'script'         => 'nullable|string',
+            'varna'          => 'nullable|string',
+            'symbols'        => 'nullable|string',
+            'citra'          => 'nullable|string',
         ]);
 
         // Validate category logic
@@ -112,15 +120,22 @@ class PalaeographicalController extends Controller
         }
 
         $data->update([
-            'category_id' => $request->category_id,
-            'sub_category_id' => $request->sub_category_id,
-            'image_name' => $request->image_name,
-            'url' => $request->url,
-            'period' => $request->period,
-            'script' => $request->script,
-            'varna' => $request->varna,
-            'symbols' => $request->symbols,
-            'citra' => $request->citra,
+            'category_id'    => $request->category_id,
+            'sub_category_id'=> $request->sub_category_id,
+            'image_name'     => $request->image_name,
+            'url'            => $request->url,
+            'period'         => $request->period,
+            'script'         => $request->script,
+            'varna'          => $request->varna,
+            'symbols'        => $request->symbols,
+            'citra'          => $request->citra,
+        ]);
+
+        // 📝 Log activity
+        ActivityLog::create([
+            'name'       => auth()->user()->name ?? 'System',
+            'ip_address' => $request->ip(),
+            'title'      => "Updated Palaeographical: {$category->name}",
         ]);
 
         return response()->json([
@@ -132,10 +147,20 @@ class PalaeographicalController extends Controller
     /**
      * Delete record
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $data = Palaeographical::findOrFail($id);
+        $recordId = $data->id;
+        $categoryName = $data->category->name ?? 'Unknown';
+
         $data->delete();
+
+        // 📝 Log activity
+        ActivityLog::create([
+            'name'       => auth()->user()->name ?? 'System',
+            'ip_address' => $request->ip(),
+            'title'      => "Deleted Palaeographical:{$categoryName}",
+        ]);
 
         return response()->json([
             'success' => true,
