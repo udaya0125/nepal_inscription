@@ -224,7 +224,6 @@ const PalaeographicalDatabase = () => {
                 accessor: "period",
                 Cell: ({ row }) => <span>{row.original.period || "—"}</span>,
             },
-            
             {
                 Header: "Script",
                 accessor: "script",
