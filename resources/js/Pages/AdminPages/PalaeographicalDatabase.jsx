@@ -203,13 +203,13 @@ const PalaeographicalDatabase = () => {
             {
                 Header: "Image Name",
                 accessor: "image_name",
-                Cell: ({ row }) => <span>{row.original.image_name || "—"}</span>,
+                Cell: ({ row }) => <span>{row.original.image_name || "N/A"}</span>,
             },
             {
                 Header: "Category",
                 accessor: "category",
                 Cell: ({ row }) => (
-                    <span>{row.original.category?.name || "—"}</span>
+                    <span>{row.original.category?.name || "N/A"}</span>
                 ),
             },
             {
@@ -222,12 +222,12 @@ const PalaeographicalDatabase = () => {
             {
                 Header: "Period",
                 accessor: "period",
-                Cell: ({ row }) => <span>{row.original.period || "—"}</span>,
+                Cell: ({ row }) => <span>{row.original.period || "N/A"}</span>,
             },
             {
                 Header: "Script",
                 accessor: "script",
-                Cell: ({ row }) => <span>{row.original.script || "—"}</span>,
+                Cell: ({ row }) => <span>{row.original.script || "N/A"}</span>,
             },
             {
                 Header: "Actions",
