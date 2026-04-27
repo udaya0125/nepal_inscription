@@ -257,7 +257,7 @@ const PalaeographicalDatabase = () => {
 
     return (
         <AdminWrapper>
-            <div className="py-4">
+            <div className="">
                 <div className="mb-8 flex justify-between items-center">
                     <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">
                         Palaeographical Management
