@@ -201,6 +201,11 @@ const PalaeographicalDatabase = () => {
                 ),
             },
             {
+                Header: "Image Name",
+                accessor: "image_name",
+                Cell: ({ row }) => <span>{row.original.image_name || "—"}</span>,
+            },
+            {
                 Header: "Category",
                 accessor: "category",
                 Cell: ({ row }) => (
