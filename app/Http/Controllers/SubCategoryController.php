@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SubCategory;
 use App\Models\Category;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
 class SubCategoryController extends Controller
@@ -43,6 +44,13 @@ class SubCategoryController extends Controller
 
         $subCategory = SubCategory::create($validated);
 
+        // 📝 Log activity
+        ActivityLog::create([
+            'name'       => auth()->user()->name ?? 'System',
+            'ip_address' => $request->ip(),
+            'title'      => "Created subcategory: {$subCategory->name} under category: {$category->name}",
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'SubCategory created successfully',
@@ -74,6 +82,13 @@ class SubCategoryController extends Controller
 
         $subCategory->update($validated);
 
+        // 📝 Log activity
+        ActivityLog::create([
+            'name'       => auth()->user()->name ?? 'System',
+            'ip_address' => $request->ip(),
+            'title'      => "Updated subcategory: {$subCategory->name} under category: {$category->name}",
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'SubCategory updated successfully',
@@ -84,11 +99,20 @@ class SubCategoryController extends Controller
     /**
      * Remove the specified subcategory
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $subCategory = SubCategory::findOrFail($id);
+        $subCategoryName = $subCategory->name;
+        $categoryName = $subCategory->category->name ?? 'Unknown';
 
         $subCategory->delete();
+
+        // 📝 Log activity
+        ActivityLog::create([
+            'name'       => auth()->user()->name ?? 'System',
+            'ip_address' => $request->ip(),
+            'title'      => "Deleted subcategory: {$subCategoryName} under category: {$categoryName}",
+        ]);
 
         return response()->json([
             'success' => true,
