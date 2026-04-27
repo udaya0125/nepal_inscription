@@ -2,6 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f9fafb;
+}
+
+body::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+body::-webkit-scrollbar-track {
+  background: #f9fafb;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 9999px;
+  border: 1px solid #f9fafb;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
 
 
 /* Convert 1. 2. into (1) (2) in React Quill editor and displayed content */

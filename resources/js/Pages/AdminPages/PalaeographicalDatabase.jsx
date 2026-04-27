@@ -117,7 +117,7 @@ import AddPalaeographicalForm from "@/AddFormComponents/AddPalaeographicalForm";
 import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 import MyTable from "@/MyTable/MyTable";
 import axios from "axios";
-import { Plus } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
 
 
@@ -205,7 +205,7 @@ const PalaeographicalDatabase = () => {
                 Header: "Sub Category",
                 accessor: "sub_category",
                 Cell: ({ row }) => (
-                    <span>{row.original.sub_category?.name || "—"}</span>
+                    <span>{row.original.sub_category?.name || "N/A"}</span>
                 ),
             },
             {
@@ -225,15 +225,17 @@ const PalaeographicalDatabase = () => {
                     <div className="flex gap-2">
                         <button
                             onClick={() => handleEdit(row.original)}
-                            className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition"
+                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                            title="Edit"
                         >
-                            Edit
+                            <Pencil  size={16}/>
                         </button>
                         <button
                             onClick={() => handleDelete(row.original.id)}
-                            className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 transition"
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                            title="Delete"
                         >
-                            Delete
+                            <Trash2 size={16} />
                         </button>
                     </div>
                 ),
