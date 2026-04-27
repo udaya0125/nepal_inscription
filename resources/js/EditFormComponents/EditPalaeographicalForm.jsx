@@ -14,6 +14,7 @@ const EditPalaeographicalForm = ({
     const [filteredSubCategories, setFilteredSubCategories] = useState([]);
     const [selectedCategoryHasSub, setSelectedCategoryHasSub] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     const fieldOptions = {
         period: [
@@ -125,7 +126,7 @@ const EditPalaeographicalForm = ({
             });
             setImagePreview(
                 editingPalaeographical.image
-                    ? `/storage/${editingPalaeographical.image}`
+                    ? `${imgurl}/${editingPalaeographical.image}`
                     : null
             );
         }

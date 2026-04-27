@@ -313,6 +313,7 @@ const PalaeographicalDatabase = () => {
     const [editingPalaeographical, setEditingPalaeographical] = useState(null);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     useEffect(() => {
         const fetchPalaeographical = async () => {
@@ -376,7 +377,7 @@ const PalaeographicalDatabase = () => {
                     <div className="flex items-center">
                         {row.original.image ? (
                             <img
-                                src={`/storage/${row.original.image}`}
+                                src={`${imgurl}/${row.original.image}`}
                                 alt={row.original.image_name || "img"}
                                 className="w-12 h-12 object-cover rounded"
                             />
