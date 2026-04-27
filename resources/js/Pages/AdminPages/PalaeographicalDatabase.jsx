@@ -178,6 +178,12 @@ const PalaeographicalDatabase = () => {
     const columns = useMemo(
         () => [
             {
+                Header: "S.N.",
+                accessor: "serialNumber",
+                Cell: ({ row }) => <span>{row.index + 1}</span>,
+                width: 60,
+            },
+            {
                 Header: "Image",
                 accessor: "image",
                 Cell: ({ row }) => (
