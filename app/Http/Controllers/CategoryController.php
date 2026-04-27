@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -37,6 +38,13 @@ class CategoryController extends Controller
 
         $category = Category::create($validated);
 
+        // 📝 Log activity
+        ActivityLog::create([
+            'name' => auth()->user()->name ?? 'System',
+            'ip_address' => $request->ip(),
+            'title' => "Created category: {$category->name}",
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Category created successfully',
@@ -56,6 +64,13 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
+        // 📝 Log activity
+        ActivityLog::create([
+            'name' => auth()->user()->name ?? 'System',
+            'ip_address' => $request->ip(),
+            'title' => "Updated category: {$category->name}",
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Category updated successfully',
@@ -64,11 +79,19 @@ class CategoryController extends Controller
     }
 
     // 📌 Delete category
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $category = Category::findOrFail($id);
+        $categoryName = $category->name;
 
         $category->delete();
+
+        // 📝 Log activity
+        ActivityLog::create([
+            'name' => auth()->user()->name ?? 'System',
+            'ip_address' => $request->ip(),
+            'title' => "Deleted category: {$categoryName}",
+        ]);
 
         return response()->json([
             'success' => true,
