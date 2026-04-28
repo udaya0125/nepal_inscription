@@ -199,6 +199,9 @@ import {
     Handshake,
     UserCog,
     Activity,
+    Tags,
+    FolderTree,
+    ScrollText,
 } from "lucide-react";
 
 const AdminSideBar = ({
@@ -600,7 +603,7 @@ const AdminSideBar = ({
                         `}
                         title={isCollapsed ? "Categories" : ""}
                     >
-                        <LayoutDashboard
+                        <Tags
                             className={`w-5 h-5 ${isActive("/categories") ? "text-blue-600" : "text-gray-500 group-hover:text-blue-600"}`}
                         />
 
@@ -627,7 +630,7 @@ const AdminSideBar = ({
                         `}
                         title={isCollapsed ? "Sub-categories" : ""}
                     >
-                        <LayoutDashboard
+                        <FolderTree
                             className={`w-5 h-5 ${isActive("/sub-categories") ? "text-blue-600" : "text-gray-500 group-hover:text-blue-600"}`}
                         />
 
@@ -655,7 +658,7 @@ const AdminSideBar = ({
                         `}
                         title={isCollapsed ? "Palaeographical" : ""}
                     >
-                        <LayoutDashboard
+                        <ScrollText
                             className={`w-5 h-5 ${isActive("/palaeographical-database") ? "text-blue-600" : "text-gray-500 group-hover:text-blue-600"}`}
                         />
 
