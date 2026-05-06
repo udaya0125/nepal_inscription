@@ -3,7 +3,6 @@ import axios from "axios";
 import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 import MyTable from "@/MyTable/MyTable";
 
-
 const ActivityLog = () => {
     const [activityLogs, setActivityLogs] = useState([]);
     const [loading, setLoading] = useState(true);
