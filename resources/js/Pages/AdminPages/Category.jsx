@@ -49,7 +49,7 @@ const Category = () => {
         try {
             const response = await axios.put(
                 route("ourcategories.update", { id }),
-                payload
+                payload,
             );
             return response.data;
         } catch (error) {
@@ -113,7 +113,7 @@ const Category = () => {
                 width: 100,
             },
         ],
-        []
+        [],
     );
 
     // Prepare data for the table
@@ -172,7 +172,6 @@ export default Category;
 // import AddCategoryForm from "@/AddFormComponents/AddCategoryForm";
 // import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 // import MyTable from "@/MyTable/MyTable";
-
 
 // const Category = () => {
 //     const [allCategories, setAllCategories] = useState([]);
