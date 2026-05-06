@@ -120,7 +120,6 @@
 // import { Pencil, Plus, Trash2 } from "lucide-react";
 // import React, { useEffect, useState, useMemo } from "react";
 
-
 // const PalaeographicalDatabase = () => {
 //     const [allPalaeographical, setAllPalaeographical] = useState([]);
 //     const [allCategory, setAllCategory] = useState([]);
@@ -276,8 +275,8 @@
 
 //                 {/* MyTable Component */}
 //                 <MyTable
-//                     columns={columns} 
-//                     data={allPalaeographical} 
+//                     columns={columns}
+//                     data={allPalaeographical}
 //                 />
 
 //                 {showForm && (
@@ -296,7 +295,6 @@
 // };
 
 // export default PalaeographicalDatabase;
-
 
 import AddPalaeographicalForm from "@/AddFormComponents/AddPalaeographicalForm";
 import AdminWrapper from "@/AdminWrapper/AdminWrapper";
@@ -390,7 +388,9 @@ const PalaeographicalDatabase = () => {
             {
                 Header: "Image Name",
                 accessor: "image_name",
-                Cell: ({ row }) => <span>{row.original.image_name || "N/A"}</span>,
+                Cell: ({ row }) => (
+                    <span>{row.original.image_name || "N/A"}</span>
+                ),
             },
             {
                 Header: "Category",
@@ -426,7 +426,7 @@ const PalaeographicalDatabase = () => {
                             className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                             title="Edit"
                         >
-                            <Pencil size={16}/>
+                            <Pencil size={16} />
                         </button>
                         <button
                             onClick={() => handleDelete(row.original.id)}
@@ -439,7 +439,7 @@ const PalaeographicalDatabase = () => {
                 ),
             },
         ],
-        []
+        [],
     );
 
     return (
@@ -461,10 +461,7 @@ const PalaeographicalDatabase = () => {
                 </div>
 
                 {/* MyTable Component */}
-                <MyTable
-                    columns={columns} 
-                    data={allPalaeographical} 
-                />
+                <MyTable columns={columns} data={allPalaeographical} />
 
                 {/* Add Form */}
                 {showAddForm && (
