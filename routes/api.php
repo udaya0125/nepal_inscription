@@ -30,7 +30,10 @@ Route::get('/user', function (Request $request) {
     // -----------------------------------------
 
     Route::get('/palaeographical', [PalaeographicalController ::class, 'index']);
-
+  
+    // -----------------------------------------
+    // SubCategory API Routes
+    // -----------------------------------------
 
     Route::get('/oursubcategories', [SubCategoryController::class, 'index']);
 
