@@ -26,10 +26,16 @@ Route::get('/user', function (Request $request) {
     Route::get('/{slug}/details', [InscriptionController::class, 'showBySlug']);
     
     // -----------------------------------------
-    // Inscription Creation
+    // Inscription Search Route
     // -----------------------------------------
 
     Route::get('/palaeographical', [PalaeographicalController ::class, 'index']);
 
 
     Route::get('/oursubcategories', [SubCategoryController::class, 'index']);
+
+    // -----------------------------------------
+    // Category API Routes
+    // -----------------------------------------
+
+    Route::get('/ourcategories', [CategoryController::class, 'index']);
