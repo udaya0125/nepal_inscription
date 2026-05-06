@@ -6,7 +6,6 @@ import AddUserForm from "@/AddFormComponents/AddUserForm";
 import EditUserForm from "@/EditFormComponents/EditUserForm";
 import MyTable from "@/MyTable/MyTable";
 
-
 const UserManagement = () => {
     const [allUser, setAllUser] = useState([]);
     const [reloadTrigger, setReloadTrigger] = useState(false);
