@@ -22,3 +22,8 @@ Route::get('/user', function (Request $request) {
 
     Route::get('/{slug}/details', [InscriptionController::class, 'showBySlug']);
     
+    // -----------------------------------------
+    // Inscription Creation
+    // -----------------------------------------
+
+    
