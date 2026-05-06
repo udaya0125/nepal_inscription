@@ -2,20 +2,10 @@ import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {
-    LineChart,
-    Line,
-    AreaChart,
-    Area,
-    BarChart,
-    Bar,
     PieChart,
     Pie,
     Cell,
-    XAxis,
-    YAxis,
-    CartesianGrid,
     Tooltip,
-    Legend,
     ResponsiveContainer,
 } from "recharts";
 
