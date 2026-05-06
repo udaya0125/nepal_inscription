@@ -35,10 +35,10 @@ Route::get('/user', function (Request $request) {
     // SubCategory API Routes
     // -----------------------------------------
 
-    Route::get('/oursubcategories', [SubCategoryController::class, 'index']);
+    Route::get('/subcategories', [SubCategoryController::class, 'index']);
 
     // -----------------------------------------
     // Category API Routes
     // -----------------------------------------
 
-    Route::get('/ourcategories', [CategoryController::class, 'index']);
+    Route::get('/categories', [CategoryController::class, 'index']);
