@@ -491,7 +491,8 @@ const Dashboard = () => {
                                     Page Views Distribution
                                 </h2>
                                 <p className="text-xs text-gray-400 mt-0.5">
-                                    Top {pieData.length} pages by screen page views
+                                    Top {pieData.length} pages by screen page
+                                    views
                                 </p>
                             </div>
                             {pieData.length > 0 ? (
@@ -511,17 +512,19 @@ const Dashboard = () => {
                                                     paddingAngle={2}
                                                     dataKey="value"
                                                 >
-                                                    {pieData.map((entry, index) => (
-                                                        <Cell
-                                                            key={`cell-${index}`}
-                                                            fill={
-                                                                COLORS[
-                                                                    index %
-                                                                        COLORS.length
-                                                                ]
-                                                            }
-                                                        />
-                                                    ))}
+                                                    {pieData.map(
+                                                        (entry, index) => (
+                                                            <Cell
+                                                                key={`cell-${index}`}
+                                                                fill={
+                                                                    COLORS[
+                                                                        index %
+                                                                            COLORS.length
+                                                                    ]
+                                                                }
+                                                            />
+                                                        ),
+                                                    )}
                                                 </Pie>
                                                 <Tooltip />
                                             </PieChart>
@@ -531,7 +534,8 @@ const Dashboard = () => {
                                         {pieData.map((d, i) => {
                                             const pct = totalFiltered
                                                 ? (
-                                                      (d.value / totalFiltered) *
+                                                      (d.value /
+                                                          totalFiltered) *
                                                       100
                                                   ).toFixed(1)
                                                 : "0";
@@ -676,13 +680,13 @@ const Dashboard = () => {
                     {/* ── Footer ── */}
                     <div className="flex justify-center items-center text-xs text-gray-500 pt-4">
                         <p>
-                            Data updates in real-time • Last updated: {" "}
+                            Data updates in real-time • Last updated:{" "}
                             {new Date().toLocaleTimeString([], {
                                 hour: "2-digit",
                                 minute: "2-digit",
                             })}
                         </p>
-                      
+
                         {/* <button
                             onClick={fetchDashboardData}
                             className="text-indigo-500 hover:text-indigo-600 font-medium"
