@@ -90,6 +90,15 @@ const Category = () => {
                 ),
             },
             {
+                Header: "Created At",
+                accessor: "created_at",
+                Cell: ({ value }) => (
+                    <span className="text-gray-500 text-sm">
+                        {value ? new Date(value).toLocaleDateString() : "N/A"}
+                    </span>
+                ),
+            },
+            {
                 Header: "Actions",
                 accessor: "actions",
                 Cell: ({ row }) => (
