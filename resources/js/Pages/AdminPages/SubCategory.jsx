@@ -62,7 +62,7 @@ const SubCategory = () => {
     const columns = useMemo(
         () => [
             {
-                Header: "#",
+                Header: "S.N.",
                 accessor: "serialNumber",
                 Cell: ({ row }) => <span>{row.index + 1}</span>,
                 width: 60,
