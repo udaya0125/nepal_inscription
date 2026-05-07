@@ -146,7 +146,7 @@
 // export default AddSubCategoryForm;
 
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import Select from "react-select";
 
@@ -162,6 +162,21 @@ const AddSubCategoryForm = ({
         name: "",
     });
     const [selectedCategory, setSelectedCategory] = useState(null);
+
+    // Add this useEffect to lock body scroll when form mounts
+useEffect(() => {
+    // Lock body scroll
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    
+    // Cleanup function to restore scroll when component unmounts
+    return () => {
+        document.body.style.overflow = 'unset';
+        document.body.style.position = 'static';
+        document.body.style.width = 'auto';
+    };
+}, []); // Empty dependency array means this runs once on mount
 
     const handleCreate = async (formData) => {
         try {
