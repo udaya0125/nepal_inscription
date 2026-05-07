@@ -15,21 +15,6 @@ const EditCategoryForm = ({
         has_sub_category: false,
     });
 
-    // Add this useEffect to lock body scroll when form mounts
-useEffect(() => {
-    // Lock body scroll
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    
-    // Cleanup function to restore scroll when component unmounts
-    return () => {
-        document.body.style.overflow = 'unset';
-        document.body.style.position = 'static';
-        document.body.style.width = 'auto';
-    };
-}, []); // Empty dependency array means this runs once on mount
-
     // Populate form when editing
     useEffect(() => {
         if (editingCategory) {
