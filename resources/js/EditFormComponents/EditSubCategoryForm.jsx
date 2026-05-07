@@ -204,17 +204,7 @@ const EditSubCategoryForm = ({
             }
         }
     }, [editingSubCategory, allCategory]);
-
-
-    // Add this useEffect to lock body scroll when form mounts
-useEffect(() => {
-        const prevOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden"; // Fix: removed position:fixed to prevent page jump
-
-        return () => {
-            document.body.style.overflow = prevOverflow;
-        };
-    }, []);
+    
 
     const handleUpdate = async (formData, id) => {
         try {
