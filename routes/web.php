@@ -12,6 +12,7 @@ use Spatie\Analytics\Period;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\PalaeographicalController;
+use App\Http\Controllers\ChildCategoryController;
 
 // Route::get('/', function () {
 //     return Inertia::render('Welcome', [
@@ -176,6 +177,11 @@ Route::middleware('auth')->group(function () {
      Route::get('/child-categories', function () {
         return Inertia::render('AdminPages/ChildCategory');
     });
+
+    Route::get('/ourchildcategories', [ChildCategoryController ::class, 'index'])->name('ourchildcategories.index');
+    Route::post('/ourchildcategories', [ChildCategoryController ::class, 'store'])->name('ourchildcategories.store');
+    Route::put('/ourchildcategories/{id}', [ChildCategoryController ::class, 'update'])->name('ourchildcategories.update');
+    Route::delete('/ourchildcategories/{id}', [ChildCategoryController ::class, 'destroy'])->name('ourchildcategories.destroy');
 
 
     Route::get('/palaeographical-database', function () {
