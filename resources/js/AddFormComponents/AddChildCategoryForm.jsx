@@ -535,7 +535,7 @@ const AddChildCategoryForm = ({
                             name="name"
                             value={childCategoryForm.name}
                             onChange={handleChange}
-                            placeholder="e.g. Men's Running Shoes"
+                            placeholder="Add Child Category Name"
                             className={`w-full px-4 py-2.5 rounded-lg border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
                                 errors.name
                                     ? 'border-red-400 bg-red-50'
