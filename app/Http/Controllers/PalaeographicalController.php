@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Palaeographical;
 use App\Models\Category;
 use App\Models\SubCategory;
+use App\Models\ChildCategory;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
@@ -49,6 +50,40 @@ class PalaeographicalController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Selected category does not allow subcategories'
+            ], 422);
+        }
+
+        if ($request->sub_category_id) {
+            $subCategory = SubCategory::findOrFail($request->sub_category_id);
+
+            if ((int) $subCategory->category_id !== (int) $category->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Selected subcategory does not belong to the selected category'
+                ], 422);
+            }
+
+            if (!$subCategory->has_child_category && $request->child_category_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Selected subcategory does not allow child categories'
+                ], 422);
+            }
+
+            if ($request->child_category_id) {
+                $childCategory = ChildCategory::findOrFail($request->child_category_id);
+
+                if ((int) $childCategory->sub_category_id !== (int) $subCategory->id) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Selected child category does not belong to the selected subcategory'
+                    ], 422);
+                }
+            }
+        } elseif ($request->child_category_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please select a subcategory before selecting a child category'
             ], 422);
         }
 
@@ -116,12 +151,39 @@ class PalaeographicalController extends Controller
             ], 422);
         }
 
-            if (!$category->has_child_category && $request->child_category_id) {
+        if ($request->sub_category_id) {
+            $subCategory = SubCategory::findOrFail($request->sub_category_id);
+
+            if ((int) $subCategory->category_id !== (int) $category->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Selected category does not allow child categories'
+                    'message' => 'Selected subcategory does not belong to the selected category'
                 ], 422);
             }
+
+            if (!$subCategory->has_child_category && $request->child_category_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Selected subcategory does not allow child categories'
+                ], 422);
+            }
+
+            if ($request->child_category_id) {
+                $childCategory = ChildCategory::findOrFail($request->child_category_id);
+
+                if ((int) $childCategory->sub_category_id !== (int) $subCategory->id) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Selected child category does not belong to the selected subcategory'
+                    ], 422);
+                }
+            }
+        } elseif ($request->child_category_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please select a subcategory before selecting a child category'
+            ], 422);
+        }
 
         // Handle image update
         if ($request->hasFile('image')) {
