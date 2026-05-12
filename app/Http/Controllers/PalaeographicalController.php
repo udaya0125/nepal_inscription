@@ -15,7 +15,7 @@ class PalaeographicalController extends Controller
      */
     public function index()
     {
-        $data = Palaeographical::with(['category', 'subCategory'])->latest()->get();
+        $data = Palaeographical::with(['category', 'subCategory', 'childCategory'])->latest()->get();
 
         return response()->json([
             'success' => true,
@@ -31,6 +31,7 @@ class PalaeographicalController extends Controller
         $request->validate([
             'category_id'    => 'required|exists:categories,id',
             'sub_category_id'=> 'nullable|exists:sub_categories,id',
+            'child_category_id'=> 'nullable|exists:child_categories,id',
             'image'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'image_name'     => 'nullable|string|max:255',
             'url'            => 'nullable|string',
@@ -60,6 +61,7 @@ class PalaeographicalController extends Controller
         $data = Palaeographical::create([
             'category_id'    => $request->category_id,
             'sub_category_id'=> $request->sub_category_id,
+            'child_category_id'=> $request->child_category_id,
             'image'          => $imagePath,
             'image_name'     => $request->image_name,
             'url'            => $request->url,
@@ -93,6 +95,7 @@ class PalaeographicalController extends Controller
         $request->validate([
             'category_id'    => 'required|exists:categories,id',
             'sub_category_id'=> 'nullable|exists:sub_categories,id',
+            'child_category_id'=> 'nullable|exists:child_categories,id',
             'image'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'image_name'     => 'nullable|string|max:255',
             'url'            => 'nullable|string',
@@ -113,6 +116,13 @@ class PalaeographicalController extends Controller
             ], 422);
         }
 
+            if (!$category->has_child_category && $request->child_category_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Selected category does not allow child categories'
+                ], 422);
+            }
+
         // Handle image update
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('palaeographical', 'public');
@@ -122,6 +132,7 @@ class PalaeographicalController extends Controller
         $data->update([
             'category_id'    => $request->category_id,
             'sub_category_id'=> $request->sub_category_id,
+            'child_category_id'=> $request->child_category_id,
             'image_name'     => $request->image_name,
             'url'            => $request->url,
             'period'         => $request->period,

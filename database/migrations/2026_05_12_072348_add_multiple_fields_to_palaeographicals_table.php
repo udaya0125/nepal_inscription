@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('sub_categories', function (Blueprint $table) {
+        Schema::table('palaeographicals', function (Blueprint $table) {
             //
-             $table->string('has_child_category')->after('category_id');
+            $table->string('child_category_id')->nullable()->after('sub_category_id');
         });
     }
 
@@ -22,9 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('sub_categories', function (Blueprint $table) {
+        Schema::table('palaeographicals', function (Blueprint $table) {
             //
-            $table->dropColumn('has_child_category');
+            $table->dropColumn('child_category_id');
         });
     }
 };

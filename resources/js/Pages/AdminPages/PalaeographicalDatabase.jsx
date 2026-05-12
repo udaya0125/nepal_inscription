@@ -307,11 +307,13 @@ import React, { useEffect, useState, useMemo } from "react";
 const PalaeographicalDatabase = () => {
     const [allPalaeographical, setAllPalaeographical] = useState([]);
     const [allCategory, setAllCategory] = useState([]);
+    const [allChildCategories, setAllChildCategories] = useState([]);
     const [reloadTrigger, setReloadTrigger] = useState(false);
     const [editingPalaeographical, setEditingPalaeographical] = useState(null);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
     const imgurl = import.meta.env.VITE_IMAGE_PATH;
+
 
     useEffect(() => {
         const fetchPalaeographical = async () => {
@@ -338,12 +340,23 @@ const PalaeographicalDatabase = () => {
             }
         };
 
+        const fetchChildCategory = async () => {
+            try {
+                const response = await axios.get(route('ourchildcategories.index'));
+                setAllChildCategories(response.data.data || []);
+            } catch (error) {
+                console.error('Fetching child categories failed:', error);
+            }
+        };
+
+        fetchChildCategory();
         fetchPalaeographical();
         fetchCategory();
     }, [reloadTrigger]);
 
     console.log("All Palaeographical Records:", allPalaeographical);
     console.log("All Categories:", allCategory);
+    console.log("All Child Categories:", allChildCategories);
 
     const handleDelete = async (id) => {
         try {
@@ -404,6 +417,13 @@ const PalaeographicalDatabase = () => {
                 accessor: "sub_category",
                 Cell: ({ row }) => (
                     <span>{row.original.sub_category?.name || "N/A"}</span>
+                ),
+            },
+             {
+                Header: "Child Category",
+                accessor: "child_category",
+                Cell: ({ row }) => (
+                    <span>{row.original.child_category?.name || "N/A"}</span>
                 ),
             },
             {
@@ -470,6 +490,7 @@ const PalaeographicalDatabase = () => {
                         setShowForm={setShowAddForm}
                         setReloadTrigger={setReloadTrigger}
                         allCategory={allCategory}
+                        allChildCategories={allChildCategories}
                     />
                 )}
 
@@ -481,6 +502,7 @@ const PalaeographicalDatabase = () => {
                         setReloadTrigger={setReloadTrigger}
                         setEditingPalaeographical={setEditingPalaeographical}
                         allCategory={allCategory}
+                        allChildCategories={allChildCategories}
                     />
                 )}
             </div>

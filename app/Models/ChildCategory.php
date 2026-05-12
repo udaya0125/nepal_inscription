@@ -22,4 +22,9 @@ class ChildCategory extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function palaeographicals()
+    {
+        return $this->hasMany(Palaeographical::class);
+    }
 }

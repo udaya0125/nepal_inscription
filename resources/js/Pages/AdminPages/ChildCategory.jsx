@@ -118,7 +118,8 @@ import AddChildCategoryForm from '@/AddFormComponents/AddChildCategoryForm';
 import AdminWrapper from '@/AdminWrapper/AdminWrapper';
 import axios from 'axios';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import MyTable from '@/MyTable/MyTable';
 
 const ChildCategory = () => {
     const [allChildCategories, setAllChildCategories] = useState([]);
@@ -168,6 +169,7 @@ const ChildCategory = () => {
 
     const handleEdit = (childCategory) => {
         setEditingChildCategory(childCategory);
+        setShowForm(true);
     };
 
     const handleUpdate = async (formData, id) => {
@@ -181,113 +183,115 @@ const ChildCategory = () => {
         return response.data;
     };
 
+    // Define table columns
+    const columns = useMemo(
+        () => [
+            {
+                Header: "S.N.",
+                accessor: "serialNumber",
+                Cell: ({ row }) => <span>{row.index + 1}</span>,
+                width: 60,
+            },
+            {
+                Header: "Name",
+                accessor: "name",
+                Cell: ({ value }) => (
+                    <span className="font-medium text-gray-800">{value}</span>
+                ),
+            },
+            {
+                Header: "Category",
+                accessor: "category",
+                Cell: ({ value }) => (
+                    <span className="text-gray-600">{value?.name ?? '—'}</span>
+                ),
+            },
+            {
+                Header: "Subcategory",
+                accessor: "sub_category",
+                Cell: ({ value }) => (
+                    <span className="text-gray-600">{value?.name ?? '—'}</span>
+                ),
+            },
+            {
+                Header: "Created At",
+                accessor: "created_at",
+                Cell: ({ value }) => (
+                    <span className="text-gray-500 text-sm">
+                        {value ? new Date(value).toLocaleDateString() : "N/A"}
+                    </span>
+                ),
+            },
+            {
+                Header: "Actions",
+                accessor: "actions",
+                Cell: ({ row }) => (
+                    <div className="flex justify-start gap-2">
+                        <button
+                            onClick={() => handleEdit(row.original)}
+                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                            title="Edit"
+                        >
+                            <Pencil size={16} />
+                        </button>
+                        <button
+                            onClick={() => handleDelete(row.original.id)}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                            title="Delete"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    </div>
+                ),
+                width: 100,
+            },
+        ],
+        []
+    );
+
+    // Prepare data for the table
+    const tableData = useMemo(() => allChildCategories, [allChildCategories]);
+
     return (
         <AdminWrapper>
-            {/* Header */}
-            <div className="mb-8 flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">
-                        Child Category Management
-                    </h1>
-                    <p className="text-sm text-gray-500 mt-1">
-                        {allChildCategories.length} child{' '}
-                        {allChildCategories.length === 1 ? 'category' : 'categories'}
-                    </p>
+            <div className="py-4">
+                {/* Header */}
+                <div className="mb-8 flex justify-between items-center">
+                    <div>
+                        <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">
+                            Child Category Management
+                        </h1>
+                        <p className="text-sm text-gray-500 mt-1">
+                            {allChildCategories.length} child{' '}
+                            {allChildCategories.length === 1 ? 'category' : 'categories'}
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => {
+                            setEditingChildCategory(null);
+                            setShowForm(true);
+                        }}
+                        className="px-4 py-2 flex items-center gap-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition"
+                    >
+                        <Plus size={18} />
+                        <span>Create</span>
+                    </button>
                 </div>
-                <button
-                    onClick={() => {
-                        setEditingChildCategory(null);
-                        setShowForm(true);
-                    }}
-                    className="px-4 py-2 flex items-center gap-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition"
-                >
-                    <Plus size={18} />
-                    <span>Create</span>
-                </button>
-            </div>
 
-            {/* Table */}
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-100">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                #
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                Name
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                Category
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                Subcategory
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {allChildCategories.length === 0 ? (
-                            <tr>
-                                <td
-                                    colSpan={5}
-                                    className="px-6 py-10 text-center text-sm text-gray-400"
-                                >
-                                    No child categories found. Create one to get started.
-                                </td>
-                            </tr>
-                        ) : (
-                            allChildCategories.map((item, index) => (
-                                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {index + 1}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                                        {item.name}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-600">
-                                        {item.category?.name ?? '—'}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-600">
-                                        {item.sub_category?.name ?? '—'}
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <button
-                                                onClick={() => handleEdit(item)}
-                                                className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                                                title="Edit"
-                                            >
-                                                <Pencil size={16} />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(item.id)}
-                                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                                title="Delete"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                {/* Table */}
+                <MyTable columns={columns} data={tableData} />
 
-            {/* Modal Form */}
-            <AddChildCategoryForm
-                showForm={showForm}
-                setShowForm={setShowForm}
-                setReloadTrigger={setReloadTrigger}
-                editingChildCategory={editingChildCategory}
-                setEditingChildCategory={setEditingChildCategory}
-                handleUpdate={handleUpdate}
-                allCategory={allCategory}
-            />
+                {/* Modal Form */}
+                <AddChildCategoryForm
+                    showForm={showForm}
+                    setShowForm={setShowForm}
+                    setReloadTrigger={setReloadTrigger}
+                    editingChildCategory={editingChildCategory}
+                    setEditingChildCategory={setEditingChildCategory}
+                    handleUpdate={handleUpdate}
+                    allCategory={allCategory}
+                />
+            </div>
         </AdminWrapper>
     );
 };

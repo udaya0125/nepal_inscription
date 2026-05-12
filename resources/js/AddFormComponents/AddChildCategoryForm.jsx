@@ -114,8 +114,37 @@
 
 
 import axios from 'axios';
-import { X, ChevronDown } from 'lucide-react';
+import { X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import Select from 'react-select';
+
+const selectStyles = (hasError) => ({
+    control: (base, state) => ({
+        ...base,
+        borderColor: hasError ? '#f87171' : state.isFocused ? '#6366f1' : '#d1d5db',
+        backgroundColor: hasError ? '#fef2f2' : 'white',
+        borderRadius: '0.5rem',
+        padding: '0.125rem 0',
+        boxShadow: state.isFocused ? '0 0 0 2px rgba(99, 102, 241, 0.2)' : 'none',
+        '&:hover': {
+            borderColor: hasError ? '#f87171' : '#9ca3af',
+        },
+    }),
+    placeholder: (base) => ({
+        ...base,
+        color: '#9ca3af',
+        fontSize: '0.875rem',
+    }),
+    option: (base, state) => ({
+        ...base,
+        backgroundColor: state.isFocused ? '#e0e7ff' : state.isSelected ? '#6366f1' : 'white',
+        color: state.isSelected ? 'white' : '#374151',
+        fontSize: '0.875rem',
+    }),
+    menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+    menu: (base) => ({ ...base, maxHeight: '220px' }),
+    menuList: (base) => ({ ...base, maxHeight: '200px', overflowY: 'auto' }),
+});
 
 const AddChildCategoryForm = ({
     showForm,
@@ -136,7 +165,6 @@ const AddChildCategoryForm = ({
         sub_category_id: '',
     });
 
-    // Populate form when editing
     useEffect(() => {
         if (editingChildCategory) {
             setChildCategoryForm({
@@ -151,23 +179,18 @@ const AddChildCategoryForm = ({
         }
     }, [editingChildCategory]);
 
-    // When category_id changes, populate subcategories from allCategory
     useEffect(() => {
         if (!childCategoryForm.category_id) {
             setAvailableSubCategories([]);
             return;
         }
-
         const selectedCategory = allCategory.find(
             (cat) => String(cat.id) === String(childCategoryForm.category_id)
         );
-
         const subs = selectedCategory?.sub_categories || [];
-        // Only show subcategories that allow child categories
         const filteredSubs = subs.filter((sub) => sub.has_child_category);
         setAvailableSubCategories(filteredSubs);
 
-        // Reset sub_category_id if it no longer belongs to new category
         const stillValid = filteredSubs.some(
             (s) => String(s.id) === String(childCategoryForm.sub_category_id)
         );
@@ -178,6 +201,13 @@ const AddChildCategoryForm = ({
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        setChildCategoryForm((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: '' }));
+    };
+
+    const handleSelectChange = (selectedOption, actionMeta) => {
+        const { name } = actionMeta;
+        const value = selectedOption ? selectedOption.value : '';
         setChildCategoryForm((prev) => ({ ...prev, [name]: value }));
         setErrors((prev) => ({ ...prev, [name]: '' }));
     };
@@ -199,18 +229,15 @@ const AddChildCategoryForm = ({
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         const validationErrors = validate();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
         }
-
         const formData = new FormData();
         Object.entries(childCategoryForm).forEach(([key, val]) => {
             if (val !== null && val !== '') formData.append(key, val);
         });
-
         try {
             setSubmitting(true);
             if (editingChildCategory) {
@@ -220,7 +247,6 @@ const AddChildCategoryForm = ({
             }
             resetAndClose();
         } catch (error) {
-            // Handle Laravel validation errors
             if (error.response?.data?.errors) {
                 const serverErrors = {};
                 Object.entries(error.response.data.errors).forEach(([key, msgs]) => {
@@ -245,9 +271,18 @@ const AddChildCategoryForm = ({
         setEditingChildCategory(null);
     };
 
-    // Only show categories that have sub_categories & allow subcategories
     const validCategories = allCategory.filter(
         (cat) => cat.has_sub_category && cat.sub_categories?.length > 0
+    );
+
+    const categoryOptions = validCategories.map((cat) => ({ value: cat.id, label: cat.name }));
+    const subCategoryOptions = availableSubCategories.map((sub) => ({ value: sub.id, label: sub.name }));
+
+    const selectedCategory = categoryOptions.find(
+        (opt) => String(opt.value) === String(childCategoryForm.category_id)
+    );
+    const selectedSubCategory = subCategoryOptions.find(
+        (opt) => String(opt.value) === String(childCategoryForm.sub_category_id)
     );
 
     if (!showForm) return null;
@@ -278,7 +313,6 @@ const AddChildCategoryForm = ({
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
-                    {/* General error */}
                     {errors.general && (
                         <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
                             {errors.general}
@@ -302,9 +336,7 @@ const AddChildCategoryForm = ({
                                     : 'border-gray-300 bg-white hover:border-gray-400'
                             }`}
                         />
-                        {errors.name && (
-                            <p className="mt-1.5 text-xs text-red-600">{errors.name}</p>
-                        )}
+                        {errors.name && <p className="mt-1.5 text-xs text-red-600">{errors.name}</p>}
                     </div>
 
                     {/* Category */}
@@ -312,29 +344,19 @@ const AddChildCategoryForm = ({
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
                             Parent Category <span className="text-red-500">*</span>
                         </label>
-                        <div className="relative">
-                            <select
-                                name="category_id"
-                                value={childCategoryForm.category_id}
-                                onChange={handleChange}
-                                className={`w-full px-4 py-2.5 pr-10 rounded-lg border text-sm appearance-none transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                                    errors.category_id
-                                        ? 'border-red-400 bg-red-50'
-                                        : 'border-gray-300 bg-white hover:border-gray-400'
-                                }`}
-                            >
-                                <option value="">— Select a category —</option>
-                                {validCategories.map((cat) => (
-                                    <option key={cat.id} value={cat.id}>
-                                        {cat.name}
-                                    </option>
-                                ))}
-                            </select>
-                            <ChevronDown
-                                size={16}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                            />
-                        </div>
+                        <Select
+                            name="category_id"
+                            options={categoryOptions}
+                            value={selectedCategory || null}
+                            onChange={handleSelectChange}
+                            placeholder="Select a category..."
+                            isClearable
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                            className="react-select-container"
+                            classNamePrefix="react-select"
+                            styles={selectStyles(!!errors.category_id)}
+                        />
                         {errors.category_id && (
                             <p className="mt-1.5 text-xs text-red-600">{errors.category_id}</p>
                         )}
@@ -345,40 +367,30 @@ const AddChildCategoryForm = ({
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
                             Parent Subcategory <span className="text-red-500">*</span>
                         </label>
-                        <div className="relative">
-                            <select
-                                name="sub_category_id"
-                                value={childCategoryForm.sub_category_id}
-                                onChange={handleChange}
-                                disabled={!childCategoryForm.category_id}
-                                className={`w-full px-4 py-2.5 pr-10 rounded-lg border text-sm appearance-none transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed ${
-                                    errors.sub_category_id
-                                        ? 'border-red-400 bg-red-50'
-                                        : 'border-gray-300 bg-white hover:border-gray-400'
-                                }`}
-                            >
-                                <option value="">
-                                    {!childCategoryForm.category_id
-                                        ? '— Select a category first —'
-                                        : availableSubCategories.length === 0
-                                        ? '— No subcategories available —'
-                                        : '— Select a subcategory —'}
-                                </option>
-                                {availableSubCategories.map((sub) => (
-                                    <option key={sub.id} value={sub.id}>
-                                        {sub.name}
-                                    </option>
-                                ))}
-                            </select>
-                            <ChevronDown
-                                size={16}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                            />
-                        </div>
+                        <Select
+                            name="sub_category_id"
+                            options={subCategoryOptions}
+                            value={selectedSubCategory || null}
+                            onChange={handleSelectChange}
+                            placeholder={
+                                !childCategoryForm.category_id
+                                    ? 'Select a category first...'
+                                    : subCategoryOptions.length === 0
+                                    ? 'No subcategories available'
+                                    : 'Select a subcategory...'
+                            }
+                            isClearable
+                            isDisabled={!childCategoryForm.category_id || subCategoryOptions.length === 0}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                            className="react-select-container"
+                            classNamePrefix="react-select"
+                            styles={selectStyles(!!errors.sub_category_id)}
+                        />
                         {errors.sub_category_id && (
                             <p className="mt-1.5 text-xs text-red-600">{errors.sub_category_id}</p>
                         )}
-                        {childCategoryForm.category_id && availableSubCategories.length === 0 && (
+                        {childCategoryForm.category_id && subCategoryOptions.length === 0 && (
                             <p className="mt-1.5 text-xs text-amber-600">
                                 This category has no subcategories that allow child categories.
                             </p>
@@ -401,25 +413,9 @@ const AddChildCategoryForm = ({
                         >
                             {submitting ? (
                                 <>
-                                    <svg
-                                        className="animate-spin h-4 w-4"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <circle
-                                            className="opacity-25"
-                                            cx="12"
-                                            cy="12"
-                                            r="10"
-                                            stroke="currentColor"
-                                            strokeWidth="4"
-                                        />
-                                        <path
-                                            className="opacity-75"
-                                            fill="currentColor"
-                                            d="M4 12a8 8 0 018-8v8H4z"
-                                        />
+                                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                                     </svg>
                                     {editingChildCategory ? 'Updating...' : 'Creating...'}
                                 </>
