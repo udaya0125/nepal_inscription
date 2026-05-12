@@ -9,6 +9,23 @@ const AddCategoryForm = ({ showForm, setShowForm, setReloadTrigger }) => {
         has_sub_category: false,
     });
 
+     // Lock body scroll when modal is open
+    useEffect(() => {
+        if (showForm) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.paddingRight = '15px'; // Prevent layout shift
+        } else {
+            document.body.style.overflow = 'unset';
+            document.body.style.paddingRight = '0px';
+        }
+
+        // Cleanup function
+        return () => {
+            document.body.style.overflow = 'unset';
+            document.body.style.paddingRight = '0px';
+        };
+    }, [showForm]);
+
     // Create new category
     const handleCreate = async (payload) => {
         await axios.post(route("ourcategories.store"), payload);
