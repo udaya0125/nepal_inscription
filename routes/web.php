@@ -173,6 +173,11 @@ Route::middleware('auth')->group(function () {
     });
 
 
+     Route::get('/child-categories', function () {
+        return Inertia::render('AdminPages/ChildCategory');
+    });
+
+
     Route::get('/palaeographical-database', function () {
         return Inertia::render('AdminPages/PalaeographicalDatabase');
     });

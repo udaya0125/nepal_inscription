@@ -1,10 +1,12 @@
 import AddChildCategory from '@/AddFormComponents/AddChildCategoryForm';
 import AdminWrapper from '@/AdminWrapper/AdminWrapper';
 import axios from 'axios';
-import React, { useEffect } from 'react'
+import { Plus } from 'lucide-react';
+import React, { useEffect, useState } from 'react'
 
 const ChildCategory = () => {
     const [allChildCategories, setAllChildCategories] = useState([]);
+    const [allCategory, setAllCategory] = useState([]);
     const [reloadTrigger, setReloadTrigger] = useState(false);
     const [editingChildCategory, setEditingChildCategory] = useState(null);
     const [showForm, setShowForm] = useState(false);
@@ -21,7 +23,24 @@ const ChildCategory = () => {
         };
 
         fetchChildCategory();
+
+         const fetchCategory = async () => {
+            try {
+                const response = await axios.get(
+                    route("categorywithsubcategory.indexWithSubCategory"),
+                );
+                console.log("RAW CATEGORY DATA:", response.data);
+                setAllCategory(response.data.data || []);
+            } catch (error) {
+                console.error("Error fetching category:", error);
+                setAllCategory([]);
+            }
+        };
+        fetchCategory();
     }, [reloadTrigger]);
+
+    console.log("All Child Categories:", allChildCategories);
+    console.log("All Categories with Subcategories:", allCategory);
 
     // For delete the child category
     const handleDelete = async (id) => {
