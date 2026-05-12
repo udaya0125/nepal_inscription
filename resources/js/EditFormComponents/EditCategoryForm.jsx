@@ -1,13 +1,13 @@
 // import React, { useState, useEffect } from "react";
 // import { X } from "lucide-react";
 
-// const EditCategoryForm = ({ 
-//     showForm, 
-//     setShowForm, 
-//     handleUpdate, 
-//     editingCategory, 
+// const EditCategoryForm = ({
+//     showForm,
+//     setShowForm,
+//     handleUpdate,
+//     editingCategory,
 //     setEditingCategory,
-//     setReloadTrigger 
+//     setReloadTrigger
 // }) => {
 //     const [submitting, setSubmitting] = useState(false);
 //     const [categoryForm, setCategoryForm] = useState({
@@ -54,7 +54,7 @@
 //         try {
 //             setSubmitting(true);
 //             await handleUpdate(payload, editingCategory.id);
-            
+
 //             // Reset and close
 //             setCategoryForm({ name: "", has_sub_category: false });
 //             setEditingCategory(null);
@@ -163,13 +163,13 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-const EditCategoryForm = ({ 
-    showForm, 
-    setShowForm, 
-    handleUpdate, 
-    editingCategory, 
+const EditCategoryForm = ({
+    showForm,
+    setShowForm,
+    handleUpdate,
+    editingCategory,
     setEditingCategory,
-    setReloadTrigger 
+    setReloadTrigger,
 }) => {
     const [submitting, setSubmitting] = useState(false);
     const [categoryForm, setCategoryForm] = useState({
@@ -190,17 +190,17 @@ const EditCategoryForm = ({
     // Lock body scroll when modal is open
     useEffect(() => {
         if (showForm) {
-            document.body.style.overflow = 'hidden';
-            document.body.style.paddingRight = '15px'; // Prevent layout shift
+            document.body.style.overflow = "hidden";
+            document.body.style.paddingRight = "15px"; // Prevent layout shift
         } else {
-            document.body.style.overflow = 'unset';
-            document.body.style.paddingRight = '0px';
+            document.body.style.overflow = "unset";
+            document.body.style.paddingRight = "0px";
         }
 
         // Cleanup function
         return () => {
-            document.body.style.overflow = 'unset';
-            document.body.style.paddingRight = '0px';
+            document.body.style.overflow = "unset";
+            document.body.style.paddingRight = "0px";
         };
     }, [showForm]);
 
@@ -216,7 +216,7 @@ const EditCategoryForm = ({
         try {
             setSubmitting(true);
             await handleUpdate(payload, editingCategory.id);
-            
+
             // Reset and close
             setCategoryForm({ name: "", has_sub_category: false });
             setEditingCategory(null);
@@ -273,7 +273,8 @@ const EditCategoryForm = ({
                     {/* Name */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Category Name <span className="text-red-500">*</span>
+                            Category Name{" "}
+                            <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
@@ -297,7 +298,8 @@ const EditCategoryForm = ({
                                     Allow sub categories
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                    Enable if this category can have subcategories
+                                    Enable if this category can have
+                                    subcategories
                                 </p>
                             </div>
                             <label className="relative inline-flex items-center cursor-pointer ml-4 flex-shrink-0">
