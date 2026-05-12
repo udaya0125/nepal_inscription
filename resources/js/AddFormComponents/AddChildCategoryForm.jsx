@@ -1,6 +1,6 @@
 import React from 'react'
 
-const AddChildCategory = ({ showForm, setShowForm, editingChildCategory, setEditingChildCategory, setReloadTrigger,handleUpdate }) => {
+const AddChildCategoryForm = ({ showForm, setShowForm, editingChildCategory, setEditingChildCategory, setReloadTrigger,handleUpdate }) => {
     const [submitting, setSubmitting] = useState(false);
     const [childCategoryForm, setChildCategoryForm] = useState({
         name: "",
@@ -109,4 +109,4 @@ const AddChildCategory = ({ showForm, setShowForm, editingChildCategory, setEdit
   )
 }
 
-export default AddChildCategory
+export default AddChildCategoryForm

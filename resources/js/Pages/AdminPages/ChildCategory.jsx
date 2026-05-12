@@ -1,4 +1,4 @@
-import AddChildCategory from '@/AddFormComponents/AddChildCategory';
+import AddChildCategory from '@/AddFormComponents/AddChildCategoryForm';
 import AdminWrapper from '@/AdminWrapper/AdminWrapper';
 import axios from 'axios';
 import React, { useEffect } from 'react'
