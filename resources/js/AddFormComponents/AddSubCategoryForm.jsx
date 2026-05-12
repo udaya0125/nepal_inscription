@@ -318,7 +318,7 @@
 // export default AddSubCategoryForm;
 
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import Select from "react-select";
 
@@ -335,6 +335,23 @@ const AddSubCategoryForm = ({
         has_child_category: false,
     });
     const [selectedCategory, setSelectedCategory] = useState(null);
+
+     // Lock body scroll when modal is open
+        useEffect(() => {
+            if (showForm) {
+                document.body.style.overflow = 'hidden';
+                document.body.style.paddingRight = '15px'; // Prevent layout shift
+            } else {
+                document.body.style.overflow = 'unset';
+                document.body.style.paddingRight = '0px';
+            }
+    
+            // Cleanup function
+            return () => {
+                document.body.style.overflow = 'unset';
+                document.body.style.paddingRight = '0px';
+            };
+        }, [showForm]);
 
     const handleCreate = async (formData) => {
         try {
