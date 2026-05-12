@@ -30,6 +30,7 @@ class SubCategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
+            'has_child_category' =>  'required|boolean',
         ]);
 
         // ✅ Check if category allows subcategories
@@ -68,6 +69,7 @@ class SubCategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
+            'has_child_category' => 'required|boolean',
         ]);
 
         // ✅ Check if category allows subcategories

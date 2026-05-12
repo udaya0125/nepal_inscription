@@ -9,7 +9,7 @@ class SubCategory extends Model
 {
     //
     protected $fillable = [
-        'name', 'category_id',
+        'name', 'category_id','has_child_category'
     ];
 
     public function category(): BelongsTo
