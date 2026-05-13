@@ -32,7 +32,6 @@
 //         setReloadTrigger((prev) => !prev);
 //     };
 
-
 //     // Handle form submit
 //     const handleSubmit = async (e) => {
 //         e.preventDefault();
@@ -45,7 +44,7 @@
 //         try {
 //             setSubmitting(true);
 //             await handleCreate(payload);
-            
+
 //             // Reset and close
 //             setCategoryForm({ name: "", has_sub_category: false });
 //             setShowForm(false);
@@ -162,17 +161,17 @@ const AddCategoryForm = ({ showForm, setShowForm, setReloadTrigger }) => {
     // Lock body scroll when modal is open
     useEffect(() => {
         if (showForm) {
-            document.body.style.overflow = 'hidden';
-            document.body.style.paddingRight = '15px'; // Prevent layout shift
+            document.body.style.overflow = "hidden";
+            document.body.style.paddingRight = "15px"; // Prevent layout shift
         } else {
-            document.body.style.overflow = 'unset';
-            document.body.style.paddingRight = '0px';
+            document.body.style.overflow = "unset";
+            document.body.style.paddingRight = "0px";
         }
 
         // Cleanup function
         return () => {
-            document.body.style.overflow = 'unset';
-            document.body.style.paddingRight = '0px';
+            document.body.style.overflow = "unset";
+            document.body.style.paddingRight = "0px";
         };
     }, [showForm]);
 
@@ -194,7 +193,7 @@ const AddCategoryForm = ({ showForm, setShowForm, setReloadTrigger }) => {
         try {
             setSubmitting(true);
             await handleCreate(payload);
-            
+
             // Reset and close
             setCategoryForm({ name: "", has_sub_category: false });
             setShowForm(false);
@@ -248,7 +247,8 @@ const AddCategoryForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                     {/* Name */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Category Name <span className="text-red-500">*</span>
+                            Category Name{" "}
+                            <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
@@ -272,7 +272,8 @@ const AddCategoryForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                     Allow sub categories
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                    Enable if this category can have subcategories
+                                    Enable if this category can have
+                                    subcategories
                                 </p>
                             </div>
                             <label className="relative inline-flex items-center cursor-pointer ml-4 flex-shrink-0">
@@ -312,8 +313,6 @@ const AddCategoryForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 };
 
 export default AddCategoryForm;
-
-
 
 // import React, { useState, useEffect } from "react";
 // import axios from "axios";
