@@ -370,6 +370,8 @@ import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import Select from "react-select";
 
+const toBoolean = (value) => value === true || value === 1 || value === "1";
+
 const EditSubCategoryForm = ({
     showForm,
     setShowForm,
@@ -391,7 +393,9 @@ const EditSubCategoryForm = ({
             setSubCategoryForm({
                 category_id: editingSubCategory.category_id || "",
                 name: editingSubCategory.name || "",
-                has_child_category: !!editingSubCategory.has_child_category,
+                has_child_category: toBoolean(
+                    editingSubCategory.has_child_category,
+                ),
             });
 
             const category = allCategory.find(

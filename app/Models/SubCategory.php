@@ -7,9 +7,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SubCategory extends Model
 {
-    //
     protected $fillable = [
-        'name', 'category_id','has_child_category'
+        'name',
+        'category_id',
+        'has_child_category',
+    ];
+
+    protected $casts = [
+        'has_child_category' => 'boolean',
     ];
 
     public function category(): BelongsTo
