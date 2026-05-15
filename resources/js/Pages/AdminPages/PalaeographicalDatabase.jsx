@@ -553,6 +553,10 @@ const PalaeographicalDatabase = () => {
 };
 
 export default PalaeographicalDatabase;
+
+
+
+
 // import AddPalaeographicalForm from "@/AddFormComponents/AddPalaeographicalForm";
 // import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 // import EditPalaeographicalForm from "@/EditFormComponents/EditPalaeographicalForm";
