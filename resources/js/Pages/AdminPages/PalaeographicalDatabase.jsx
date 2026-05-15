@@ -296,12 +296,13 @@
 
 // export default PalaeographicalDatabase;
 
+
 import AddPalaeographicalForm from "@/AddFormComponents/AddPalaeographicalForm";
 import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 import EditPalaeographicalForm from "@/EditFormComponents/EditPalaeographicalForm";
 import MyTable from "@/MyTable/MyTable";
 import axios from "axios";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
 
 const PalaeographicalDatabase = () => {
@@ -312,15 +313,13 @@ const PalaeographicalDatabase = () => {
     const [editingPalaeographical, setEditingPalaeographical] = useState(null);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
     const imgurl = import.meta.env.VITE_IMAGE_PATH;
-
 
     useEffect(() => {
         const fetchPalaeographical = async () => {
             try {
-                const response = await axios.get(
-                    route("ourpalaeographical.index"),
-                );
+                const response = await axios.get(route("ourpalaeographical.index"));
                 setAllPalaeographical(response.data.data || []);
             } catch (error) {
                 console.error("fetching error ", error);
@@ -332,7 +331,6 @@ const PalaeographicalDatabase = () => {
                 const response = await axios.get(
                     route("categorywithsubcategory.indexWithSubCategory"),
                 );
-                console.log("RAW CATEGORY DATA:", response.data);
                 setAllCategory(response.data.data || []);
             } catch (error) {
                 console.error("Error fetching category:", error);
@@ -342,10 +340,10 @@ const PalaeographicalDatabase = () => {
 
         const fetchChildCategory = async () => {
             try {
-                const response = await axios.get(route('ourchildcategories.index'));
+                const response = await axios.get(route("ourchildcategories.index"));
                 setAllChildCategories(response.data.data || []);
             } catch (error) {
-                console.error('Fetching child categories failed:', error);
+                console.error("Fetching child categories failed:", error);
             }
         };
 
@@ -354,16 +352,31 @@ const PalaeographicalDatabase = () => {
         fetchCategory();
     }, [reloadTrigger]);
 
-    console.log("All Palaeographical Records:", allPalaeographical);
-    console.log("All Categories:", allCategory);
-    console.log("All Child Categories:", allChildCategories);
+    // Filter records based on search query
+    const filteredPalaeographical = useMemo(() => {
+        if (!searchQuery.trim()) return allPalaeographical;
+        const query = searchQuery.toLowerCase();
+        return allPalaeographical.filter((item) =>
+            item.image_name?.toLowerCase().includes(query) ||
+            item.category?.name?.toLowerCase().includes(query) ||
+            item.sub_category?.name?.toLowerCase().includes(query) ||
+            item.child_category?.name?.toLowerCase().includes(query) ||
+            item.period?.toLowerCase().includes(query) ||
+            item.script?.toLowerCase().includes(query)
+        );
+    }, [allPalaeographical, searchQuery]);
 
     const handleDelete = async (id) => {
+        const record = allPalaeographical.find((p) => p.id === id);
+        const isConfirmed = window.confirm(
+            `Are you sure you want to delete "${record?.image_name}"? This action cannot be undone.`
+        );
+        if (!isConfirmed) return;
         try {
             await axios.delete(route("ourpalaeographical.destroy", { id }));
             setReloadTrigger((prev) => !prev);
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
 
@@ -372,7 +385,6 @@ const PalaeographicalDatabase = () => {
         setShowEditForm(true);
     };
 
-    // Define columns for the table
     const columns = useMemo(
         () => [
             {
@@ -419,7 +431,7 @@ const PalaeographicalDatabase = () => {
                     <span>{row.original.sub_category?.name || "N/A"}</span>
                 ),
             },
-             {
+            {
                 Header: "Child Category",
                 accessor: "child_category",
                 Cell: ({ row }) => (
@@ -465,14 +477,13 @@ const PalaeographicalDatabase = () => {
     return (
         <AdminWrapper>
             <div className="">
-                <div className="mb-8 flex justify-between items-center">
+                {/* Header */}
+                <div className="mb-6 flex justify-between items-center">
                     <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">
                         Palaeographical Management
                     </h1>
                     <button
-                        onClick={() => {
-                            setShowAddForm(true);
-                        }}
+                        onClick={() => setShowAddForm(true)}
                         className="px-4 py-2 flex items-center gap-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition"
                     >
                         <Plus size={18} />
@@ -480,8 +491,39 @@ const PalaeographicalDatabase = () => {
                     </button>
                 </div>
 
-                {/* MyTable Component */}
-                <MyTable columns={columns} data={allPalaeographical} />
+                {/* Search Bar */}
+                <div className="mb-4 relative max-w-sm">
+                    <Search
+                        size={16}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                    />
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search by name, category, period, script..."
+                        className="w-full pl-9 pr-9 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition"
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery("")}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                        >
+                            <X size={14} />
+                        </button>
+                    )}
+                </div>
+
+                {/* Result count hint */}
+                {searchQuery && (
+                    <p className="text-xs text-gray-500 mb-3">
+                        {filteredPalaeographical.length} result
+                        {filteredPalaeographical.length !== 1 ? "s" : ""} for "{searchQuery}"
+                    </p>
+                )}
+
+                {/* Table */}
+                <MyTable columns={columns} data={filteredPalaeographical} />
 
                 {/* Add Form */}
                 {showAddForm && (
@@ -511,3 +553,226 @@ const PalaeographicalDatabase = () => {
 };
 
 export default PalaeographicalDatabase;
+// import AddPalaeographicalForm from "@/AddFormComponents/AddPalaeographicalForm";
+// import AdminWrapper from "@/AdminWrapper/AdminWrapper";
+// import EditPalaeographicalForm from "@/EditFormComponents/EditPalaeographicalForm";
+// import MyTable from "@/MyTable/MyTable";
+// import axios from "axios";
+// import { Pencil, Plus, Trash2 } from "lucide-react";
+// import React, { useEffect, useState, useMemo } from "react";
+
+// const PalaeographicalDatabase = () => {
+//     const [allPalaeographical, setAllPalaeographical] = useState([]);
+//     const [allCategory, setAllCategory] = useState([]);
+//     const [allChildCategories, setAllChildCategories] = useState([]);
+//     const [reloadTrigger, setReloadTrigger] = useState(false);
+//     const [editingPalaeographical, setEditingPalaeographical] = useState(null);
+//     const [showAddForm, setShowAddForm] = useState(false);
+//     const [showEditForm, setShowEditForm] = useState(false);
+//     const imgurl = import.meta.env.VITE_IMAGE_PATH;
+
+
+//     useEffect(() => {
+//         const fetchPalaeographical = async () => {
+//             try {
+//                 const response = await axios.get(
+//                     route("ourpalaeographical.index"),
+//                 );
+//                 setAllPalaeographical(response.data.data || []);
+//             } catch (error) {
+//                 console.error("fetching error ", error);
+//             }
+//         };
+
+//         const fetchCategory = async () => {
+//             try {
+//                 const response = await axios.get(
+//                     route("categorywithsubcategory.indexWithSubCategory"),
+//                 );
+//                 console.log("RAW CATEGORY DATA:", response.data);
+//                 setAllCategory(response.data.data || []);
+//             } catch (error) {
+//                 console.error("Error fetching category:", error);
+//                 setAllCategory([]);
+//             }
+//         };
+
+//         const fetchChildCategory = async () => {
+//             try {
+//                 const response = await axios.get(route('ourchildcategories.index'));
+//                 setAllChildCategories(response.data.data || []);
+//             } catch (error) {
+//                 console.error('Fetching child categories failed:', error);
+//             }
+//         };
+
+//         fetchChildCategory();
+//         fetchPalaeographical();
+//         fetchCategory();
+//     }, [reloadTrigger]);
+
+//     console.log("All Palaeographical Records:", allPalaeographical);
+//     console.log("All Categories:", allCategory);
+//     console.log("All Child Categories:", allChildCategories);
+
+//     const handleDelete = async (id, image_name) => {
+
+//         const isConfirmed = window.confirm(
+//             `Are you sure you want to delete "${allPalaeographical.find((p) => p.id === id)?.image_name}"? This action cannot be undone.`
+//         );
+        
+//         if (!isConfirmed) {
+//             return;
+//         }
+//         try {
+//             await axios.delete(route("ourpalaeographical.destroy", { id }));
+//             setReloadTrigger((prev) => !prev);
+//         } catch (error) {
+//             console.log(error);
+//         }
+//     };
+
+//     const handleEdit = (palaeographical) => {
+//         setEditingPalaeographical(palaeographical);
+//         setShowEditForm(true);
+//     };
+
+//     // Define columns for the table
+//     const columns = useMemo(
+//         () => [
+//             {
+//                 Header: "S.N.",
+//                 accessor: "serialNumber",
+//                 Cell: ({ row }) => <span>{row.index + 1}</span>,
+//                 width: 60,
+//             },
+//             {
+//                 Header: "Image",
+//                 accessor: "image",
+//                 Cell: ({ row }) => (
+//                     <div className="flex items-center">
+//                         {row.original.image ? (
+//                             <img
+//                                 src={`${imgurl}/${row.original.image}`}
+//                                 alt={row.original.image_name || "img"}
+//                                 className="w-12 h-12 object-cover rounded"
+//                             />
+//                         ) : (
+//                             <span className="text-gray-400">No image</span>
+//                         )}
+//                     </div>
+//                 ),
+//             },
+//             {
+//                 Header: "Image Name",
+//                 accessor: "image_name",
+//                 Cell: ({ row }) => (
+//                     <span>{row.original.image_name || "N/A"}</span>
+//                 ),
+//             },
+//             {
+//                 Header: "Category",
+//                 accessor: "category",
+//                 Cell: ({ row }) => (
+//                     <span>{row.original.category?.name || "N/A"}</span>
+//                 ),
+//             },
+//             {
+//                 Header: "Sub Category",
+//                 accessor: "sub_category",
+//                 Cell: ({ row }) => (
+//                     <span>{row.original.sub_category?.name || "N/A"}</span>
+//                 ),
+//             },
+//              {
+//                 Header: "Child Category",
+//                 accessor: "child_category",
+//                 Cell: ({ row }) => (
+//                     <span>{row.original.child_category?.name || "N/A"}</span>
+//                 ),
+//             },
+//             {
+//                 Header: "Period",
+//                 accessor: "period",
+//                 Cell: ({ row }) => <span>{row.original.period || "N/A"}</span>,
+//             },
+//             {
+//                 Header: "Script",
+//                 accessor: "script",
+//                 Cell: ({ row }) => <span>{row.original.script || "N/A"}</span>,
+//             },
+//             {
+//                 Header: "Actions",
+//                 accessor: "actions",
+//                 Cell: ({ row }) => (
+//                     <div className="flex gap-2">
+//                         <button
+//                             onClick={() => handleEdit(row.original)}
+//                             className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+//                             title="Edit"
+//                         >
+//                             <Pencil size={16} />
+//                         </button>
+//                         <button
+//                             onClick={() => handleDelete(row.original.id)}
+//                             className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+//                             title="Delete"
+//                         >
+//                             <Trash2 size={16} />
+//                         </button>
+//                     </div>
+//                 ),
+//             },
+//         ],
+//         [],
+//     );
+
+//     return (
+//         <AdminWrapper>
+//             <div className="">
+//                 <div className="mb-8 flex justify-between items-center">
+//                     <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">
+//                         Palaeographical Management
+//                     </h1>
+//                     <button
+//                         onClick={() => {
+//                             setShowAddForm(true);
+//                         }}
+//                         className="px-4 py-2 flex items-center gap-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition"
+//                     >
+//                         <Plus size={18} />
+//                         <span>Create</span>
+//                     </button>
+//                 </div>
+
+//                 {/* MyTable Component */}
+//                 <MyTable columns={columns} data={allPalaeographical} />
+
+//                 {/* Add Form */}
+//                 {showAddForm && (
+//                     <AddPalaeographicalForm
+//                         showForm={showAddForm}
+//                         setShowForm={setShowAddForm}
+//                         setReloadTrigger={setReloadTrigger}
+//                         allCategory={allCategory}
+//                         allChildCategories={allChildCategories}
+//                     />
+//                 )}
+
+//                 {/* Edit Form */}
+//                 {showEditForm && (
+//                     <EditPalaeographicalForm
+//                         editingPalaeographical={editingPalaeographical}
+//                         setShowForm={setShowEditForm}
+//                         setReloadTrigger={setReloadTrigger}
+//                         setEditingPalaeographical={setEditingPalaeographical}
+//                         allCategory={allCategory}
+//                         allChildCategories={allChildCategories}
+//                     />
+//                 )}
+//             </div>
+//         </AdminWrapper>
+//     );
+// };
+
+// export default PalaeographicalDatabase;
