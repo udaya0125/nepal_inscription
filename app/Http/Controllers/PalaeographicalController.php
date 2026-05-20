@@ -14,15 +14,30 @@ class PalaeographicalController extends Controller
     /**
      * Display a listing
      */
-    public function index()
-    {
-        $data = Palaeographical::with(['category', 'subCategory', 'childCategory'])->latest()->get();
+    // public function index()
+    // {
+    //     $data = Palaeographical::with(['category', 'subCategory', 'childCategory'])->latest()->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $data
-        ]);
-    }
+    //     return response()->json([
+    //         'success' => true,
+    //         'data' => $data
+    //     ]);
+    // }
+
+    public function index()
+{
+    $data = Palaeographical::with(['category', 'subCategory', 'childCategory'])
+        ->orderBy('category_id')
+        ->orderBy('sub_category_id')
+        ->orderBy('child_category_id')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return response()->json([
+        'success' => true,
+        'data' => $data
+    ]);
+}
 
     /**
      * Store new record
@@ -41,6 +56,7 @@ class PalaeographicalController extends Controller
             'varna'          => 'nullable|string',
             'symbols'        => 'nullable|string',
             'citra'          => 'nullable|string',
+            'order'          => 'nullable|integer',
         ]);
 
         // Validate category allows subcategory
@@ -105,6 +121,7 @@ class PalaeographicalController extends Controller
             'varna'          => $request->varna,
             'symbols'        => $request->symbols,
             'citra'          => $request->citra,
+            'order'          => $request->order,
         ]);
 
         // 📝 Log activity
@@ -139,6 +156,7 @@ class PalaeographicalController extends Controller
             'varna'          => 'nullable|string',
             'symbols'        => 'nullable|string',
             'citra'          => 'nullable|string',
+            'order'          => 'nullable|integer',
         ]);
 
         // Validate category logic
@@ -202,6 +220,7 @@ class PalaeographicalController extends Controller
             'varna'          => $request->varna,
             'symbols'        => $request->symbols,
             'citra'          => $request->citra,
+            'order'          => $request->order,
         ]);
 
         // 📝 Log activity

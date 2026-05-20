@@ -579,6 +579,7 @@ const EditPalaeographicalForm = ({
         image: null,
         image_name: "",
         url: "",
+        order: "",
         period: "",
         script: "",
         varna: "",
@@ -644,6 +645,7 @@ const EditPalaeographicalForm = ({
                 image: null,
                 image_name: editingPalaeographical.image_name || "",
                 url: editingPalaeographical.url || "",
+                order: editingPalaeographical.order || "",
                 period: editingPalaeographical.period || "",
                 script: editingPalaeographical.script || "",
                 varna: editingPalaeographical.varna || "",
@@ -1016,6 +1018,18 @@ const EditPalaeographicalForm = ({
                                     className={inputClass}
                                 />
                             </div>
+                        </div>
+
+                        <div>
+                            <label className={labelClass}>Order</label>
+                            <input
+                                type="text"
+                                name="order"
+                                value={palaeographicalForm.order}
+                                onChange={handleChange}
+                                placeholder="Enter order"
+                                className={inputClass}
+                            />
                         </div>
 
                         {/* Period + Script */}

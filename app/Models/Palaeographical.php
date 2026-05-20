@@ -8,7 +8,7 @@ class Palaeographical extends Model
 {
     //
     protected $fillable = [
-        'category_id', 'sub_category_id','child_category_id', 'image', 'image_name', 'url','period','script','varna','symbols','citra'
+        'category_id', 'sub_category_id','child_category_id', 'image', 'image_name', 'url','period','script','varna','symbols','citra','order'
     ];
 
         // Relationship to Category

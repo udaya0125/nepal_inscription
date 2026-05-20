@@ -1231,6 +1231,7 @@ const AddPalaeographicalForm = ({
         image: null,
         image_name: "",
         url: "",
+        order: "",
         period: "",
         script: "",
         varna: "",
@@ -1633,6 +1634,18 @@ const AddPalaeographicalForm = ({
                                     className={inputClass}
                                 />
                             </div>
+                        </div>
+
+                        <div>
+                            <label className={labelClass}>Order</label>
+                            <input
+                                type="text"
+                                name="order"
+                                value={palaeographicalForm.order}
+                                onChange={handleChange}
+                                placeholder="Enter order"
+                                className={inputClass}
+                            />
                         </div>
 
                         {/* Period + Script */}
