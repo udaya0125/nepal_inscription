@@ -215,6 +215,7 @@
 
 import AddMallalekhaForm from "@/AddFormComponents/AddMallalekhaForm";
 import AdminWrapper from "@/AdminWrapper/AdminWrapper";
+import EditMallalekhaForm from "@/EditFormComponents/EditMallalekhaForm";
 import MyTable from "@/MyTable/MyTable";
 import axios from "axios";
 import { Edit2, Plus, Trash2 } from "lucide-react";
