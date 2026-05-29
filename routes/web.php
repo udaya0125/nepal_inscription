@@ -13,6 +13,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\PalaeographicalController;
 use App\Http\Controllers\ChildCategoryController;
+use App\Http\Controllers\MallalekhaController;
 
 // Route::get('/', function () {
 //     return Inertia::render('Welcome', [
@@ -192,5 +193,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/ourpalaeographical', [PalaeographicalController ::class, 'store'])->name('ourpalaeographical.store');
     Route::put('/ourpalaeographical/{id}', [PalaeographicalController ::class, 'update'])->name('ourpalaeographical.update');
     Route::delete('/ourpalaeographical/{id}', [PalaeographicalController ::class, 'destroy'])->name('ourpalaeographical.destroy');
+
+
+    Route::get('/mallalekha', function () {
+        return Inertia::render('AdminPages/Mallalekha');
+    });
+
+    Route::get('/ourmallalekha', [MallalekhaController ::class, 'index'])->name('ourmallalekha.index');
+    Route::post('/ourmallalekha', [MallalekhaController ::class, 'store'])->name('ourmallalekha.store');
+    Route::put('/ourmallalekha/{id}', [MallalekhaController ::class, 'update'])->name('ourmallalekha.update');
+    Route::delete('/ourmallalekha/{id}', [MallalekhaController ::class, 'destroy'])->name('ourmallalekha.destroy');
 
 require __DIR__.'/auth.php';
