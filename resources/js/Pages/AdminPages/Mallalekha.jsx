@@ -1,7 +1,3 @@
-
-
-
-
 // import AddMallalekhaForm from "@/AddFormComponents/AddMallalekhaForm";
 // import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 // import MyTable from "@/MyTable/MyTable";
