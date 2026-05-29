@@ -214,7 +214,6 @@
 // export default Mallalekha;
 
 import AddMallalekhaForm from "@/AddFormComponents/AddMallalekhaForm";
-import EditMallalekhaForm from "@/AddFormComponents/EditMallalekhaForm";
 import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 import MyTable from "@/MyTable/MyTable";
 import axios from "axios";
