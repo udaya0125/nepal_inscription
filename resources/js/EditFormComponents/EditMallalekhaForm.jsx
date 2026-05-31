@@ -53,6 +53,7 @@ const EditMallalekhaForm = ({
     const [bannerPreview, setBannerPreview] = useState(null);
     const [galleryPreviews, setGalleryPreviews] = useState([]);
     const [selectedStatus, setSelectedStatus] = useState(null);
+     const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     const bannerInputRef = useRef(null);
     const galleryInputRef = useRef(null);
@@ -97,7 +98,7 @@ const EditMallalekhaForm = ({
 
             setBannerPreview(
                 editingMallalekha.banner_image
-                    ? `/storage/${editingMallalekha.banner_image}`
+                    ? `${imgurl}/${editingMallalekha.banner_image}`
                     : null
             );
 
@@ -105,7 +106,7 @@ const EditMallalekhaForm = ({
                 editingMallalekha.images?.length > 0
                     ? editingMallalekha.images.map((img) => ({
                           id: img.id,
-                          src: `/storage/${img.image_path}`,
+                          src: `${imgurl}/${img.image_path}`,
                           isExisting: true,
                           imageId: img.id,
                           file: null,
