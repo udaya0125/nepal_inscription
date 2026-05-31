@@ -2,6 +2,7 @@ import axios from "axios";
 import { ImagePlus, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import ReactQuill from "react-quill";
+import Select from "react-select";
 import "react-quill/dist/quill.snow.css";
 
 const quillModules = {
@@ -35,6 +36,12 @@ const quillModulesMinimal = {
 
 const quillFormatsMinimal = ["bold", "italic", "underline", "link"];
 
+// Status options for React Select
+const statusOptions = [
+    { value: "published", label: "Published" },
+    { value: "draft", label: "Draft" },
+];
+
 const EditMallalekhaForm = ({
     showForm,
     setShowForm,
@@ -45,6 +52,7 @@ const EditMallalekhaForm = ({
     const [submitting, setSubmitting] = useState(false);
     const [bannerPreview, setBannerPreview] = useState(null);
     const [galleryPreviews, setGalleryPreviews] = useState([]);
+    const [selectedStatus, setSelectedStatus] = useState(null);
 
     const bannerInputRef = useRef(null);
     const galleryInputRef = useRef(null);
@@ -80,6 +88,12 @@ const EditMallalekhaForm = ({
                 images: [],
                 banner_image: null,
             });
+
+            // Set selected status for React Select
+            const statusOption = statusOptions.find(
+                (opt) => opt.value === (editingMallalekha.status || "draft")
+            );
+            setSelectedStatus(statusOption);
 
             setBannerPreview(
                 editingMallalekha.banner_image
@@ -162,6 +176,7 @@ const EditMallalekhaForm = ({
             images: [],
             banner_image: null,
         });
+        setSelectedStatus(statusOptions.find(opt => opt.value === "draft"));
         setBannerPreview(null);
         setGalleryPreviews([]);
         if (bannerInputRef.current) bannerInputRef.current.value = "";
@@ -196,6 +211,14 @@ const EditMallalekhaForm = ({
         } else {
             setMallalekhaForm((prev) => ({ ...prev, [name]: value }));
         }
+    };
+
+    const handleStatusChange = (selectedOption) => {
+        setSelectedStatus(selectedOption);
+        setMallalekhaForm((prev) => ({ 
+            ...prev, 
+            status: selectedOption ? selectedOption.value : "draft" 
+        }));
     };
 
     const handleQuillChange = (name) => (value) => {
@@ -245,6 +268,32 @@ const EditMallalekhaForm = ({
         "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500";
     const labelClass = "block text-sm font-medium text-gray-700 mb-1";
 
+    // Custom styles for React Select to match the form styling
+    const selectStyles = {
+        control: (base, state) => ({
+            ...base,
+            borderColor: state.isFocused ? "#6366f1" : "#d1d5db",
+            borderRadius: "0.5rem",
+            boxShadow: state.isFocused ? "0 0 0 1px #6366f1" : "none",
+            "&:hover": {
+                borderColor: state.isFocused ? "#6366f1" : "#9ca3af",
+            },
+            minHeight: "42px",
+        }),
+        option: (base, { isFocused, isSelected }) => ({
+            ...base,
+            backgroundColor: isSelected 
+                ? "#6366f1" 
+                : isFocused 
+                ? "#e0e7ff" 
+                : "white",
+            color: isSelected ? "white" : "#374151",
+            "&:active": {
+                backgroundColor: "#6366f1",
+            },
+        }),
+    };
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl max-w-2xl w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
@@ -268,21 +317,34 @@ const EditMallalekhaForm = ({
                         </div>
                     </div>
 
-                    {/* Status */}
-                    <div>
+                    {/* Status - Half width */}
+                    <div className="w-1/2">
                         <label className={labelClass}>Status <span className="text-red-500">*</span></label>
-                        <select name="status" value={mallalekhaForm.status} onChange={handleChange} required className={inputClass}>
-                            <option value="">Select Status</option>
-                            <option value="published">Published</option>
-                            <option value="draft">Draft</option>
-                        </select>
+                        <Select
+                            options={statusOptions}
+                            value={selectedStatus}
+                            onChange={handleStatusChange}
+                            styles={selectStyles}
+                            placeholder="Select status..."
+                            isClearable={false}
+                            className="react-select-container"
+                            classNamePrefix="react-select"
+                        />
                     </div>
 
                     {/* Short Description */}
                     <div>
                         <label className={labelClass}>Short Description</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.short_description} onChange={handleQuillChange("short_description")} modules={quillModulesMinimal} formats={quillFormatsMinimal} placeholder="Enter short description" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.short_description} 
+                                onChange={handleQuillChange("short_description")} 
+                                modules={quillModulesMinimal} 
+                                formats={quillFormatsMinimal} 
+                                placeholder="Enter short description"
+                                style={{ height: "auto" }}
+                            />
                         </div>
                     </div>
 
@@ -343,7 +405,14 @@ const EditMallalekhaForm = ({
                     <div>
                         <label className={labelClass}>Description</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.description} onChange={handleQuillChange("description")} modules={quillModules} formats={quillFormats} placeholder="Enter description" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.description} 
+                                onChange={handleQuillChange("description")} 
+                                modules={quillModules} 
+                                formats={quillFormats} 
+                                placeholder="Enter description"
+                            />
                         </div>
                     </div>
 
@@ -351,7 +420,14 @@ const EditMallalekhaForm = ({
                     <div>
                         <label className={labelClass}>Roman Text</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.roman_text} onChange={handleQuillChange("roman_text")} modules={quillModules} formats={quillFormats} placeholder="Enter roman text" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.roman_text} 
+                                onChange={handleQuillChange("roman_text")} 
+                                modules={quillModules} 
+                                formats={quillFormats} 
+                                placeholder="Enter roman text"
+                            />
                         </div>
                     </div>
 
@@ -359,7 +435,14 @@ const EditMallalekhaForm = ({
                     <div>
                         <label className={labelClass}>Devanagari Text</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.devanagari_text} onChange={handleQuillChange("devanagari_text")} modules={quillModules} formats={quillFormats} placeholder="देवनागरी पाठ लेख्नुहोस्" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.devanagari_text} 
+                                onChange={handleQuillChange("devanagari_text")} 
+                                modules={quillModules} 
+                                formats={quillFormats} 
+                                placeholder="देवनागरी पाठ लेख्नुहोस्"
+                            />
                         </div>
                     </div>
 
@@ -367,7 +450,14 @@ const EditMallalekhaForm = ({
                     <div>
                         <label className={labelClass}>Translation</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.translation} onChange={handleQuillChange("translation")} modules={quillModules} formats={quillFormats} placeholder="Enter translation" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.translation} 
+                                onChange={handleQuillChange("translation")} 
+                                modules={quillModules} 
+                                formats={quillFormats} 
+                                placeholder="Enter translation"
+                            />
                         </div>
                     </div>
 
@@ -375,7 +465,14 @@ const EditMallalekhaForm = ({
                     <div>
                         <label className={labelClass}>Note</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.note} onChange={handleQuillChange("note")} modules={quillModulesMinimal} formats={quillFormatsMinimal} placeholder="Enter note" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.note} 
+                                onChange={handleQuillChange("note")} 
+                                modules={quillModulesMinimal} 
+                                formats={quillFormatsMinimal} 
+                                placeholder="Enter note"
+                            />
                         </div>
                     </div>
 
@@ -383,7 +480,14 @@ const EditMallalekhaForm = ({
                     <div>
                         <label className={labelClass}>Reference</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.reference} onChange={handleQuillChange("reference")} modules={quillModulesMinimal} formats={quillFormatsMinimal} placeholder="Enter reference" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.reference} 
+                                onChange={handleQuillChange("reference")} 
+                                modules={quillModulesMinimal} 
+                                formats={quillFormatsMinimal} 
+                                placeholder="Enter reference"
+                            />
                         </div>
                     </div>
 
@@ -398,11 +502,55 @@ const EditMallalekhaForm = ({
             </div>
 
             <style>{`
-                .ql-container.ql-snow, .ql-toolbar.ql-snow { border: none; outline: none; }
-                .ql-toolbar { border-bottom: 1px solid #d1d5db !important; background-color: #f9fafb; }
-                .ql-container { font-size: 0.875rem; height: 200px; overflow: hidden; }
-                .ql-editor { height: 120px; overflow-y: auto; resize: none; }
-                .quill-field:focus-within { outline: none; box-shadow: none; }
+                .ql-container.ql-snow, .ql-toolbar.ql-snow { 
+                    border: none; 
+                    outline: none; 
+                }
+                .ql-toolbar { 
+                    border-bottom: 1px solid #d1d5db !important; 
+                    background-color: #f9fafb; 
+                    border-top-left-radius: 0.5rem;
+                    border-top-right-radius: 0.5rem;
+                }
+                .ql-container { 
+                    font-size: 0.875rem; 
+                    min-height: 120px;
+                    max-height: 300px;
+                    overflow-y: auto;
+                    border-bottom-left-radius: 0.5rem;
+                    border-bottom-right-radius: 0.5rem;
+                }
+                .ql-editor { 
+                    min-height: 100px;
+                    max-height: 250px;
+                    overflow-y: auto;
+                }
+                .quill-field { 
+                    display: flex;
+                    flex-direction: column;
+                }
+                .quill-field:focus-within { 
+                    outline: none; 
+                    box-shadow: none; 
+                }
+                
+                /* Remove extra space at bottom of editor */
+                .ql-editor.ql-blank::before {
+                    font-style: normal;
+                }
+                .ql-editor p, .ql-editor div {
+                    margin: 0;
+                    padding: 0;
+                }
+                
+                /* React Select custom styling overrides if needed */
+                .react-select-container .react-select__menu {
+                    z-index: 60;
+                }
+                .react-select-container .react-select__control {
+                    cursor: pointer;
+                    width: 100%;
+                }
             `}</style>
         </div>
     );

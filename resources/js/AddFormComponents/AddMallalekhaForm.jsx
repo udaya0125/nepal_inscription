@@ -197,7 +197,14 @@ const AddMallalekhaForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                     <div>
                         <label className={labelClass}>Short Description</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.short_description} onChange={handleQuillChange("short_description")} modules={quillModulesMinimal} formats={quillFormatsMinimal} placeholder="Enter short description" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.short_description} 
+                                onChange={handleQuillChange("short_description")} 
+                                modules={quillModulesMinimal} 
+                                formats={quillFormatsMinimal} 
+                                placeholder="Enter short description" 
+                            />
                         </div>
                     </div>
 
@@ -258,7 +265,14 @@ const AddMallalekhaForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                     <div>
                         <label className={labelClass}>Description</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.description} onChange={handleQuillChange("description")} modules={quillModules} formats={quillFormats} placeholder="Enter description" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.description} 
+                                onChange={handleQuillChange("description")} 
+                                modules={quillModules} 
+                                formats={quillFormats} 
+                                placeholder="Enter description" 
+                            />
                         </div>
                     </div>
 
@@ -266,7 +280,14 @@ const AddMallalekhaForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                     <div>
                         <label className={labelClass}>Roman Text</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.roman_text} onChange={handleQuillChange("roman_text")} modules={quillModules} formats={quillFormats} placeholder="Enter roman text" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.roman_text} 
+                                onChange={handleQuillChange("roman_text")} 
+                                modules={quillModules} 
+                                formats={quillFormats} 
+                                placeholder="Enter roman text" 
+                            />
                         </div>
                     </div>
 
@@ -274,7 +295,14 @@ const AddMallalekhaForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                     <div>
                         <label className={labelClass}>Devanagari Text</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.devanagari_text} onChange={handleQuillChange("devanagari_text")} modules={quillModules} formats={quillFormats} placeholder="देवनागरी पाठ लेख्नुहोस्" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.devanagari_text} 
+                                onChange={handleQuillChange("devanagari_text")} 
+                                modules={quillModules} 
+                                formats={quillFormats} 
+                                placeholder="देवनागरी पाठ लेख्नुहोस्" 
+                            />
                         </div>
                     </div>
 
@@ -282,7 +310,14 @@ const AddMallalekhaForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                     <div>
                         <label className={labelClass}>Translation</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.translation} onChange={handleQuillChange("translation")} modules={quillModules} formats={quillFormats} placeholder="Enter translation" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.translation} 
+                                onChange={handleQuillChange("translation")} 
+                                modules={quillModules} 
+                                formats={quillFormats} 
+                                placeholder="Enter translation" 
+                            />
                         </div>
                     </div>
 
@@ -290,7 +325,14 @@ const AddMallalekhaForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                     <div>
                         <label className={labelClass}>Note</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.note} onChange={handleQuillChange("note")} modules={quillModulesMinimal} formats={quillFormatsMinimal} placeholder="Enter note" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.note} 
+                                onChange={handleQuillChange("note")} 
+                                modules={quillModulesMinimal} 
+                                formats={quillFormatsMinimal} 
+                                placeholder="Enter note" 
+                            />
                         </div>
                     </div>
 
@@ -298,7 +340,14 @@ const AddMallalekhaForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                     <div>
                         <label className={labelClass}>Reference</label>
                         <div className="quill-field border border-gray-300 rounded-lg overflow-hidden">
-                            <ReactQuill theme="snow" value={mallalekhaForm.reference} onChange={handleQuillChange("reference")} modules={quillModulesMinimal} formats={quillFormatsMinimal} placeholder="Enter reference" />
+                            <ReactQuill 
+                                theme="snow" 
+                                value={mallalekhaForm.reference} 
+                                onChange={handleQuillChange("reference")} 
+                                modules={quillModulesMinimal} 
+                                formats={quillFormatsMinimal} 
+                                placeholder="Enter reference" 
+                            />
                         </div>
                     </div>
 
@@ -313,11 +362,46 @@ const AddMallalekhaForm = ({ showForm, setShowForm, setReloadTrigger }) => {
             </div>
 
             <style>{`
-                .ql-container.ql-snow, .ql-toolbar.ql-snow { border: none; outline: none; }
-                .ql-toolbar { border-bottom: 1px solid #d1d5db !important; background-color: #f9fafb; }
-                .ql-container { font-size: 0.875rem; height: 200px; overflow: hidden; }
-                .ql-editor { height: 120px; overflow-y: auto; resize: none; }
-                .quill-field:focus-within { outline: none; box-shadow: none; }
+                .ql-container.ql-snow, .ql-toolbar.ql-snow { 
+                    border: none; 
+                    outline: none; 
+                }
+                .ql-toolbar { 
+                    border-bottom: 1px solid #d1d5db !important; 
+                    background-color: #f9fafb;
+                    border-top-left-radius: 0.5rem;
+                    border-top-right-radius: 0.5rem;
+                }
+                .ql-container { 
+                    font-size: 0.875rem; 
+                    min-height: 120px;
+                    max-height: 300px;
+                    overflow-y: auto;
+                    border-bottom-left-radius: 0.5rem;
+                    border-bottom-right-radius: 0.5rem;
+                }
+                .ql-editor { 
+                    min-height: 100px;
+                    max-height: 250px;
+                    overflow-y: auto;
+                }
+                .quill-field { 
+                    display: flex;
+                    flex-direction: column;
+                }
+                .quill-field:focus-within { 
+                    outline: none; 
+                    box-shadow: none; 
+                }
+                
+                /* Remove extra space at bottom of editor */
+                .ql-editor.ql-blank::before {
+                    font-style: normal;
+                }
+                .ql-editor p, .ql-editor div {
+                    margin: 0;
+                    padding: 0;
+                }
             `}</style>
         </div>
     );

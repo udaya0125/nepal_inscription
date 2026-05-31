@@ -129,9 +129,8 @@ Route::middleware('auth')->group(function () {
     ]);
     });
 
-});
 
-    // --------------------------------------------------------------
+     // --------------------------------------------------------------
     // Inscription Details Route for Main Pages with Dynamic Slug
     // --------------------------------------------------------------
 
@@ -203,13 +202,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/ourmallalekha', [MallalekhaController ::class, 'store'])->name('ourmallalekha.store');
     Route::put('/ourmallalekha/{id}', [MallalekhaController ::class, 'update'])->name('ourmallalekha.update');
     Route::delete('/ourmallalekha/{id}', [MallalekhaController ::class, 'destroy'])->name('ourmallalekha.destroy');
-
     Route::delete('mallalekha/image/{imageId}', [MallalekhaController::class, 'destroyImage'])->name('ourmallalekha.image.destroy');
 
-    Route::get('/mallalekha', function () {
-        return Inertia::render('MainPages/InscriptionPage');
-    });
 
-    Route::get('/mallalekha/{slug}', [MallalekhaController::class, 'showDetails'])->name('ourmallalekha.showDetails');
+});
+
+   
+    // Route::get('/mallalekha-details', function () {
+    //     return Inertia::render('MainPages/InscriptionPage');
+    // });
+
+    // Route::get('/mallalekha/{slug}', [MallalekhaController::class, 'showDetails'])->name('ourmallalekha.showDetails');
 
 require __DIR__.'/auth.php';

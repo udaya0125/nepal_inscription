@@ -352,12 +352,12 @@ const Mallalekha = () => {
                 accessor: "actions",
                 Cell: ({ row }) => (
                     <div className="flex items-center justify-center gap-2">
-                         <Link
+                         {/* <Link
                             href={`/mallalekha/${row.original.slug}`}
                             className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
                         >
                             <Info size={18} />
-                        </Link>
+                        </Link> */}
                         <button
                             onClick={() => handleEdit(row.original)}
                             className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"

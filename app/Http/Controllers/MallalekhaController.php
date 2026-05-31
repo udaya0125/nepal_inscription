@@ -37,6 +37,7 @@ class MallalekhaController extends Controller
                     'id' => $mallalekha->id,
                     'title' => $mallalekha->title,
                     'wchn_id' => $mallalekha->wchn_id,
+                    'status' => $mallalekha->status,
                     'slug' => $mallalekha->slug,
                     'first_image' => $mallalekha->images->first()?->image_path ?? null,
                     'banner_image' => $mallalekha->banner_image,
