@@ -218,8 +218,9 @@ import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 import EditMallalekhaForm from "@/EditFormComponents/EditMallalekhaForm";
 import MyTable from "@/MyTable/MyTable";
 import axios from "axios";
-import { Edit, Edit2, Plus, Trash2 } from "lucide-react";
+import { Edit, Edit2, Info, Plus, Trash2 } from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
+import { Link } from "@inertiajs/react";
 
 const Mallalekha = () => {
     const [allMallalekha, setAllMallalekha] = useState([]);
@@ -328,29 +329,35 @@ const Mallalekha = () => {
                     </span>
                 ),
             },
-            {
-                Header: "Images",
-                accessor: "images",
-                Cell: ({ value }) => (
-                    <span className="text-gray-600">
-                        {value?.length > 0 ? (
-                            <span className="inline-flex items-center gap-1">
-                                <span className="w-5 h-5 bg-indigo-100 text-indigo-700 rounded-full text-xs flex items-center justify-center font-semibold">
-                                    {value.length}
-                                </span>
-                                photo{value.length !== 1 ? "s" : ""}
-                            </span>
-                        ) : (
-                            <span className="text-gray-300 text-xs">None</span>
-                        )}
-                    </span>
-                ),
-            },
+            // {
+            //     Header: "Images",
+            //     accessor: "images",
+            //     Cell: ({ value }) => (
+            //         <span className="text-gray-600">
+            //             {value?.length > 0 ? (
+            //                 <span className="inline-flex items-center gap-1">
+            //                     <span className="w-5 h-5 bg-indigo-100 text-indigo-700 rounded-full text-xs flex items-center justify-center font-semibold">
+            //                         {value.length}
+            //                     </span>
+            //                     photo{value.length !== 1 ? "s" : ""}
+            //                 </span>
+            //             ) : (
+            //                 <span className="text-gray-300 text-xs">None</span>
+            //             )}
+            //         </span>
+            //     ),
+            // },
             {
                 Header: "Actions",
                 accessor: "actions",
                 Cell: ({ row }) => (
                     <div className="flex items-center justify-center gap-2">
+                         <Link
+                            href={`/mallalekha/${row.original.slug}`}
+                            className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                        >
+                            <Info size={18} />
+                        </Link>
                         <button
                             onClick={() => handleEdit(row.original)}
                             className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"

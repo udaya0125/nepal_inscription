@@ -204,7 +204,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/ourmallalekha/{id}', [MallalekhaController ::class, 'update'])->name('ourmallalekha.update');
     Route::delete('/ourmallalekha/{id}', [MallalekhaController ::class, 'destroy'])->name('ourmallalekha.destroy');
 
-    Route::delete('mallalekha/image/{imageId}', [MallalekhaController::class, 'destroyImage'])
-    ->name('ourmallalekha.image.destroy');
+    Route::delete('mallalekha/image/{imageId}', [MallalekhaController::class, 'destroyImage'])->name('ourmallalekha.image.destroy');
+
+    Route::get('/mallalekha', function () {
+        return Inertia::render('MainPages/InscriptionPage');
+    });
+
+    Route::get('/mallalekha/{slug}', [MallalekhaController::class, 'showDetails'])->name('ourmallalekha.showDetails');
 
 require __DIR__.'/auth.php';
