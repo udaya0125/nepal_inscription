@@ -275,7 +275,7 @@ const Mallalekha = () => {
                 Cell: ({ value, row }) => (
                     value ? (
                         <img
-                            src={`/storage/${value}`}
+                            src={`${imgurl}/${value}`}
                             alt={row.original.title}
                             className="w-14 h-10 object-cover rounded border"
                         />
@@ -353,7 +353,7 @@ const Mallalekha = () => {
                     <div className="flex items-center justify-center gap-2">
                         <button
                             onClick={() => handleEdit(row.original)}
-                            className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                            className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
                             title="Edit"
                         >
                             <Edit2 size={16} />
@@ -361,7 +361,7 @@ const Mallalekha = () => {
                         <button
                             onClick={() => handleDelete(row.original.id)}
                             disabled={deletingId === row.original.id}
-                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition disabled:opacity-50"
+                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
                             title="Delete"
                         >
                             <Trash2 size={16} />
