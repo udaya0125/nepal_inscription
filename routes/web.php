@@ -204,4 +204,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/ourmallalekha/{id}', [MallalekhaController ::class, 'update'])->name('ourmallalekha.update');
     Route::delete('/ourmallalekha/{id}', [MallalekhaController ::class, 'destroy'])->name('ourmallalekha.destroy');
 
+    Route::delete('mallalekha/image/{imageId}', [MallalekhaController::class, 'destroyImage'])
+    ->name('ourmallalekha.image.destroy');
+
 require __DIR__.'/auth.php';

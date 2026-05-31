@@ -218,7 +218,7 @@ import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 import EditMallalekhaForm from "@/EditFormComponents/EditMallalekhaForm";
 import MyTable from "@/MyTable/MyTable";
 import axios from "axios";
-import { Edit2, Plus, Trash2 } from "lucide-react";
+import { Edit, Edit2, Plus, Trash2 } from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
 
 const Mallalekha = () => {
@@ -356,7 +356,7 @@ const Mallalekha = () => {
                             className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
                             title="Edit"
                         >
-                            <Edit2 size={16} />
+                            <Edit size={16} />
                         </button>
                         <button
                             onClick={() => handleDelete(row.original.id)}

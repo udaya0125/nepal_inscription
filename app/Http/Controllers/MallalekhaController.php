@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Mallalekha;
+use App\Models\MallalekhaImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class MallalekhaController extends Controller
@@ -20,21 +22,69 @@ class MallalekhaController extends Controller
         ]);
     }
 
+    public function indexShow()
+    {
+        $mallalekhas = Mallalekha::with(['images' => function ($query) {
+            $query->limit(1);
+        }])
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $mallalekhas->map(function ($mallalekha) {
+                return [
+                    'id' => $mallalekha->id,
+                    'title' => $mallalekha->title,
+                    'wchn_id' => $mallalekha->wchn_id,
+                    'slug' => $mallalekha->slug,
+                    'first_image' => $mallalekha->images->first()?->image_path ?? null,
+                    'banner_image' => $mallalekha->banner_image,
+                ];
+            }),
+        ]);
+    }
+
+    public function showBySlug($slug)
+    {
+        try {
+            $mallalekha = Mallalekha::where('slug', $slug)
+                ->with(['images' => function ($query) {
+                    $query->orderBy('id', 'asc');
+                }])
+                ->firstOrFail();
+
+            return response()->json([
+                'success' => true,
+                'data' => $mallalekha,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching mallalekha by slug: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Mallalekha not found',
+                'error' => $e->getMessage(),
+            ], 404);
+        }
+    }
+
     public function store(Request $request)
     {
         $request->validate([
-            'title'            => 'required|string|max:255',
-            'short_description'=> 'nullable|string',
-            'wchn_id'          => 'nullable|string|max:255',
-            'status'           => 'required|in:published,draft', // ← updated
-            'description'      => 'nullable|string',
-            'roman_text'       => 'nullable|string',
-            'devanagari_text'  => 'nullable|string',
-            'translation'      => 'nullable|string',
-            'note'             => 'nullable|string',
-            'reference'        => 'nullable|string',
-            'banner_image'     => 'nullable|image|mimes:jpg,jpeg,png,webp',
-            'images.*'         => 'nullable|image|mimes:jpg,jpeg,png,webp',
+            'title' => 'required|string|max:255',
+            'short_description' => 'nullable|string',
+            'wchn_id' => 'nullable|string|max:255',
+            'status' => 'required|in:published,draft', // ← updated
+            'description' => 'nullable|string',
+            'roman_text' => 'nullable|string',
+            'devanagari_text' => 'nullable|string',
+            'translation' => 'nullable|string',
+            'note' => 'nullable|string',
+            'reference' => 'nullable|string',
+            'banner_image' => 'nullable|image|mimes:jpg,jpeg,png,webp',
+            'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp',
         ]);
 
         $bannerImage = null;
@@ -45,17 +95,17 @@ class MallalekhaController extends Controller
         }
 
         $mallalekha = Mallalekha::create([
-            'title'            => $request->title,
-            'short_description'=> $request->short_description,
-            'wchn_id'          => $request->wchn_id,
-            'status'           => $request->status,
-            'description'      => $request->description,
-            'roman_text'       => $request->roman_text,
-            'devanagari_text'  => $request->devanagari_text,
-            'translation'      => $request->translation,
-            'note'             => $request->note,
-            'reference'        => $request->reference,
-            'banner_image'     => $bannerImage,
+            'title' => $request->title,
+            'short_description' => $request->short_description,
+            'wchn_id' => $request->wchn_id,
+            'status' => $request->status,
+            'description' => $request->description,
+            'roman_text' => $request->roman_text,
+            'devanagari_text' => $request->devanagari_text,
+            'translation' => $request->translation,
+            'note' => $request->note,
+            'reference' => $request->reference,
+            'banner_image' => $bannerImage,
         ]);
 
         if ($request->hasFile('images')) {
@@ -66,9 +116,9 @@ class MallalekhaController extends Controller
         }
 
         return response()->json([
-            'status'  => true,
+            'status' => true,
             'message' => 'Mallalekha created successfully.',
-            'data'    => $mallalekha->load('images'),
+            'data' => $mallalekha->load('images'),
         ]);
     }
 
@@ -77,18 +127,18 @@ class MallalekhaController extends Controller
         $mallalekha = Mallalekha::with('images')->findOrFail($id);
 
         $request->validate([
-            'title'            => 'required|string|max:255',
-            'short_description'=> 'nullable|string',
-            'wchn_id'          => 'nullable|string|max:255',
-            'status'           => 'required|in:published,draft', // ← updated
-            'description'      => 'nullable|string',
-            'roman_text'       => 'nullable|string',
-            'devanagari_text'  => 'nullable|string',
-            'translation'      => 'nullable|string',
-            'note'             => 'nullable|string',
-            'reference'        => 'nullable|string',
-            'banner_image'     => 'nullable|image|mimes:jpg,jpeg,png,webp',
-            'images.*'         => 'nullable|image|mimes:jpg,jpeg,png,webp',
+            'title' => 'required|string|max:255',
+            'short_description' => 'nullable|string',
+            'wchn_id' => 'nullable|string|max:255',
+            'status' => 'required|in:published,draft', // ← updated
+            'description' => 'nullable|string',
+            'roman_text' => 'nullable|string',
+            'devanagari_text' => 'nullable|string',
+            'translation' => 'nullable|string',
+            'note' => 'nullable|string',
+            'reference' => 'nullable|string',
+            'banner_image' => 'nullable|image|mimes:jpg,jpeg,png,webp',
+            'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp',
         ]);
 
         if ($request->hasFile('banner_image')) {
@@ -101,16 +151,16 @@ class MallalekhaController extends Controller
         }
 
         $mallalekha->update([
-            'title'            => $request->title,
-            'short_description'=> $request->short_description,
-            'wchn_id'          => $request->wchn_id,
-            'status'           => $request->status,
-            'description'      => $request->description,
-            'roman_text'       => $request->roman_text,
-            'devanagari_text'  => $request->devanagari_text,
-            'translation'      => $request->translation,
-            'note'             => $request->note,
-            'reference'        => $request->reference,
+            'title' => $request->title,
+            'short_description' => $request->short_description,
+            'wchn_id' => $request->wchn_id,
+            'status' => $request->status,
+            'description' => $request->description,
+            'roman_text' => $request->roman_text,
+            'devanagari_text' => $request->devanagari_text,
+            'translation' => $request->translation,
+            'note' => $request->note,
+            'reference' => $request->reference,
         ]);
 
         if ($request->hasFile('images')) {
@@ -121,9 +171,9 @@ class MallalekhaController extends Controller
         }
 
         return response()->json([
-            'status'  => true,
+            'status' => true,
             'message' => 'Mallalekha updated successfully.',
-            'data'    => $mallalekha->load('images'),
+            'data' => $mallalekha->load('images'),
         ]);
     }
 
@@ -146,8 +196,34 @@ class MallalekhaController extends Controller
         $mallalekha->delete();
 
         return response()->json([
-            'status'  => true,
+            'status' => true,
             'message' => 'Mallalekha deleted successfully.',
         ]);
+    }
+
+    public function destroyImage($imageId)
+    {
+        try {
+            $image = MallalekhaImage::findOrFail($imageId);
+
+            if (Storage::disk('public')->exists($image->image_path)) {
+                Storage::disk('public')->delete($image->image_path);
+            }
+
+            $image->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Image deleted successfully.',
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error deleting mallalekha image: '.$e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Image not found or could not be deleted.',
+            ], 404);
+        }
     }
 }

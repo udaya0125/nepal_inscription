@@ -5,6 +5,7 @@ use App\Http\Controllers\ChildCategoryController;
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\PalaeographicalController;
 use App\Http\Controllers\SubCategoryController;
+use App\Http\Controllers\MallalekhaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -53,3 +54,12 @@ Route::get('/user', function (Request $request) {
     // -----------------------------------------
     
     Route::get('/child_categories', [ChildCategoryController::class, 'index']);
+
+    // -----------------------------------------
+    // Mallalekha API Routes
+    // -----------------------------------------
+
+    Route::get('/mallalekha', [MallalekhaController ::class, 'indexShow']);
+
+
+    Route::get('mallalekha/{slug}', [MallalekhaController::class, 'showBySlug']);
