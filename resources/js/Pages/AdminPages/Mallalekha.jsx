@@ -228,6 +228,7 @@ const Mallalekha = () => {
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
     const [deletingId, setDeletingId] = useState(null);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     useEffect(() => {
         const fetchMallalekha = async () => {
