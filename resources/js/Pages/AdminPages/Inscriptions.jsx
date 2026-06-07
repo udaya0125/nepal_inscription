@@ -369,7 +369,7 @@ const Inscriptions = () => {
                         </div>
 
                         {/* Table Container */}
-                        <div className="p-6">
+                        <div className="">
                             {loading ? (
                                 <div className="text-center py-8">
                                     Loading...

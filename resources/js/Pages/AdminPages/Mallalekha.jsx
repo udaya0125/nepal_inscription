@@ -305,15 +305,15 @@ const Mallalekha = () => {
                     </span>
                 ),
             },
-            {
-                Header: "Short Description",
-                accessor: "short_description",
-                Cell: ({ value }) => (
-                    <div className="max-w-[200px] truncate text-gray-600">
-                        {value || <span className="text-gray-300">—</span>}
-                    </div>
-                ),
-            },
+            // {
+            //     Header: "Short Description",
+            //     accessor: "short_description",
+            //     Cell: ({ value }) => (
+            //         <div className="max-w-[200px] truncate text-gray-600">
+            //             {value || <span className="text-gray-300">—</span>}
+            //         </div>
+            //     ),
+            // },
             {
                 Header: "Status",
                 accessor: "status",
