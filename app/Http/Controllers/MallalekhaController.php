@@ -10,41 +10,97 @@ use Illuminate\Support\Facades\Storage;
 
 class MallalekhaController extends Controller
 {
-    public function index()
-    {
-        $mallalekhas = Mallalekha::with('images')
-            ->latest()
-            ->get();
+    // public function index()
+    // {
+    //     $mallalekhas = Mallalekha::with('images')
+    //         ->latest()
+    //         ->get();
 
-        return response()->json([
-            'status' => true,
-            'data' => $mallalekhas,
-        ]);
-    }
+    //     return response()->json([
+    //         'status' => true,
+    //         'data' => $mallalekhas,
+    //     ]);
+    // }
 
-    public function indexShow()
-    {
-        $mallalekhas = Mallalekha::with(['images' => function ($query) {
-            $query->limit(1);
-        }])
-            ->latest()
-            ->get();
+    public function index(Request $request)
+{
+    $mallalekhas = Mallalekha::with('images')
+        ->latest()
+        ->paginate(10);
 
-        return response()->json([
-            'status' => true,
-            'data' => $mallalekhas->map(function ($mallalekha) {
-                return [
-                    'id' => $mallalekha->id,
-                    'title' => $mallalekha->title,
-                    'wchn_id' => $mallalekha->wchn_id,
-                    'status' => $mallalekha->status,
-                    'slug' => $mallalekha->slug,
-                    'first_image' => $mallalekha->images->first()?->image_path ?? null,
-                    'banner_image' => $mallalekha->banner_image,
-                ];
-            }),
-        ]);
-    }
+    return response()->json([
+        'status' => true,
+        'data' => $mallalekhas->items(),
+        'pagination' => [
+            'current_page'  => $mallalekhas->currentPage(),
+            'last_page'     => $mallalekhas->lastPage(),
+            'per_page'      => $mallalekhas->perPage(),
+            'total'         => $mallalekhas->total(),
+            'from'          => $mallalekhas->firstItem(),
+            'to'            => $mallalekhas->lastItem(),
+            'has_next'      => $mallalekhas->hasMorePages(),
+            'has_prev'      => $mallalekhas->currentPage() > 1,
+        ],
+    ]);
+}
+
+    // public function indexShow()
+    // {
+    //     $mallalekhas = Mallalekha::with(['images' => function ($query) {
+    //         $query->limit(1);
+    //     }])
+    //         ->latest()
+    //         ->get();
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'data' => $mallalekhas->map(function ($mallalekha) {
+    //             return [
+    //                 'id' => $mallalekha->id,
+    //                 'title' => $mallalekha->title,
+    //                 'wchn_id' => $mallalekha->wchn_id,
+    //                 'status' => $mallalekha->status,
+    //                 'slug' => $mallalekha->slug,
+    //                 'first_image' => $mallalekha->images->first()?->image_path ?? null,
+    //                 'banner_image' => $mallalekha->banner_image,
+    //             ];
+    //         }),
+    //     ]);
+    // }
+
+    public function indexShow(Request $request)
+{
+    $mallalekhas = Mallalekha::with(['images' => function ($query) {
+        $query->limit(1);
+    }])
+        // ->latest()
+        ->paginate(10);
+
+    return response()->json([
+        'status' => true,
+        'data' => collect($mallalekhas->items())->map(function ($mallalekha) {
+            return [
+                'id'           => $mallalekha->id,
+                'title'        => $mallalekha->title,
+                'wchn_id'      => $mallalekha->wchn_id,
+                'status'       => $mallalekha->status,
+                'slug'         => $mallalekha->slug,
+                'first_image'  => $mallalekha->images->first()?->image_path ?? null,
+                'banner_image' => $mallalekha->banner_image,
+            ];
+        }),
+        'pagination' => [
+            'current_page' => $mallalekhas->currentPage(),
+            'last_page'    => $mallalekhas->lastPage(),
+            'per_page'     => $mallalekhas->perPage(),
+            'total'        => $mallalekhas->total(),
+            'from'         => $mallalekhas->firstItem(),
+            'to'           => $mallalekhas->lastItem(),
+            'has_next'     => $mallalekhas->hasMorePages(),
+            'has_prev'     => $mallalekhas->currentPage() > 1,
+        ],
+    ]);
+}
 
     public function showBySlug($slug)
     {
