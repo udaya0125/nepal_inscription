@@ -1,7 +1,7 @@
 import AddPalaeographicalForm from "@/AddFormComponents/AddPalaeographicalForm";
 import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 import EditPalaeographicalForm from "@/EditFormComponents/EditPalaeographicalForm";
-import MyTable from "@/MyTable/MyTable";
+import PalaeographicalTable from "@/MyTable/PalaeographicalTable";
 import axios from "axios";
 import { Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
@@ -224,7 +224,7 @@ const PalaeographicalDatabase = () => {
                 )}
 
                 {/* Table */}
-                <MyTable columns={columns} data={filteredPalaeographical} />
+                <PalaeographicalTable columns={columns} data={filteredPalaeographical} />
 
                 {/* Add Form */}
                 {showAddForm && (
