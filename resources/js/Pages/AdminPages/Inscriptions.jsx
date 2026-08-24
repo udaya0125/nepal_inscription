@@ -713,8 +713,6 @@
 
 // export default Inscriptions;
 
-
-
 import AddInscriptionForm from "@/AddFormComponents/AddInscriptionForm";
 import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 import axios from "axios";
@@ -775,7 +773,10 @@ const Inscriptions = () => {
                     // Your current backend shape: { success, data: [...], meta: {...} }
                     setAllInscriptions(responseData.data || []);
                     setPagination({
-                        total: responseData.meta?.total ?? responseData.data.length ?? 0,
+                        total:
+                            responseData.meta?.total ??
+                            responseData.data.length ??
+                            0,
                         per_page: responseData.meta?.per_page ?? pageSize,
                         current_page: responseData.meta?.current_page ?? page,
                         last_page: responseData.meta?.last_page ?? 1,
@@ -812,7 +813,12 @@ const Inscriptions = () => {
     useEffect(() => {
         fetchInscriptions(pagination.current_page, pagination.per_page);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [reloadTrigger, fetchInscriptions, pagination.current_page, pagination.per_page]);
+    }, [
+        reloadTrigger,
+        fetchInscriptions,
+        pagination.current_page,
+        pagination.per_page,
+    ]);
 
     // Page navigation handlers — these drive the SERVER request, not a local re-slice
     const handlePageChange = useCallback((newPage) => {
@@ -820,12 +826,18 @@ const Inscriptions = () => {
     }, []);
 
     const handlePageSizeChange = useCallback((newSize) => {
-        setPagination((prev) => ({ ...prev, per_page: newSize, current_page: 1 }));
+        setPagination((prev) => ({
+            ...prev,
+            per_page: newSize,
+            current_page: 1,
+        }));
     }, []);
 
     // For Delete the Inscription
     const handleDelete = useCallback(async (id) => {
-        if (!window.confirm("Are you sure you want to delete this inscription?")) {
+        if (
+            !window.confirm("Are you sure you want to delete this inscription?")
+        ) {
             return;
         }
 
@@ -871,7 +883,9 @@ const Inscriptions = () => {
 
         try {
             setDeletingImageId(imageId);
-            await axios.delete(route("ourinscription.destroyImage", { id: imageId }));
+            await axios.delete(
+                route("ourinscription.destroyImage", { id: imageId }),
+            );
 
             setSelectedInscription((prev) => ({
                 ...prev,
@@ -890,9 +904,12 @@ const Inscriptions = () => {
     const handleStatusChange = useCallback(async (id, newStatus) => {
         try {
             setLoading(true);
-            await axios.patch(route("ourinscription.updateStatus", { id: id }), {
-                status: newStatus,
-            });
+            await axios.patch(
+                route("ourinscription.updateStatus", { id: id }),
+                {
+                    status: newStatus,
+                },
+            );
 
             setReloadTrigger((prev) => !prev);
             alert(`Status changed to ${newStatus} successfully!`);
@@ -914,7 +931,9 @@ const Inscriptions = () => {
                 Cell: ({ row }) => (
                     <div className="text-sm font-medium text-gray-900">
                         {/* Absolute row number across pages, not just within this page */}
-                        {(pagination.current_page - 1) * pagination.per_page + row.index + 1}
+                        {(pagination.current_page - 1) * pagination.per_page +
+                            row.index +
+                            1}
                     </div>
                 ),
             },
@@ -950,23 +969,40 @@ const Inscriptions = () => {
                 Cell: ({ row }) => {
                     const status = row.original.status || "draft";
                     const statusOptions = [
-                        { value: "draft", label: "Draft", color: "bg-yellow-100 text-yellow-800" },
-                        { value: "published", label: "Published", color: "bg-green-100 text-green-800" },
+                        {
+                            value: "draft",
+                            label: "Draft",
+                            color: "bg-yellow-100 text-yellow-800",
+                        },
+                        {
+                            value: "published",
+                            label: "Published",
+                            color: "bg-green-100 text-green-800",
+                        },
                     ];
 
                     const currentOption =
-                        statusOptions.find((opt) => opt.value === status) || statusOptions[0];
+                        statusOptions.find((opt) => opt.value === status) ||
+                        statusOptions[0];
 
                     return (
                         <div className="relative group">
                             <select
                                 value={status}
-                                onChange={(e) => handleStatusChange(row.original.id, e.target.value)}
+                                onChange={(e) =>
+                                    handleStatusChange(
+                                        row.original.id,
+                                        e.target.value,
+                                    )
+                                }
                                 className={`px-3 py-1 rounded-full text-xs font-medium cursor-pointer appearance-none pr-8 ${currentOption.color} border border-transparent hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                                 disabled={loading}
                             >
                                 {statusOptions.map((option) => (
-                                    <option key={option.value} value={option.value}>
+                                    <option
+                                        key={option.value}
+                                        value={option.value}
+                                    >
                                         {option.label}
                                     </option>
                                 ))}
@@ -1011,14 +1047,30 @@ const Inscriptions = () => {
                 ),
             },
         ],
-        [handleViewDetails, handleEdit, handleDelete, handleStatusChange, loading, pagination.current_page, pagination.per_page],
+        [
+            handleViewDetails,
+            handleEdit,
+            handleDelete,
+            handleStatusChange,
+            loading,
+            pagination.current_page,
+            pagination.per_page,
+        ],
     );
 
     const tabs = useMemo(
         () => [
             { id: "overview", label: "Overview", icon: <Eye size={16} /> },
-            { id: "text", label: "Text & Translation", icon: <FileText size={16} /> },
-            { id: "background", label: "Background", icon: <BookOpen size={16} /> },
+            {
+                id: "text",
+                label: "Text & Translation",
+                icon: <FileText size={16} />,
+            },
+            {
+                id: "background",
+                label: "Background",
+                icon: <BookOpen size={16} />,
+            },
             { id: "references", label: "References", icon: <Book size={16} /> },
             { id: "glossary", label: "Glossary", icon: <Globe size={16} /> },
             { id: "media", label: "Media", icon: <FileVideo size={16} /> },
@@ -1043,7 +1095,9 @@ const Inscriptions = () => {
 
                         <div className="">
                             {loading ? (
-                                <div className="text-center py-8">Loading...</div>
+                                <div className="text-center py-8">
+                                    Loading...
+                                </div>
                             ) : (
                                 <MyTable
                                     columns={columns}
@@ -1126,12 +1180,16 @@ const Inscriptions = () => {
                                             {selectedInscription.banner_image ? (
                                                 <img
                                                     src={`${imgurl}/${selectedInscription.banner_image}`}
-                                                    alt={selectedInscription.title}
+                                                    alt={
+                                                        selectedInscription.title
+                                                    }
                                                     className="w-full h-64 object-cover"
                                                 />
                                             ) : (
                                                 <div className="w-full h-64 bg-gray-100 flex items-center justify-center">
-                                                    <span className="text-gray-400">No Banner Image</span>
+                                                    <span className="text-gray-400">
+                                                        No Banner Image
+                                                    </span>
                                                 </div>
                                             )}
                                         </div>
@@ -1139,14 +1197,21 @@ const Inscriptions = () => {
 
                                     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                                         <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                                            <FileText className="mr-2" size={20} />
+                                            <FileText
+                                                className="mr-2"
+                                                size={20}
+                                            />
                                             Description
                                         </h3>
                                         <div className="prose max-w-none rich-text-content">
                                             {selectedInscription.description ? (
-                                                parse(selectedInscription.description)
+                                                parse(
+                                                    selectedInscription.description,
+                                                )
                                             ) : (
-                                                <p className="text-gray-500 italic">No description provided</p>
+                                                <p className="text-gray-500 italic">
+                                                    No description provided
+                                                </p>
                                             )}
                                         </div>
                                     </div>
@@ -1162,20 +1227,31 @@ const Inscriptions = () => {
                                             </h3>
                                             <div className="bg-gray-50 rounded p-4 border border-gray-200 rich-text-content">
                                                 {selectedInscription.text ? (
-                                                    parse(selectedInscription.text)
+                                                    parse(
+                                                        selectedInscription.text,
+                                                    )
                                                 ) : (
-                                                    <p className="text-gray-500 italic">No original text provided</p>
+                                                    <p className="text-gray-500 italic">
+                                                        No original text
+                                                        provided
+                                                    </p>
                                                 )}
                                             </div>
                                         </div>
 
                                         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-                                            <h3 className="text-lg font-semibold text-gray-800 mb-3">Translation</h3>
+                                            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                                                Translation
+                                            </h3>
                                             <div className="bg-blue-50 rounded p-4 border border-blue-200 rich-text-content">
                                                 {selectedInscription.translation ? (
-                                                    parse(selectedInscription.translation)
+                                                    parse(
+                                                        selectedInscription.translation,
+                                                    )
                                                 ) : (
-                                                    <p className="text-gray-500 italic">No translation provided</p>
+                                                    <p className="text-gray-500 italic">
+                                                        No translation provided
+                                                    </p>
                                                 )}
                                             </div>
                                         </div>
@@ -1191,9 +1267,14 @@ const Inscriptions = () => {
                                     </h3>
                                     <div className="prose max-w-none rich-text-content">
                                         {selectedInscription.background ? (
-                                            parse(selectedInscription.background)
+                                            parse(
+                                                selectedInscription.background,
+                                            )
                                         ) : (
-                                            <p className="text-gray-500 italic">No background information provided</p>
+                                            <p className="text-gray-500 italic">
+                                                No background information
+                                                provided
+                                            </p>
                                         )}
                                     </div>
                                 </div>
@@ -1207,9 +1288,13 @@ const Inscriptions = () => {
                                     </h3>
                                     <div className="prose max-w-none rich-text-content">
                                         {selectedInscription.references ? (
-                                            parse(selectedInscription.references)
+                                            parse(
+                                                selectedInscription.references,
+                                            )
                                         ) : (
-                                            <p className="text-gray-500 italic">No references provided</p>
+                                            <p className="text-gray-500 italic">
+                                                No references provided
+                                            </p>
                                         )}
                                     </div>
                                 </div>
@@ -1225,7 +1310,9 @@ const Inscriptions = () => {
                                         {selectedInscription.glossary ? (
                                             parse(selectedInscription.glossary)
                                         ) : (
-                                            <p className="text-gray-500 italic">No glossary terms provided</p>
+                                            <p className="text-gray-500 italic">
+                                                No glossary terms provided
+                                            </p>
                                         )}
                                     </div>
                                 </div>
@@ -1236,7 +1323,10 @@ const Inscriptions = () => {
                                     {selectedInscription.video && (
                                         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                                             <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                                                <Video className="mr-2" size={20} />
+                                                <Video
+                                                    className="mr-2"
+                                                    size={20}
+                                                />
                                                 Video Content
                                             </h3>
                                             {selectedInscription.video_banner && (
@@ -1259,31 +1349,40 @@ const Inscriptions = () => {
                                                     controls
                                                     src={`${imgurl}/${selectedInscription.video}`}
                                                 >
-                                                    Your browser does not support the video tag.
+                                                    Your browser does not
+                                                    support the video tag.
                                                 </video>
                                             </div>
                                         </div>
                                     )}
 
                                     {selectedInscription.images &&
-                                        Array.isArray(selectedInscription.images) &&
-                                        selectedInscription.images.length > 0 && (
+                                        Array.isArray(
+                                            selectedInscription.images,
+                                        ) &&
+                                        selectedInscription.images.length >
+                                            0 && (
                                             <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                                                 <h3 className="text-lg font-semibold text-gray-800 mb-3">
                                                     Gallery Images
                                                 </h3>
                                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                                    {selectedInscription.images.map((image, index) => (
-                                                        <div key={image.id} className="relative group">
-                                                            <div className="aspect-square overflow-hidden rounded-lg bg-gray-100 border border-gray-200">
-                                                                <img
-                                                                    src={`${imgurl}/${image.image_path}`}
-                                                                    alt={`Gallery ${index + 1}`}
-                                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                                                />
+                                                    {selectedInscription.images.map(
+                                                        (image, index) => (
+                                                            <div
+                                                                key={image.id}
+                                                                className="relative group"
+                                                            >
+                                                                <div className="aspect-square overflow-hidden rounded-lg bg-gray-100 border border-gray-200">
+                                                                    <img
+                                                                        src={`${imgurl}/${image.image_path}`}
+                                                                        alt={`Gallery ${index + 1}`}
+                                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                                    />
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    ))}
+                                                        ),
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
