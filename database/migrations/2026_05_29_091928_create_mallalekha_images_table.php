@@ -9,17 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    // public function up(): void
-    // {
-    //     Schema::create('mallalekha_images', function (Blueprint $table) {
-    //         $table->id();
-    //         $table->foreignId('mallalekha_id')
-    //               ->constrained()
-    //               ->onDelete('cascade');
-    //         $table->string('image_path');
-    //         $table->timestamps();
-    //     });
-    // }
+    public function up(): void
+    {
+        Schema::create('mallalekha_images', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('mallalekha_id')
+                  ->constrained()
+                  ->onDelete('cascade');
+            $table->string('image_path');
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.

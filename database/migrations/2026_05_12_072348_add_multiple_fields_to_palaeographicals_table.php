@@ -9,13 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    // public function up(): void
-    // {
-    //     Schema::table('palaeographicals', function (Blueprint $table) {
-    //         //
-    //         $table->string('child_category_id')->nullable()->after('sub_category_id');
-    //     });
-    // }
+    public function up(): void
+    {
+        Schema::table('palaeographicals', function (Blueprint $table) {
+            //
+            $table->string('child_category_id')->nullable()->after('sub_category_id');
+        });
+    }
 
     /**
      * Reverse the migrations.
