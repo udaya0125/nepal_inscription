@@ -9,23 +9,23 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('palaeographicals', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->foreignId('sub_category_id')->nullable()->constrained()->onDelete('cascade');
-            $table->string('image')->nullable();
-            $table->string('image_name')->nullable();
-            $table->string('url')->nullable();
-            $table->string('period')->nullable();
-            $table->string('script')->nullable();
-            $table->string('varna')->nullable();
-            $table->string('symbols')->nullable();
-            $table->string('citra')->nullable();
-            $table->timestamps();
-        });
-    }
+    // public function up(): void
+    // {
+    //     Schema::create('palaeographicals', function (Blueprint $table) {
+    //         $table->id();
+    //         $table->foreignId('category_id')->constrained()->onDelete('cascade');
+    //         $table->foreignId('sub_category_id')->nullable()->constrained()->onDelete('cascade');
+    //         $table->string('image')->nullable();
+    //         $table->string('image_name')->nullable();
+    //         $table->string('url')->nullable();
+    //         $table->string('period')->nullable();
+    //         $table->string('script')->nullable();
+    //         $table->string('varna')->nullable();
+    //         $table->string('symbols')->nullable();
+    //         $table->string('citra')->nullable();
+    //         $table->timestamps();
+    //     });
+    // }
 
     /**
      * Reverse the migrations.

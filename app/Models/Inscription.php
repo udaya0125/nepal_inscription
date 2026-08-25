@@ -21,6 +21,7 @@ class Inscription extends Model
         'inscription_number',
         'glossary',
         'dev_text',
+        'google_maps_link',
         'slug',
     ];
 

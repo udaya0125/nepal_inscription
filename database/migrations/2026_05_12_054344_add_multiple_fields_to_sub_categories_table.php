@@ -9,13 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::table('sub_categories', function (Blueprint $table) {
-            //
-             $table->string('has_child_category')->after('category_id');
-        });
-    }
+    // public function up(): void
+    // {
+    //     Schema::table('sub_categories', function (Blueprint $table) {
+    //         //
+    //          $table->string('has_child_category')->after('category_id');
+    //     });
+    // }
 
     /**
      * Reverse the migrations.

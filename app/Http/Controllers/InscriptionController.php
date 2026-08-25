@@ -126,6 +126,7 @@ class InscriptionController extends Controller
             // 'images.*' => 'nullable|image|max:512000', // 500MB - Original commented out
             'images.*' => 'nullable|image|max:153600', // 150MB - Modified
             'dev_text' => 'nullable|string',
+            'google_maps_link' => 'nullable|string|max:255', // New field for Google Maps link
         ]);
 
         DB::beginTransaction();
@@ -159,6 +160,7 @@ class InscriptionController extends Controller
                 'glossary' => $request->glossary,
                 'dev_text' => $request->dev_text,
                 'status' => $request->status ?? 'draft',
+                'google_maps_link' => $request->google_maps_link, // New field for Google Maps link
             ]);
 
             // Multiple images - store in 'inscriptions/images' directory
@@ -266,6 +268,7 @@ class InscriptionController extends Controller
             // 'images.*' => 'nullable|image|max:512000', // 500MB - Original commented out
             'images.*' => 'nullable|image|max:153600', // 150MB - Modified
             'dev_text' => 'nullable|string',
+            'google_maps_link' => 'nullable|string|max:255', // New field for Google Maps link
         ]);
 
         DB::beginTransaction();
@@ -313,6 +316,7 @@ class InscriptionController extends Controller
                 'glossary',
                 'status',
                 'dev_text',
+                'google_maps_link', // New field for Google Maps link
             ]);
 
             // Handle video field separately if it's filled (not a file upload)

@@ -9,13 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    // public function up(): void
-    // {
-    //     Schema::table('inscriptions', function (Blueprint $table) {
-    //         //
-    //         $table->longText('dev_text')->nullable()->after('text');
-    //     });
-    // }
+    public function up(): void
+    {
+        Schema::table('inscriptions', function (Blueprint $table) {
+            //
+            $table->string('google_maps_link')->nullable()->after('title');
+        });
+    }
 
     /**
      * Reverse the migrations.
@@ -24,7 +24,6 @@ return new class extends Migration
     {
         Schema::table('inscriptions', function (Blueprint $table) {
             //
-            $table->dropColumn('dev_text');
         });
     }
 };
