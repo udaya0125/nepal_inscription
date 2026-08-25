@@ -9,13 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    // public function up(): void
-    // {
-    //     Schema::table('inscriptions', function (Blueprint $table) {
-    //         //
-    //         $table->longText('dev_text')->nullable()->after('text');
-    //     });
-    // }
+    public function up(): void
+    {
+        Schema::table('inscriptions', function (Blueprint $table) {
+            //
+            $table->longText('dev_text')->nullable()->after('text');
+        });
+    }
 
     /**
      * Reverse the migrations.
