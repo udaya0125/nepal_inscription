@@ -1502,14 +1502,30 @@
 // export default EditInscriptionForm;
 
 
-import { X, Camera, Upload, Video, Image, Link, Film, MapPin } from "lucide-react";
-import React, { useState, useRef, useEffect } from "react";
+import {
+    X,
+    Camera,
+    Upload,
+    Video,
+    Image,
+    Trash2,
+    GripVertical,
+    Link,
+    Film,
+    MapPin,
+} from "lucide-react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
+const EditInscriptionForm = ({
+    showForm,
+    setShowForm,
+    editingInscription,
+    setReloadTrigger,
+}) => {
     const inputClass =
         "w-full p-2 rounded bg-white text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-[#5d4c2e] focus:outline-none border border-gray-300";
 
@@ -1563,8 +1579,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
         text: "Enter the original text in numbered format (1. First line, 2. Second line, 3. Third line)...",
 
-        dev_text:
-            "Enter the Devnagari text in numbered format (1. First line, 2. Second line, 3. Third line)...",
+        dev_text: "Enter the Devnagari text in numbered format (1. First line, 2. Second line, 3. Third line)...",
 
         translation:
             "Enter the translation in list format (• Line 1 meaning, • Line 2 meaning)...",
@@ -1591,10 +1606,18 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
     const [bannerFile, setBannerFile] = useState(null);
     const [videoBannerPreview, setVideoBannerPreview] = useState(null);
     const [videoBannerFile, setVideoBannerFile] = useState(null);
-    const [imagesPreviews, setImagesPreviews] = useState([]);
-    const [imageFiles, setImageFiles] = useState([]);
+    const [existingImages, setExistingImages] = useState([]);
+    const [newImagesPreviews, setNewImagesPreviews] = useState([]);
+    const [newImageFiles, setNewImageFiles] = useState([]);
     const [videoUrl, setVideoUrl] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const [removingImageIds, setRemovingImageIds] = useState([]);
+    const [draggingImage, setDraggingImage] = useState(null);
+    const [dragOverIndex, setDragOverIndex] = useState(null);
+    const [autoSaving, setAutoSaving] = useState(false);
+    const [deletingImageId, setDeletingImageId] = useState(null);
+
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     const {
         register,
@@ -1603,6 +1626,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
         formState: { errors },
         reset,
         setValue,
+        getValues,
     } = useForm();
 
     // Effect to adjust Quill editor heights based on content
@@ -1642,6 +1666,71 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
         return () => clearTimeout(timeoutId);
     }, [Object.values(quillRefs).map((ref) => ref.current)]);
 
+    // Initialize form with editing data
+    useEffect(() => {
+        if (editingInscription) {
+            // Set form values
+            setValue("title", editingInscription.title);
+            setValue(
+                "inscription_number",
+                editingInscription.inscription_number,
+            );
+            setValue("status", editingInscription.status || "draft");
+
+            // Set Quill content values in form
+            setValue("description", editingInscription.description || "");
+            setValue("background", editingInscription.background || "");
+            setValue("text", editingInscription.text || "");
+            setValue("dev_text", editingInscription.dev_text || "");
+            setValue("translation", editingInscription.translation || "");
+            setValue(
+                "references",
+                editingInscription.references ||
+                    editingInscription.refrences ||
+                    "",
+            );
+            setValue("glossary", editingInscription.glossary || "");
+            setValue(
+                "google_maps_link",
+                editingInscription.google_maps_link || "",
+            );
+
+            // Set previews for existing files
+            if (editingInscription.banner_image) {
+                setBannerPreview(
+                    `${imgurl}/${editingInscription.banner_image}`,
+                );
+            }
+
+            // Set video banner preview if exists
+            if (editingInscription.video_banner) {
+                setVideoBannerPreview(
+                    `${imgurl}/${editingInscription.video_banner}`,
+                );
+            }
+
+            // Set video URL from existing video
+            if (editingInscription.video) {
+                setVideoUrl(editingInscription.video);
+                setValue("video", editingInscription.video);
+            }
+
+            // Set existing images with sort_order
+            if (
+                editingInscription.images &&
+                editingInscription.images.length > 0
+            ) {
+                // Sort existing images by sort_order
+                const sortedImages = [...editingInscription.images].sort(
+                    (a, b) => (a.sort_order || 0) - (b.sort_order || 0),
+                );
+                setExistingImages(sortedImages);
+            }
+        } else {
+            resetForm();
+        }
+    }, [editingInscription, reset, setValue]);
+
     // Handle banner image change
     const handleBannerChange = (e) => {
         const file = e.target.files[0];
@@ -1652,7 +1741,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                 return;
             }
 
-            // Validate file size
+            // Validate file size (150MB max for images)
             if (file.size > MAX_IMAGE_SIZE) {
                 alert(
                     `Banner image size should be less than 150MB (Current: ${formatFileSize(file.size)})`,
@@ -1679,10 +1768,10 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                 return;
             }
 
-            // Validate file size
+            // Validate file size (150MB max for images)
             if (file.size > MAX_IMAGE_SIZE) {
                 alert(
-                    `Video banner size should be less than 150MB (Current: ${formatFileSize(file.size)})`,
+                    `Video banner image size should be less than 150MB (Current: ${formatFileSize(file.size)})`,
                 );
                 return;
             }
@@ -1710,7 +1799,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
             }
 
             if (imageFiles.length > 0) {
-                // Validate each file size
+                // Validate each file size (150MB max)
                 const oversizedFiles = imageFiles.filter(
                     (file) => file.size > MAX_IMAGE_SIZE,
                 );
@@ -1724,13 +1813,22 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                 }
 
                 const newFiles = [...imageFiles];
-                setImageFiles((prev) => [...prev, ...newFiles]);
+                setNewImageFiles((prev) => [...prev, ...newFiles]);
 
-                // Create previews for new files
-                newFiles.forEach((file) => {
+                // Create previews for new files with temporary sort_order
+                newFiles.forEach((file, index) => {
                     const reader = new FileReader();
                     reader.onloadend = () => {
-                        setImagesPreviews((prev) => [...prev, reader.result]);
+                        const newPreview = {
+                            id: `new-${Date.now()}-${index}`,
+                            preview: reader.result,
+                            file: file,
+                            sort_order:
+                                newImagesPreviews.length +
+                                existingImages.length +
+                                index,
+                        };
+                        setNewImagesPreviews((prev) => [...prev, newPreview]);
                     };
                     reader.readAsDataURL(file);
                 });
@@ -1745,11 +1843,215 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
         setValue("video", url);
     };
 
-    // Handle Create Inscription
-    const handleCreate = async (formData) => {
+    // Drag and drop handlers for existing images
+    const handleDragStart = useCallback((e, index, type) => {
+        e.dataTransfer.setData("text/plain", JSON.stringify({ index, type }));
+        setDraggingImage({ index, type });
+        e.currentTarget.classList.add("opacity-50");
+    }, []);
+
+    const handleDragOver = useCallback((e, index, type) => {
+        e.preventDefault();
+        setDragOverIndex({ index, type });
+    }, []);
+
+    const handleDragEnd = useCallback((e) => {
+        e.preventDefault();
+        setDraggingImage(null);
+        setDragOverIndex(null);
+        e.currentTarget.classList.remove("opacity-50");
+    }, []);
+
+    const handleDrop = useCallback(
+        (e, dropIndex, dropType) => {
+            e.preventDefault();
+            const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+            const { index: dragIndex, type: dragType } = data;
+
+            if (dragType === dropType) {
+                if (dragType === "existing") {
+                    // Reorder existing images
+                    const updatedImages = [...existingImages];
+                    const [draggedItem] = updatedImages.splice(dragIndex, 1);
+                    updatedImages.splice(dropIndex, 0, draggedItem);
+
+                    // Update sort_order based on new position
+                    const reorderedImages = updatedImages.map((img, idx) => ({
+                        ...img,
+                        sort_order: idx + 1,
+                    }));
+
+                    setExistingImages(reorderedImages);
+                    // Auto-save after reordering existing images
+                    handleAutoSave(reorderedImages, newImagesPreviews);
+                } else if (dragType === "new") {
+                    // Reorder new images
+                    const updatedPreviews = [...newImagesPreviews];
+                    const [draggedItem] = updatedPreviews.splice(dragIndex, 1);
+                    updatedPreviews.splice(dropIndex, 0, draggedItem);
+
+                    // Update sort_order based on new position
+                    const reorderedPreviews = updatedPreviews.map(
+                        (preview, idx) => ({
+                            ...preview,
+                            sort_order: existingImages.length + idx + 1,
+                        }),
+                    );
+
+                    setNewImagesPreviews(reorderedPreviews);
+
+                    // Also reorder files array
+                    const updatedFiles = [...newImageFiles];
+                    const [draggedFile] = updatedFiles.splice(dragIndex, 1);
+                    updatedFiles.splice(dropIndex, 0, draggedFile);
+                    setNewImageFiles(updatedFiles);
+                }
+            }
+
+            setDraggingImage(null);
+            setDragOverIndex(null);
+        },
+        [existingImages, newImagesPreviews, newImageFiles],
+    );
+
+    // Auto-save function for image deletions and reordering
+    const handleAutoSave = async (
+        updatedExistingImages = existingImages,
+        updatedNewImages = newImagesPreviews,
+    ) => {
         try {
+            setAutoSaving(true);
+
+            const formData = new FormData();
+
+            // Get current form values
+            const formValues = getValues();
+
+            // Append all text fields
+            Object.keys(formValues).forEach((key) => {
+                if (
+                    formValues[key] !== undefined &&
+                    formValues[key] !== null &&
+                    formValues[key] !== ""
+                ) {
+                    formData.append(key, formValues[key]);
+                }
+            });
+
+            // Append banner file if changed
+            if (bannerFile) {
+                formData.append("banner_image", bannerFile);
+            }
+
+            // Append video banner file if changed
+            if (videoBannerFile) {
+                formData.append("video_banner", videoBannerFile);
+            }
+
+            // Add sort_order data for existing images
+            updatedExistingImages.forEach((img, index) => {
+                formData.append(`existing_image_sort[${img.id}]`, index + 1);
+            });
+
+            // Add sort_order for new images
+            updatedNewImages.forEach((preview, index) => {
+                formData.append(
+                    `new_image_sort[${index}]`,
+                    updatedExistingImages.length + index + 1,
+                );
+            });
+
+            // Append removed image IDs
+            removingImageIds.forEach((id) => {
+                formData.append("removed_image_ids[]", id);
+            });
+
+            // Append video URL
+            if (videoUrl !== undefined) {
+                formData.append("video", videoUrl);
+            }
+
+            formData.append("_method", "PUT");
+
+            await axios.post(
+                route("ourinscription.update", editingInscription.id),
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                },
+            );
+
+            // Clear removing image IDs after successful save
+            setRemovingImageIds([]);
+
+            // Trigger reload to refresh the parent component
+            setReloadTrigger((prev) => !prev);
+
+            // Show success message
+            setTimeout(() => {
+                setAutoSaving(false);
+            }, 1000);
+        } catch (error) {
+            console.error("Auto-save error:", error);
+            alert("Failed to save changes. Please try again.");
+            setAutoSaving(false);
+        }
+    };
+
+    // Remove existing image (auto-save approach)
+    const handleRemoveExistingImage = async (imageId) => {
+        try {
+            // Add to removing list and update UI immediately
+            setRemovingImageIds((prev) => [...prev, imageId]);
+            setExistingImages((prev) =>
+                prev.filter((img) => img.id !== imageId),
+            );
+        } catch (error) {
+            console.error("Error removing image:", error);
+            alert("Failed to remove image");
+            // Rollback on error
+            setRemovingImageIds((prev) => prev.filter((id) => id !== imageId));
+            // You might want to refetch the images here or restore the original state
+        }
+    };
+
+    // Remove new image (not saved yet, just from preview)
+    const handleRemoveNewImage = (index) => {
+        setNewImagesPreviews((prev) => prev.filter((_, i) => i !== index));
+        setNewImageFiles((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    // Handle Update Inscription
+    const handleUpdate = async (formData) => {
+        try {
+            // Append banner file if changed
+            if (bannerFile) {
+                formData.append("banner_image", bannerFile);
+            }
+
+            // Append video banner file if changed
+            if (videoBannerFile) {
+                formData.append("video_banner", videoBannerFile);
+            }
+
+            // Add sort_order data for existing images
+            existingImages.forEach((img, index) => {
+                formData.append(`existing_image_sort[${img.id}]`, index + 1);
+            });
+
+            // Add sort_order for new images
+            newImagesPreviews.forEach((preview, index) => {
+                formData.append(
+                    `new_image_sort[${index}]`,
+                    existingImages.length + index + 1,
+                );
+            });
+
+            formData.append("_method", "PUT");
             const response = await axios.post(
-                route("ourinscription.store"),
+                route("ourinscription.update", editingInscription.id),
                 formData,
                 {
                     headers: {
@@ -1767,14 +2069,14 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
             setReloadTrigger((prev) => !prev);
             return response.data;
         } catch (error) {
-            console.error("Error creating inscription", error);
+            console.error("Error updating inscription", error);
             throw error;
         }
     };
 
     // Handle form submission
     const onSubmit = async (data) => {
-        // Validate banner image size
+        // Validate banner image size (150MB)
         if (bannerFile && bannerFile.size > MAX_IMAGE_SIZE) {
             alert(
                 `Banner image size exceeds 150MB limit (Current: ${formatFileSize(bannerFile.size)})`,
@@ -1782,16 +2084,16 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
             return;
         }
 
-        // Validate video banner size
+        // Validate video banner image size (150MB)
         if (videoBannerFile && videoBannerFile.size > MAX_IMAGE_SIZE) {
             alert(
-                `Video banner size exceeds 150MB limit (Current: ${formatFileSize(videoBannerFile.size)})`,
+                `Video banner image size exceeds 150MB limit (Current: ${formatFileSize(videoBannerFile.size)})`,
             );
             return;
         }
 
-        // Validate all images size
-        const oversizedImages = imageFiles.filter(
+        // Validate all new images size (150MB each)
+        const oversizedImages = newImageFiles.filter(
             (file) => file.size > MAX_IMAGE_SIZE,
         );
         if (oversizedImages.length > 0) {
@@ -1814,41 +2116,42 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
             }
         });
 
-        // Automatically append status as "draft"
-        formData.append("status", "draft");
-
-        // Append banner file
+        // Append banner file if changed
         if (bannerFile) {
             formData.append("banner_image", bannerFile);
         }
 
-        // Append video banner file
+        // Append video banner file if changed
         if (videoBannerFile) {
             formData.append("video_banner", videoBannerFile);
         }
 
-        // Append video URL (no file upload)
-        if (videoUrl) {
+        // Append video URL (always, even if empty)
+        if (videoUrl !== undefined) {
             formData.append("video", videoUrl);
         }
 
-        // Append multiple images correctly
-        imageFiles.forEach((file, index) => {
+        // Append new images
+        newImageFiles.forEach((file, index) => {
             formData.append(`images[${index}]`, file);
+        });
+
+        // Append removed image IDs
+        removingImageIds.forEach((id) => {
+            formData.append("removed_image_ids[]", id);
         });
 
         try {
             setSubmitting(true);
 
-            const result = await handleCreate(formData);
+            const result = await handleUpdate(formData);
 
             if (result.success) {
-                // Reset and close form
                 resetForm();
-                alert(result.message || "Inscription added successfully!");
+                alert(result.message || "Inscription updated successfully!");
                 setShowForm(false);
             } else {
-                alert(result.message || "Failed to add inscription");
+                alert(result.message || "Failed to update inscription");
             }
         } catch (error) {
             const errorMessage =
@@ -1858,7 +2161,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                 error.response?.data?.errors?.banner_image?.[0] ||
                 error.response?.data?.errors?.video_banner?.[0] ||
                 error.response?.data?.errors?.inscription_number?.[0] ||
-                "Error saving inscription";
+                "Error updating inscription";
             alert(errorMessage);
             console.error("Submission error:", error.response?.data);
         } finally {
@@ -1873,9 +2176,15 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
         setBannerFile(null);
         setVideoBannerPreview(null);
         setVideoBannerFile(null);
-        setImagesPreviews([]);
-        setImageFiles([]);
+        setExistingImages([]);
+        setNewImagesPreviews([]);
+        setNewImageFiles([]);
         setVideoUrl("");
+        setRemovingImageIds([]);
+        setDraggingImage(null);
+        setDragOverIndex(null);
+        setAutoSaving(false);
+        setDeletingImageId(null);
     };
 
     // Handle close form
@@ -1921,34 +2230,53 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
         return videoExtensions.some((ext) => url.toLowerCase().includes(ext));
     };
 
+    // Function to get video URL for preview
+    const getVideoPreviewUrl = (url) => {
+        if (!url) return null;
+        if (url.startsWith("http") || url.startsWith("blob:")) {
+            return url;
+        }
+        // If it's a storage path, prepend the image URL
+        return `${imgurl}/${url}`;
+    };
+
     return (
         <div
             className={`fixed inset-0 z-50 px-4 md:px-6 flex items-center justify-center bg-black/40 ${showForm ? "block" : "hidden"}`}
         >
             <div className="relative w-full max-w-4xl h-[95vh] rounded-xl shadow-2xl bg-white">
                 {/* Content */}
-                <div className="h-full flex flex-col px-6 py-6 text-gray-800">
+                <div className="h-full flex flex-col px-4 sm:px-6 py-4 sm:py-6 text-gray-800">
                     {/* Header */}
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-bold">Add Inscription</h2>
+                        <div>
+                            <h2 className="text-xl sm:text-2xl font-bold">
+                                Edit Inscription
+                            </h2>
+                            {autoSaving && (
+                                <p className="text-xs text-green-600 mt-1">
+                                    Saving changes...
+                                </p>
+                            )}
+                        </div>
                         <button
                             onClick={handleClose}
                             className="hover:text-red-500"
                             type="button"
                         >
-                            <X className="w-6 h-6" />
+                            <X className="w-5 h-5 sm:w-6 sm:h-6" />
                         </button>
                     </div>
 
                     {/* Scrollable Form */}
-                    <div className="overflow-y-auto flex-1 pr-2 space-y-6">
+                    <div className="overflow-y-auto flex-1 pr-2 space-y-4 sm:space-y-6">
                         <form
                             onSubmit={handleFormSubmit(onSubmit)}
-                            className="space-y-6"
+                            className="space-y-4 sm:space-y-6"
                         >
                             {/* Title */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">
+                                <label className="block mb-2 font-medium text-base sm:text-lg">
                                     Title *
                                 </label>
                                 <input
@@ -1973,7 +2301,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Inscription Number */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">
+                                <label className="block mb-2 font-medium text-base sm:text-lg">
                                     Inscription Number *
                                 </label>
                                 <input
@@ -1997,38 +2325,69 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                 )}
                             </div>
 
+                            {/* Status */}
+                            <div>
+                                <label className="block mb-2 font-medium text-base sm:text-lg">
+                                    Status *
+                                </label>
+                                <select
+                                    className={`${inputClass} ${errors.status ? "border-2 border-red-500" : ""}`}
+                                    {...register("status", {
+                                        required: "Status is required",
+                                    })}
+                                >
+                                    <option value="draft">Draft</option>
+                                    <option value="published">Published</option>
+                                </select>
+                                {errors.status && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {errors.status.message}
+                                    </p>
+                                )}
+                            </div>
+
                             {/* Banner Image */}
                             <div className="space-y-2">
-                                <label className="flex items-center text-lg font-semibold text-gray-700">
+                                <label className="flex items-center text-base sm:text-lg font-semibold text-gray-700">
                                     <Camera
-                                        className="mr-3 text-gray-600"
-                                        size={22}
+                                        className="mr-2 sm:mr-3 text-gray-600"
+                                        size={20}
                                     />
                                     Banner Image (Single)
                                 </label>
-                                <div className="border-2 border-dashed border-gray-400 rounded-xl p-6 text-center hover:border-gray-600 transition-all duration-300 relative bg-white">
+                                <div className="border-2 border-dashed border-gray-400 rounded-xl p-4 sm:p-6 text-center hover:border-gray-600 transition-all duration-300 relative bg-white">
                                     {bannerPreview ? (
-                                        <div className="space-y-4">
+                                        <div className="space-y-3 sm:space-y-4">
                                             <div className="relative inline-block">
                                                 <img
                                                     src={bannerPreview}
                                                     alt="Banner Preview"
-                                                    className="mx-auto h-40 w-full object-cover rounded-lg shadow-lg bg-white"
+                                                    className="mx-auto h-32 sm:h-40 w-full object-cover rounded-lg shadow-lg bg-white"
                                                 />
+                                                {bannerFile && (
+                                                    <div className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs">
+                                                        New
+                                                    </div>
+                                                )}
                                             </div>
                                             <p className="text-sm text-gray-600">
                                                 Click to change image
                                             </p>
+                                            <p className="text-xs text-gray-500">
+                                                Max size: 150MB
+                                            </p>
                                         </div>
                                     ) : (
-                                        <div className="space-y-4">
-                                            <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                                            <p className="text-lg text-gray-700">
+                                        <div className="space-y-3 sm:space-y-4">
+                                            <Upload className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-gray-400" />
+                                            <p className="text-sm sm:text-lg text-gray-700">
                                                 Click to upload banner image
                                             </p>
-                                            <p className="text-sm text-gray-500">
-                                                Recommended: 1200x400px | Max:
-                                                150MB
+                                            <p className="text-xs sm:text-sm text-gray-500">
+                                                Recommended: 1200x400px
+                                            </p>
+                                            <p className="text-xs sm:text-sm text-gray-500">
+                                                Max size: 150MB
                                             </p>
                                         </div>
                                     )}
@@ -2043,37 +2402,55 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Video Banner Image */}
                             <div className="space-y-2">
-                                <label className="flex items-center text-lg font-semibold text-gray-700">
+                                <label className="flex items-center text-base sm:text-lg font-semibold text-gray-700">
                                     <Film
-                                        className="mr-3 text-gray-600"
-                                        size={22}
+                                        className="mr-2 sm:mr-3 text-gray-600"
+                                        size={20}
                                     />
-                                    Video Banner/Thumbnail (Optional)
+                                    Video Banner Image (Optional)
                                 </label>
-                                <div className="border-2 border-dashed border-gray-400 rounded-xl p-6 text-center hover:border-gray-600 transition-all duration-300 relative bg-white">
+                                <div className="border-2 border-dashed border-gray-400 rounded-xl p-4 sm:p-6 text-center hover:border-gray-600 transition-all duration-300 relative bg-white">
                                     {videoBannerPreview ? (
-                                        <div className="space-y-4">
+                                        <div className="space-y-3 sm:space-y-4">
                                             <div className="relative inline-block">
                                                 <img
                                                     src={videoBannerPreview}
                                                     alt="Video Banner Preview"
-                                                    className="mx-auto h-40 w-full object-cover rounded-lg shadow-lg bg-white"
+                                                    className="mx-auto h-32 sm:h-40 w-full object-cover rounded-lg shadow-lg bg-white"
                                                 />
+                                                {videoBannerFile && (
+                                                    <div className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs">
+                                                        New
+                                                    </div>
+                                                )}
                                             </div>
                                             <p className="text-sm text-gray-600">
                                                 Click to change video banner
+                                                image
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                Max size: 150MB
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                Used as thumbnail for videos
                                             </p>
                                         </div>
                                     ) : (
-                                        <div className="space-y-4">
-                                            <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                                            <p className="text-lg text-gray-700">
-                                                Click to upload video
-                                                banner/thumbnail
+                                        <div className="space-y-3 sm:space-y-4">
+                                            <Film className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-gray-400" />
+                                            <p className="text-sm sm:text-lg text-gray-700">
+                                                Click to upload video banner
+                                                image
                                             </p>
-                                            <p className="text-sm text-gray-500">
-                                                Used as video thumbnail | Max:
-                                                150MB
+                                            <p className="text-xs sm:text-sm text-gray-500">
+                                                Recommended: 16:9 aspect ratio
+                                            </p>
+                                            <p className="text-xs sm:text-sm text-gray-500">
+                                                Max size: 150MB
+                                            </p>
+                                            <p className="text-xs sm:text-sm text-gray-500">
+                                                Optional - used as video
+                                                thumbnail
                                             </p>
                                         </div>
                                     )}
@@ -2088,54 +2465,254 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Multiple Images */}
                             <div className="space-y-2">
-                                <label className="flex items-center text-lg font-semibold text-gray-700">
-                                    <Image
-                                        className="mr-3 text-gray-600"
-                                        size={22}
-                                    />
-                                    Images (Multiple)
+                                <label className="flex flex-col sm:flex-row sm:items-center text-base sm:text-lg font-semibold text-gray-700">
+                                    <div className="flex items-center">
+                                        <Image
+                                            className="mr-2 sm:mr-3 text-gray-600"
+                                            size={20}
+                                        />
+                                        Gallery Images (Drag to reorder)
+                                    </div>
+
+                                    <span className="mt-1 sm:mt-0 sm:ml-3 text-sm font-medium text-green-600">
+                                        Please update after deletion
+                                    </span>
                                 </label>
-                                <div className="border-2 border-dashed border-gray-400 rounded-xl p-6 text-center hover:border-gray-600 transition-all duration-300 relative bg-white">
-                                    {imagesPreviews.length > 0 ? (
-                                        <div className="space-y-4">
-                                            <div className="grid grid-cols-3 gap-4">
-                                                {imagesPreviews.map(
-                                                    (preview, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className="relative"
-                                                        >
-                                                            <img
-                                                                src={preview}
-                                                                alt={`Preview ${index + 1}`}
-                                                                className="h-24 w-full object-cover rounded-lg shadow bg-white"
-                                                            />
+
+                                {/* Existing Images */}
+                                {existingImages.length > 0 && (
+                                    <div className="mb-4">
+                                        <h4 className="text-sm sm:text-md font-medium text-gray-700 mb-2">
+                                            Existing Images
+                                        </h4>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mb-4">
+                                            {existingImages.map(
+                                                (image, index) => (
+                                                    <div
+                                                        key={image.id}
+                                                        className={`relative group border-2 rounded-lg transition-all duration-200 ${
+                                                            dragOverIndex?.index ===
+                                                                index &&
+                                                            dragOverIndex?.type ===
+                                                                "existing"
+                                                                ? "border-blue-500 bg-blue-50"
+                                                                : "border-transparent"
+                                                        } ${
+                                                            draggingImage?.index ===
+                                                                index &&
+                                                            draggingImage?.type ===
+                                                                "existing"
+                                                                ? "cursor-grabbing"
+                                                                : "cursor-grab"
+                                                        }`}
+                                                        draggable
+                                                        onDragStart={(e) =>
+                                                            handleDragStart(
+                                                                e,
+                                                                index,
+                                                                "existing",
+                                                            )
+                                                        }
+                                                        onDragOver={(e) =>
+                                                            handleDragOver(
+                                                                e,
+                                                                index,
+                                                                "existing",
+                                                            )
+                                                        }
+                                                        onDragEnd={
+                                                            handleDragEnd
+                                                        }
+                                                        onDrop={(e) =>
+                                                            handleDrop(
+                                                                e,
+                                                                index,
+                                                                "existing",
+                                                            )
+                                                        }
+                                                    >
+                                                        <div className="flex items-center justify-between p-2 bg-gray-50 rounded-t-lg border-b">
+                                                            <div className="flex items-center gap-2">
+                                                                <GripVertical
+                                                                    className="text-gray-400 cursor-move"
+                                                                    size={14}
+                                                                />
+                                                                <span className="text-xs text-gray-600 font-medium">
+                                                                    Pos:{" "}
+                                                                    {index + 1}
+                                                                </span>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    handleRemoveExistingImage(
+                                                                        image.id,
+                                                                    )
+                                                                }
+                                                                className="bg-red-600 text-white p-1.5 rounded-full hover:bg-red-700 transition-colors"
+                                                                title="Remove image (auto-saves)"
+                                                                disabled={removingImageIds.includes(
+                                                                    image.id,
+                                                                )}
+                                                            >
+                                                                <Trash2
+                                                                    size={12}
+                                                                />
+                                                            </button>
                                                         </div>
-                                                    ),
-                                                )}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <p className="text-sm text-gray-600">
-                                                    {imagesPreviews.length}{" "}
-                                                    image(s) selected
-                                                </p>
-                                                <p className="text-sm text-gray-500">
-                                                    Click to add more images
-                                                </p>
-                                            </div>
+                                                        <img
+                                                            src={`${imgurl}/${image.image_path}`}
+                                                            alt={`Existing image`}
+                                                            className="h-20 sm:h-24 w-full object-cover rounded-b-lg"
+                                                        />
+                                                        {removingImageIds.includes(
+                                                            image.id,
+                                                        ) && (
+                                                            <div className="absolute inset-0 bg-red-500/20 rounded-lg flex items-center justify-center">
+                                                                <span className="text-xs text-white bg-red-600 px-2 py-1 rounded">
+                                                                    Removing...
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ),
+                                            )}
                                         </div>
-                                    ) : (
-                                        <div className="space-y-4">
-                                            <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                                            <p className="text-lg text-gray-700">
+                                    </div>
+                                )}
+
+                                {/* New Images */}
+                                {newImagesPreviews.length > 0 && (
+                                    <div className="mb-4">
+                                        <h4 className="text-sm sm:text-md font-medium text-gray-700 mb-2">
+                                            New Images (Will be added after
+                                            existing)
+                                        </h4>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mb-4">
+                                            {newImagesPreviews.map(
+                                                (preview, index) => (
+                                                    <div
+                                                        key={preview.id}
+                                                        className={`relative group border-2 rounded-lg transition-all duration-200 ${
+                                                            dragOverIndex?.index ===
+                                                                index &&
+                                                            dragOverIndex?.type ===
+                                                                "new"
+                                                                ? "border-blue-500 bg-blue-50"
+                                                                : "border-transparent"
+                                                        } ${
+                                                            draggingImage?.index ===
+                                                                index &&
+                                                            draggingImage?.type ===
+                                                                "new"
+                                                                ? "cursor-grabbing"
+                                                                : "cursor-grab"
+                                                        }`}
+                                                        draggable
+                                                        onDragStart={(e) =>
+                                                            handleDragStart(
+                                                                e,
+                                                                index,
+                                                                "new",
+                                                            )
+                                                        }
+                                                        onDragOver={(e) =>
+                                                            handleDragOver(
+                                                                e,
+                                                                index,
+                                                                "new",
+                                                            )
+                                                        }
+                                                        onDragEnd={
+                                                            handleDragEnd
+                                                        }
+                                                        onDrop={(e) =>
+                                                            handleDrop(
+                                                                e,
+                                                                index,
+                                                                "new",
+                                                            )
+                                                        }
+                                                    >
+                                                        <div className="flex items-center justify-between p-2 bg-blue-50 rounded-t-lg border-b border-blue-200">
+                                                            <div className="flex items-center gap-2">
+                                                                <GripVertical
+                                                                    className="text-blue-400 cursor-move"
+                                                                    size={14}
+                                                                />
+                                                                <span className="text-xs text-blue-600 font-medium">
+                                                                    Pos:{" "}
+                                                                    {existingImages.length +
+                                                                        index +
+                                                                        1}
+                                                                </span>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    handleRemoveNewImage(
+                                                                        index,
+                                                                    )
+                                                                }
+                                                                className="bg-red-600 text-white p-1.5 rounded-full hover:bg-red-700 transition-colors"
+                                                                title="Remove image"
+                                                            >
+                                                                <Trash2
+                                                                    size={12}
+                                                                />
+                                                            </button>
+                                                        </div>
+                                                        <img
+                                                            src={
+                                                                preview.preview
+                                                            }
+                                                            alt={`New image ${index + 1}`}
+                                                            className="h-20 sm:h-24 w-full object-cover rounded-b-lg"
+                                                        />
+                                                        <div className="absolute bottom-1 right-1 bg-yellow-500 text-white px-1.5 py-0.5 rounded text-xs">
+                                                            New
+                                                        </div>
+                                                    </div>
+                                                ),
+                                            )}
+                                        </div>
+                                        <p className="text-sm text-gray-600 mb-2">
+                                            Note: New images will be saved when
+                                            you click "Update Inscription"
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Images Upload Area */}
+                                <div className="border-2 border-dashed border-gray-400 rounded-xl p-4 sm:p-6 text-center hover:border-gray-600 transition-all duration-300 relative bg-white">
+                                    <div className="space-y-3 sm:space-y-4">
+                                        <Upload className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-gray-400" />
+                                        <div>
+                                            <p className="text-sm sm:text-lg text-gray-700">
                                                 Click to upload multiple images
                                             </p>
-                                            <p className="text-sm text-gray-500">
+                                            <p className="text-xs sm:text-sm text-gray-500">
                                                 Hold Ctrl/Cmd to select multiple
-                                                files | Max: 150MB per file
+                                                files
+                                            </p>
+                                            <p className="text-xs sm:text-sm text-gray-500">
+                                                Max size: 150MB per file
                                             </p>
                                         </div>
-                                    )}
+                                        {existingImages.length +
+                                            newImagesPreviews.length >
+                                            0 && (
+                                            <div className="mt-4">
+                                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
+                                                    <span className="text-sm font-medium text-gray-700">
+                                                        Total Images:{" "}
+                                                        {existingImages.length +
+                                                            newImagesPreviews.length}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                     <input
                                         type="file"
                                         accept="image/*"
@@ -2148,10 +2725,10 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Video URL Input */}
                             <div className="space-y-2">
-                                <label className="flex items-center text-lg font-semibold text-gray-700">
+                                <label className="flex items-center text-base sm:text-lg font-semibold text-gray-700">
                                     <Link
-                                        className="mr-3 text-gray-600"
-                                        size={22}
+                                        className="mr-2 sm:mr-3 text-gray-600"
+                                        size={20}
                                     />
                                     Video URL
                                 </label>
@@ -2164,7 +2741,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                             placeholder="Enter video URL (e.g., https://yourdomain.com/storage/app/public/inscriptions/videos/filename.mp4)"
                                             className={`${inputClass} pr-10`}
                                         />
-                                        <Video className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                        <Video className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                                     </div>
 
                                     {videoUrl && isVideoUrl(videoUrl) && (
@@ -2174,16 +2751,18 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                                             </p>
                                             <div className="relative">
                                                 <video
-                                                    src={
-                                                        videoUrl.startsWith(
-                                                            "http",
-                                                        )
-                                                            ? videoUrl
-                                                            : `/storage/${videoUrl}`
-                                                    }
-                                                    className="w-full h-48 object-cover rounded-lg"
+                                                    src={getVideoPreviewUrl(
+                                                        videoUrl,
+                                                    )}
+                                                    className="w-full h-40 sm:h-48 object-cover rounded-lg"
                                                     controls
+                                                    poster={videoBannerPreview}
                                                 />
+                                                {videoBannerPreview && (
+                                                    <div className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs">
+                                                        Banner Loaded
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     )}
@@ -2192,10 +2771,10 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Google Maps Link */}
                             <div className="space-y-2">
-                                <label className="flex items-center text-lg font-semibold text-gray-700">
+                                <label className="flex items-center text-base sm:text-lg font-semibold text-gray-700">
                                     <MapPin
-                                        className="mr-3 text-gray-600"
-                                        size={22}
+                                        className="mr-2 sm:mr-3 text-gray-600"
+                                        size={20}
                                     />
                                     Google Maps Link
                                 </label>
@@ -2209,7 +2788,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Description */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">
+                                <label className="block mb-2 font-medium text-base sm:text-lg">
                                     Description *
                                 </label>
                                 <Controller
@@ -2250,7 +2829,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Background */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">
+                                <label className="block mb-2 font-medium text-base sm:text-lg">
                                     Background
                                 </label>
                                 <Controller
@@ -2279,7 +2858,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Text */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">
+                                <label className="block mb-2 font-medium text-base sm:text-lg">
                                     Text
                                 </label>
                                 <Controller
@@ -2308,7 +2887,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Devnagari Text */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">
+                                <label className="block mb-2 font-medium text-base sm:text-lg">
                                     Devnagari Text
                                 </label>
                                 <Controller
@@ -2337,7 +2916,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Translation */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">
+                                <label className="block mb-2 font-medium text-base sm:text-lg">
                                     Translation
                                 </label>
                                 <Controller
@@ -2368,7 +2947,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* References */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">
+                                <label className="block mb-2 font-medium text-base sm:text-lg">
                                     References
                                 </label>
                                 <Controller
@@ -2397,7 +2976,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
 
                             {/* Glossary */}
                             <div>
-                                <label className="block mb-2 font-medium text-lg">
+                                <label className="block mb-2 font-medium text-base sm:text-lg">
                                     Glossary
                                 </label>
                                 <Controller
@@ -2428,12 +3007,14 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
                             <div className="pt-4">
                                 <button
                                     type="submit"
-                                    disabled={submitting}
-                                    className={`w-full bg-blue-600 text-white py-3 rounded-lg font-semibold transition text-lg ${submitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"}`}
+                                    disabled={submitting || autoSaving}
+                                    className={`w-full bg-blue-600 text-white py-3 rounded-lg font-semibold transition text-base sm:text-lg ${submitting || autoSaving ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"}`}
                                 >
                                     {submitting
-                                        ? "Saving..."
-                                        : "Add Inscription"}
+                                        ? "Updating..."
+                                        : autoSaving
+                                          ? "Saving changes..."
+                                          : "Update Inscription"}
                                 </button>
                             </div>
                         </form>
@@ -2444,7 +3025,7 @@ const AddInscriptionForm = ({ showForm, setShowForm, setReloadTrigger }) => {
     );
 };
 
-export default AddInscriptionForm;
+export default EditInscriptionForm;
 
 
 

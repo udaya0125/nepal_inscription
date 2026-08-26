@@ -1234,9 +1234,9 @@ const Inscriptions = () => {
                                                 }
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex items-center text-blue-600 hover:text-blue-800 hover:underline break-all"
+                                                className="inline-flex items-center text-blue-600 hover:text-blue-800  break-all"
                                             >
-                                                View on Google Maps
+                                                View Location in Map
                                             </a>
                                         </div>
                                     )}
